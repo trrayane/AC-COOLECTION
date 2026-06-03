@@ -146,6 +146,9 @@ function OrderDetailModal({ order, onClose, onStatus, lang, t }) {
   const isMobile = useIsMobile();
   const { getProduct } = useShop();
   const productFor = (it) => getProduct(it.pid) || { id: it.pid, cat: 'tshirt', name_en: it.productName || 'Product', name_ar: it.productName || 'منتج', colors: [it.color || 'ink'], photos: [] };
+  // Force-download URL (Cloudinary fl_attachment keeps the customer's original file/format)
+  const dl = (url) => (typeof url === 'string' && url.includes('res.cloudinary.com') && url.includes('/upload/')) ? url.replace('/upload/', '/upload/fl_attachment/') : url;
+  const designFiles = order.items.filter((i) => i.custom).flatMap((i) => ((i.customData && i.customData.placements) || []).filter((pl) => pl.type === 'image' && pl.img).map((pl) => ({ url: pl.img, side: zoneView(pl.zone) })));
   return (
     <div className="fade-in" onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 95, background: 'rgba(10,10,10,.55)', display: 'grid', placeItems: isMobile ? 'end' : 'center', padding: isMobile ? 0 : 24 }}>
       <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: 720, maxWidth: '100%', maxHeight: '92vh', overflow: 'auto', animation: 'fadeUp .28s cubic-bezier(.2,.8,.2,1)', borderRadius: isMobile ? '22px 22px 0 0' : 'var(--r-lg)' }}>
@@ -203,6 +206,18 @@ function OrderDetailModal({ order, onClose, onStatus, lang, t }) {
                   <div style={{ marginTop: 16, background: 'var(--clay-wash)', borderRadius: 'var(--r-md)', padding: '14px 16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, fontWeight: 700, color: 'var(--clay-deep)', marginBottom: 7, textTransform: 'uppercase', letterSpacing: '.06em' }}><Icon name="note" size={14} /> {t.cfg_note}</div>
                     <p style={{ fontSize: 14, lineHeight: 1.55 }}>{order.note}</p>
+                  </div>
+                )}
+                {designFiles.length > 0 && (
+                  <div style={{ marginTop: 16 }}>
+                    <div className="eyebrow" style={{ marginBottom: 10 }}>{lang === 'ar' ? 'ملفات التصميم (للتحميل)' : 'Design files (download)'}</div>
+                    {designFiles.map((df, i) => (
+                      <a key={i} href={dl(df.url)} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm btn-block" style={{ marginBottom: 8, justifyContent: 'space-between' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Icon name="image" size={15} /> {lang === 'ar' ? 'تحميل التصميم' : 'Download design'} · {df.side === 'back' ? t.cfg_back : t.cfg_front}</span>
+                        <Icon name="upload" size={16} style={{ transform: 'rotate(180deg)' }} />
+                      </a>
+                    ))}
+                    <p className="dim" style={{ fontSize: 12, marginTop: 4 }}>{lang === 'ar' ? 'الملف الأصلي للزبون بنفس الصيغة' : "The customer's original file, in its original format"}</p>
                   </div>
                 )}
               </div>
@@ -267,6 +282,16 @@ function ProductModal({ product, onClose, onSave, lang, t }) {
                 <div className="dim" style={{ fontSize: 12 }}>{lang === 'ar' ? 'انقر الدائرة لاختيار أي لون' : 'Click the circle to choose any colour'}{(colorLabel(f.colors[0], lang) || f.colors[0]) ? ' · ' + (colorLabel(f.colors[0], lang) || f.colors[0]) : ''}</div>
               </div>
             </div>
+          </Field>
+          <Field label={t.size}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {SIZES.map((s) => {
+                const on = (f.sizes || []).includes(s);
+                return <button key={s} type="button" onClick={() => setF({ ...f, sizes: SIZES.filter((x) => (on ? ((f.sizes || []).includes(x) && x !== s) : ((f.sizes || []).includes(x) || x === s))) })}
+                  style={{ minWidth: 44, height: 40, borderRadius: 10, fontWeight: 700, fontSize: 13, background: on ? 'var(--ink)' : 'var(--paper-2)', color: on ? 'var(--paper)' : 'var(--ink)', boxShadow: on ? 'none' : 'inset 0 0 0 1.4px var(--line)' }}>{s}</button>;
+              })}
+            </div>
+            <p className="dim" style={{ fontSize: 12, marginTop: 7 }}>{lang === 'ar' ? 'المقاسات المتاحة لهذا المنتج' : 'Sizes available for this product'}</p>
           </Field>
         </div>
         <div style={{ display: 'flex', gap: 12, padding: '0 24px 24px' }}>

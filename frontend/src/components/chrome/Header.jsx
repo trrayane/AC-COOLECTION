@@ -44,7 +44,7 @@ export function Header() {
           {isMobile && (
             <button onClick={() => setMenuOpen(true)} aria-label="menu" style={{ color: 'var(--ink)' }}><Icon name="menu" size={24} /></button>
           )}
-          <Logo onClick={() => navigate('home')} />
+          <Logo onClick={() => navigate('home')} size={isMobile ? 18 : 22} />
 
           {!isMobile && (
             <nav style={{ display: 'flex', alignItems: 'center', gap: 4, marginInlineStart: 14 }}>

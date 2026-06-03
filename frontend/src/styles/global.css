@@ -223,3 +223,19 @@ input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; border-radius
 @media (prefers-reduced-motion: no-preference) {
   .adm-in { animation: stagger .42s cubic-bezier(.2,.7,.2,1) both; }
 }
+
+/* ── Mobile polish ──────────────────────────────────────────
+   Prevent accidental horizontal scroll (clip keeps sticky working),
+   tighten gutters and control sizes on small screens. */
+body { overflow-x: clip; }
+img, svg, video { max-width: 100%; }
+
+@media (max-width: 700px) {
+  .wrap { padding: 0 16px; }
+  .btn-lg { height: 50px; font-size: 14px; padding: 0 20px; }
+  .prod-grid, .prod-grid-3, .prod-grid-ed { gap: 12px; }
+}
+@media (max-width: 400px) {
+  .wrap { padding: 0 12px; }
+  .btn { padding: 0 16px; }
+}
