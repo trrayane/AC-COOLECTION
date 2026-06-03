@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Environment / secrets (NEVER commit real .env — see .env.example files)
+.env
+.env.local
+**/.env
+
+# Build output
+dist/
+build/
+
+# Runtime uploads (local image storage fallback)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Logs & OS junk
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+desktop.ini
