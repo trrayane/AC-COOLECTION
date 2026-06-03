@@ -151,7 +151,7 @@ function OrderDetailModal({ order, onClose, onStatus, lang, t }) {
   const designFiles = order.items.filter((i) => i.custom).flatMap((i) => ((i.customData && i.customData.placements) || []).filter((pl) => pl.type === 'image' && pl.img).map((pl) => ({ url: pl.img, side: zoneView(pl.zone) })));
   return (
     <div className="fade-in" onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 95, background: 'rgba(10,10,10,.55)', display: 'grid', placeItems: isMobile ? 'end' : 'center', padding: isMobile ? 0 : 24 }}>
-      <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: 720, maxWidth: '100%', maxHeight: '92vh', overflow: 'auto', animation: 'fadeUp .28s cubic-bezier(.2,.8,.2,1)', borderRadius: isMobile ? '22px 22px 0 0' : 'var(--r-lg)' }}>
+      <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: isMobile ? '100%' : 'min(720px, calc(100vw - 20px))', maxHeight: '92vh', overflow: 'auto', animation: 'fadeUp .28s cubic-bezier(.2,.8,.2,1)', borderRadius: isMobile ? '22px 22px 0 0' : 'var(--r-lg)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', borderBottom: '1px solid var(--line)', position: 'sticky', top: 0, background: 'var(--paper-2)', zIndex: 2 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><span style={{ fontWeight: 800, fontSize: 20 }}>{order.id}</span><StatusBadge status={order.status} lang={lang} /></div>
           <button onClick={onClose}><Icon name="close" size={22} /></button>
@@ -241,6 +241,7 @@ function OrderDetailModal({ order, onClose, onStatus, lang, t }) {
 
 function ProductModal({ product, onClose, onSave, lang, t }) {
   const isNew = !product;
+  const isMobile = useIsMobile();
   const { removePhotoAt } = useShop();
   const [f, setF] = React.useState(product || { name_en: '', name_ar: '', cat: 'tshirt', price: 3000, colors: ['ink'], sizes: SIZES, new: true, _photos: [] });
   const [saving, setSaving] = React.useState(false);
@@ -249,8 +250,8 @@ function ProductModal({ product, onClose, onSave, lang, t }) {
   const removeExisting = (photoId) => { removePhotoAt(f.id, photoId); setF((s) => ({ ...s, photos: (s.photos || []).filter((ph) => ph.id !== photoId) })); };
   const save = async () => { setSaving(true); try { await onSave(f); } finally { setSaving(false); } };
   return (
-    <div className="fade-in" onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 95, background: 'rgba(10,10,10,.55)', display: 'grid', placeItems: 'center', padding: 24 }}>
-      <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: 560, maxWidth: '100%', maxHeight: '90vh', overflow: 'auto', animation: 'fadeUp .28s cubic-bezier(.2,.8,.2,1)' }}>
+    <div className="fade-in" onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 95, background: 'rgba(10,10,10,.55)', display: 'grid', placeItems: isMobile ? 'end center' : 'center', padding: isMobile ? 0 : 24 }}>
+      <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: isMobile ? '100%' : 'min(560px, calc(100vw - 20px))', maxHeight: isMobile ? '94vh' : '90vh', overflow: 'auto', borderRadius: isMobile ? '22px 22px 0 0' : 'var(--r-lg)', animation: 'fadeUp .28s cubic-bezier(.2,.8,.2,1)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', borderBottom: '1px solid var(--line)', position: 'sticky', top: 0, background: 'var(--paper-2)', zIndex: 2 }}>
           <span style={{ fontWeight: 800, fontSize: 19 }}>{isNew ? t.adm_add_product : (lang === 'en' ? 'Edit product' : 'تعديل المنتج')}</span>
           <button onClick={onClose}><Icon name="close" size={22} /></button>
@@ -264,7 +265,7 @@ function ProductModal({ product, onClose, onSave, lang, t }) {
             <div className="field-label" style={{ display: 'flex', alignItems: 'center', gap: 7 }}><Icon name="image" size={14} /> {t.adm_photos}</div>
             <PhotoManager f={f} addPending={addPending} removeExisting={removeExisting} removePending={removePending} lang={lang} />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 12 }}>
             <Field label={t.category}>
               <Select value={f.cat} onChange={(v) => setF({ ...f, cat: v })} ariaLabel={t.category} options={CATEGORIES.filter((c) => c.id !== 'all').map((c) => ({ value: c.id, label: c[lang] }))} />
             </Field>
@@ -364,7 +365,7 @@ function AdminLogin({ onAuthed }) {
   return (
     <div dir={lang === 'ar' ? 'rtl' : 'ltr'} style={{ minHeight: '100vh', background: '#0E0E0E', display: 'grid', placeItems: 'center', padding: 24, position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(60% 45% at 50% 0%, rgba(255,255,255,.07), transparent 70%)' }} />
-      <form onSubmit={submit} className="fade-up" style={{ position: 'relative', width: 400, maxWidth: '100%', background: 'var(--paper)', borderRadius: 'var(--r-xl)', padding: '34px 32px', boxShadow: 'var(--shadow-lg)' }}>
+      <form onSubmit={submit} className="fade-up" style={{ position: 'relative', width: 'min(400px, calc(100vw - 20px))', background: 'var(--paper)', borderRadius: 'var(--r-xl)', padding: 'clamp(24px, 6vw, 34px) clamp(20px, 6vw, 32px)', boxShadow: 'var(--shadow-lg)' }}>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <span style={{ width: 54, height: 54, borderRadius: 16, background: 'var(--ink)', color: '#fff', display: 'grid', placeItems: 'center' }}><Icon name="lock" size={24} /></span>
         </div>
@@ -665,7 +666,7 @@ function AdminDashboard({ onLogout }) {
       {editing !== undefined && <ProductModal product={editing} onClose={() => setEditing(undefined)} onSave={saveAndClose} lang={lang} t={t} />}
       {confirmDel && (
         <div className="fade-in" onClick={() => setConfirmDel(null)} style={{ position: 'fixed', inset: 0, zIndex: 96, background: 'rgba(10,10,10,.55)', display: 'grid', placeItems: 'center', padding: 24 }}>
-          <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: 360, padding: 24, textAlign: 'center', animation: 'fadeUp .25s' }}>
+          <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: 'min(360px, calc(100vw - 20px))', padding: 24, textAlign: 'center', animation: 'fadeUp .25s' }}>
             <span style={{ width: 52, height: 52, borderRadius: '50%', background: '#F8E0DD', color: 'var(--danger)', display: 'grid', placeItems: 'center', margin: '0 auto 14px' }}><Icon name="trash" size={24} /></span>
             <h3 style={{ fontSize: 18 }}>{lang === 'ar' ? 'حذف المنتج؟' : 'Delete product?'}</h3>
             <p className="muted" style={{ fontSize: 14, marginTop: 8 }}>{confirmDel['name_' + lang]}</p>

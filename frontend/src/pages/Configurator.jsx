@@ -365,7 +365,7 @@ export function Configurator({ params }) {
 
       {preview && (
         <div className="fade-in" onClick={() => setPreview(false)} style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(10,10,10,.6)', display: 'grid', placeItems: 'center', padding: isMobile ? 12 : 24 }}>
-          <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: 780, maxWidth: '100%', maxHeight: '94vh', overflow: 'auto', animation: 'fadeUp .28s cubic-bezier(.2,.8,.2,1)' }}>
+          <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: 'min(780px, calc(100vw - 20px))', maxHeight: '94vh', overflow: 'auto', animation: 'fadeUp .28s cubic-bezier(.2,.8,.2,1)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 22px', borderBottom: '1px solid var(--line)', position: 'sticky', top: 0, background: 'var(--paper-2)', zIndex: 2 }}>
               <div><div style={{ fontWeight: 800, fontSize: 18 }}>{lang === 'en' ? 'Preview' : 'معاينة'}</div><div className="dim" style={{ fontSize: 12.5 }}>{p['name_' + lang]}</div></div>
               <button onClick={() => setPreview(false)}><Icon name="close" size={22} /></button>

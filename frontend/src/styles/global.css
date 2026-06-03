@@ -227,6 +227,7 @@ input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; border-radius
 /* ── Mobile polish ──────────────────────────────────────────
    Prevent accidental horizontal scroll (clip keeps sticky working),
    tighten gutters and control sizes on small screens. */
+html { background: var(--ink); } /* dark overscroll / safe-area, matches the top bar & footer */
 body { overflow-x: clip; }
 img, svg, video { max-width: 100%; }
 
