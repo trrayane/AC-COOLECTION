@@ -20,3 +20,9 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 desktop.ini
+SETUP.md
+DEPLOY.md
+backend/vercel.json
+backend/.vercel
+# Vercel CLI link files
+.vercel/

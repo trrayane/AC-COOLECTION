@@ -1,4 +1,5 @@
 const { Sequelize } = require('sequelize');
+const pg = require('pg'); // explicit import so serverless bundlers (Vercel) include it
 require('dotenv').config();
 
 // In the cloud (Vercel/Neon/Supabase) a single connection string is provided.
@@ -9,6 +10,7 @@ let sequelize;
 if (CONNECTION_URL) {
   sequelize = new Sequelize(CONNECTION_URL, {
     dialect: 'postgres',
+    dialectModule: pg,
     protocol: 'postgres',
     logging: false,
     dialectOptions: { ssl: { require: true, rejectUnauthorized: false } },
@@ -23,6 +25,7 @@ if (CONNECTION_URL) {
       host: process.env.DB_HOST || 'localhost',
       port: process.env.DB_PORT || 5432,
       dialect: 'postgres',
+      dialectModule: pg,
       logging: false,
     }
   );
