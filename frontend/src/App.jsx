@@ -19,13 +19,14 @@ import { Checkout, Confirmation, CartDrawer } from './pages/Checkout.jsx';
 import { Admin } from './pages/Admin.jsx';
 import { Wishlist } from './pages/Wishlist.jsx';
 import { Promotions } from './pages/Promotions.jsx';
+import { NotFound } from './pages/NotFound.jsx';
 
 // ── Browser-history routing helpers ─────────────────────────
 const ROUTES = ['home', 'catalog', 'product', 'configurator', 'checkout', 'confirmation', 'wishlist', 'promotions', 'admin'];
 function parsePath() {
   const seg = (typeof window !== 'undefined' ? window.location.pathname : '/').split('/').filter(Boolean);
   const page = seg[0] || 'home';
-  if (!ROUTES.includes(page)) return { page: 'home', params: {} };
+  if (!ROUTES.includes(page)) return { page: 'notfound', params: {} };
   const params = {};
   if ((page === 'product' || page === 'configurator') && seg[1]) params.id = decodeURIComponent(seg[1]);
   return { page, params };
@@ -200,6 +201,7 @@ export default function App() {
           {p === 'confirmation' && <Confirmation order={lastOrder} />}
           {p === 'wishlist' && <Wishlist />}
           {p === 'promotions' && <Promotions />}
+          {p === 'notfound' && <NotFound />}
           {p === 'admin' && <Admin />}
         </main>
         {!isAdmin && <Footer />}
