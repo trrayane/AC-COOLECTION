@@ -10,7 +10,6 @@ import { SectionHead } from '../components/ui/SectionHead.jsx';
 import { ProductCard } from '../components/product/ProductCard.jsx';
 import { Garment, shade } from '../components/garments/Garment.jsx';
 import { colorHex, colorTint, colorLabel, fmtDA } from '../data/constants.js';
-import { api } from '../api/client.js';
 
 export function ProductDetail({ params }) {
   const { t, lang, navigate, addToCart, openCart, products, getProduct } = useShop();
@@ -22,12 +21,9 @@ export function ProductDetail({ params }) {
   const [err, setErr] = React.useState(false);
   const [gi, setGi] = React.useState(0);
   const [sizeGuide, setSizeGuide] = React.useState(false);
-  const [notifySize, setNotifySize] = React.useState(null); // size string when OOS clicked
-  const [notifyPhone, setNotifyPhone] = React.useState('');
-  const [notifyDone, setNotifyDone] = React.useState(false);
-  const [notifyLoading, setNotifyLoading] = React.useState(false);
+  const [qty, setQty] = React.useState(1);
   const touchX = React.useRef(null);
-  React.useEffect(() => { setGi(0); setColor(params.color || (p && p.colors[0])); }, [params.id]);
+  React.useEffect(() => { setGi(0); setColor(params.color || (p && p.colors[0])); setQty(1); }, [params.id]);
 
   const onTouchStart = (e) => { touchX.current = e.touches[0].clientX; };
   const onTouchEnd = (e, total) => {
@@ -47,9 +43,14 @@ export function ProductDetail({ params }) {
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
   const related = products.filter((x) => x.cat === p.cat && x.id !== p.id).slice(0, 4);
 
+  // How many units are available for the selected color:size variant
+  const stockAvail = size && p.stock && typeof p.stock[`${color}:${size}`] === 'number'
+    ? p.stock[`${color}:${size}`]
+    : null; // null = unlimited / not tracked
+
   const add = () => {
     if (!size) { setErr(true); return; }
-    addToCart({ pid: p.id, color, size, qty: 1, custom: false });
+    addToCart({ pid: p.id, color, size, qty, custom: false });
     openCart();
   };
 
@@ -140,8 +141,8 @@ export function ProductDetail({ params }) {
               {p.sizes.map((s) => {
                 const soldOut = p.stock && p.stock[`${color}:${s}`] === 0;
                 return (
-                  <button key={s} onClick={() => { if (soldOut) { setNotifySize(s); setNotifyDone(false); setNotifyPhone(''); } else { setSize(s); setErr(false); } }}
-                    title={soldOut ? (lang === 'en' ? 'Out of stock — click to be notified' : 'نفد المخزون — انقر للتنبيه') : undefined} style={{
+                  <button key={s} disabled={soldOut} onClick={() => { if (!soldOut) { setSize(s); setErr(false); setQty(1); } }}
+                    title={soldOut ? (lang === 'en' ? 'Out of stock' : 'نفد المخزون') : undefined} style={{
                     minWidth: 52, height: 50, borderRadius: 12, fontWeight: 700, fontSize: 14,
                     background: size === s ? 'var(--ink)' : 'var(--paper-2)', color: soldOut ? 'var(--ink-3)' : (size === s ? 'var(--paper)' : 'var(--ink)'),
                     boxShadow: size === s ? 'none' : 'inset 0 0 0 1.5px ' + (err && !soldOut ? 'var(--danger)' : 'var(--line)'),
@@ -152,9 +153,35 @@ export function ProductDetail({ params }) {
               })}
             </div>
             {err && <p style={{ color: 'var(--danger)', fontSize: 13, marginTop: 8, fontWeight: 600 }}>{lang === 'en' ? 'Please select a size.' : 'يرجى اختيار المقاس.'}</p>}
+
+            {/* Stock urgency badge — only when tracked AND low */}
+            {stockAvail !== null && (
+              <div className="fade-in" style={{ marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 700,
+                color: stockAvail === 0 ? 'var(--danger)' : stockAvail <= 3 ? '#9A3A00' : '#5A6A00',
+                background: stockAvail === 0 ? '#F8E0DD' : stockAvail <= 3 ? '#FBF0D8' : '#F4F8E0',
+                padding: '5px 13px', borderRadius: 99 }}>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'currentColor', flexShrink: 0 }} />
+                {stockAvail === 0
+                  ? (lang === 'ar' ? 'نفد المخزون' : 'Out of stock')
+                  : stockAvail <= 3
+                  ? (lang === 'ar' ? `لم يتبق سوى ${stockAvail} قطعة!` : `Only ${stockAvail} left in stock!`)
+                  : (lang === 'ar' ? `${stockAvail} قطعة متوفرة` : `${stockAvail} in stock`)}
+              </div>
+            )}
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 11, marginTop: 30 }}>
+          {/* Quantity selector */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 24 }}>
+            <span style={{ fontWeight: 700, fontSize: 14 }}>{lang === 'ar' ? 'الكمية' : 'Quantity'}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 2, boxShadow: 'inset 0 0 0 1.4px var(--line)', borderRadius: 99, padding: 3 }}>
+              <button onClick={() => setQty((q) => Math.max(1, q - 1))} style={{ width: 34, height: 34, borderRadius: 99, display: 'grid', placeItems: 'center', color: qty <= 1 ? 'var(--ink-3)' : 'var(--ink)' }}><Icon name="minus" size={15} /></button>
+              <span style={{ minWidth: 30, textAlign: 'center', fontWeight: 800, fontSize: 16 }}>{qty}</span>
+              <button onClick={() => setQty((q) => stockAvail !== null ? Math.min(q + 1, stockAvail) : q + 1)} style={{ width: 34, height: 34, borderRadius: 99, display: 'grid', placeItems: 'center', color: (stockAvail !== null && qty >= stockAvail) ? 'var(--ink-3)' : 'var(--ink)' }}><Icon name="plus" size={15} /></button>
+            </div>
+            <span style={{ fontSize: 22, fontWeight: 800 }}>{fmtDA(p.price * qty, lang)}</span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 11, marginTop: 18 }}>
             <button className="btn btn-primary btn-lg btn-block" onClick={add}><Icon name="bag" size={18} /> {t.add_cart}</button>
             <button className="btn btn-clay btn-lg btn-block" onClick={() => navigate('configurator', { id: p.id, color })}>
               <Icon name="spark" size={18} /> {t.customize}
@@ -218,41 +245,6 @@ export function ProductDetail({ params }) {
         </div>
       )}
 
-      {/* ── Notify me (OOS) modal ── */}
-      {notifySize && (
-        <div className="fade-in" onClick={() => setNotifySize(null)} style={{ position: 'fixed', inset: 0, zIndex: 90, background: 'rgba(10,10,10,.5)', display: 'grid', placeItems: isMobile ? 'end' : 'center', padding: isMobile ? 0 : 24 }}>
-          <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: isMobile ? '100%' : 'min(400px, calc(100vw - 20px))', padding: 28, borderRadius: isMobile ? '22px 22px 0 0' : 'var(--r-lg)', animation: 'fadeUp .25s', textAlign: 'center' }}>
-            {notifyDone ? (
-              <>
-                <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#E0F0E2', display: 'grid', placeItems: 'center', margin: '0 auto 16px' }}>
-                  <Icon name="check" size={30} stroke={2.5} style={{ color: 'var(--good)' }} />
-                </div>
-                <h3 style={{ fontSize: 19 }}>{lang === 'ar' ? 'تم التسجيل!' : 'Registered!'}</h3>
-                <p className="muted" style={{ fontSize: 14, marginTop: 8 }}>{lang === 'ar' ? `سنتصل بك عندما يتوفر مقاس ${notifySize}` : `We'll call you when size ${notifySize} is back in stock.`}</p>
-                <button className="btn btn-ghost btn-block" style={{ marginTop: 20 }} onClick={() => setNotifySize(null)}>{lang === 'ar' ? 'إغلاق' : 'Close'}</button>
-              </>
-            ) : (
-              <>
-                <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'var(--sand)', display: 'grid', placeItems: 'center', margin: '0 auto 14px' }}>
-                  <Icon name="bell" size={24} style={{ color: 'var(--ink-2)' }} />
-                </div>
-                <h3 style={{ fontSize: 19 }}>{lang === 'ar' ? `مقاس ${notifySize} نفد` : `Size ${notifySize} is out of stock`}</h3>
-                <p className="muted" style={{ fontSize: 14, marginTop: 8, marginBottom: 20 }}>{lang === 'ar' ? 'اترك رقمك وسنتصل بك عند توفره.' : 'Leave your number and we\'ll call you when it\'s back.'}</p>
-                <div style={{ display: 'flex', gap: 9 }}>
-                  <input className="field" dir="ltr" value={notifyPhone} onChange={(e) => setNotifyPhone(e.target.value)} placeholder="0X XX XX XX XX" style={{ flex: 1 }} />
-                  <button className="btn btn-clay" disabled={!notifyPhone.trim() || notifyLoading} onClick={async () => {
-                    setNotifyLoading(true);
-                    try { await api.stockAlerts.register({ productId: p.id, color, size: notifySize, phone: notifyPhone.trim() }); setNotifyDone(true); }
-                    catch (e) { /* silently fail */ }
-                    finally { setNotifyLoading(false); }
-                  }}>{notifyLoading ? <span className="spin" /> : (lang === 'ar' ? 'تأكيد' : 'OK')}</button>
-                </div>
-                <button className="btn btn-ghost btn-block btn-sm" style={{ marginTop: 10 }} onClick={() => setNotifySize(null)}>{lang === 'ar' ? 'إلغاء' : 'Cancel'}</button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
