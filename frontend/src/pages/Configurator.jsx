@@ -79,12 +79,16 @@ export function Configurator({ params }) {
     reader.readAsDataURL(file);
   };
   const FONTS = [
-    { value: 'Arial, sans-serif',           label: 'Arial' },
-    { value: '"Georgia", serif',            label: 'Georgia' },
-    { value: '"Courier New", monospace',    label: 'Courier' },
-    { value: '"Impact", sans-serif',        label: 'Impact' },
-    { value: '"Trebuchet MS", sans-serif',  label: 'Trebuchet' },
-    { value: '"Palatino", serif',           label: 'Palatino' },
+    { value: 'Arial, sans-serif',                label: 'Arial' },
+    { value: '"Montserrat", sans-serif',          label: 'Montserrat' },
+    { value: '"Bebas Neue", sans-serif',          label: 'Bebas Neue' },
+    { value: '"Oswald", sans-serif',              label: 'Oswald' },
+    { value: '"Impact", sans-serif',              label: 'Impact' },
+    { value: '"Playfair Display", serif',         label: 'Playfair' },
+    { value: '"Georgia", serif',                  label: 'Georgia' },
+    { value: '"Pacifico", cursive',               label: 'Pacifico' },
+    { value: '"Permanent Marker", cursive',       label: 'Marker' },
+    { value: '"Courier New", monospace',          label: 'Courier' },
   ];
   const addText = () => {
     if (!textInput.trim()) return;
@@ -181,8 +185,8 @@ export function Configurator({ params }) {
             transform: `translate(-50%,-50%) rotate(${pl.rot}deg)`, cursor: 'grab', touchAction: 'none',
             outline: sel === pl.id ? '2px solid var(--clay)' : 'none', outlineOffset: 3, borderRadius: 2,
           }}>
-            {pl.type === 'image' && <img src={pl.img} draggable="false" style={{ width: '100%', display: 'block', pointerEvents: 'none', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,.18))', opacity: pl._uploading ? 0.6 : 1 }} />}
-            {pl.type === 'text' && <div style={{ width: '100%', textAlign: pl.align || 'center', fontWeight: pl.bold !== false ? 800 : 400, fontStyle: pl.italic ? 'italic' : 'normal', fontFamily: pl.font || 'Arial, sans-serif', color: pl.color, fontSize: 'calc(' + pl.wPct + ' * 0.34px + 6px)', lineHeight: 1.15, pointerEvents: 'none', whiteSpace: 'nowrap' }}>{pl.text}</div>}
+            {pl.type === 'image' && <img src={pl.img} draggable="false" style={{ width: '100%', display: 'block', pointerEvents: 'none', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,.18))', opacity: pl._uploading ? 0.6 : 1, transform: `scaleX(${pl.flipH ? -1 : 1}) scaleY(${pl.flipV ? -1 : 1})` }} />}
+            {pl.type === 'text' && <div style={{ width: '100%', textAlign: pl.align || 'center', fontWeight: pl.bold !== false ? 800 : 400, fontStyle: pl.italic ? 'italic' : 'normal', fontFamily: pl.font || 'Arial, sans-serif', color: pl.color, WebkitTextStroke: pl.outline ? `${Math.max(1, Math.round(pl.wPct * 0.06))}px ${pl.outlineColor || '#000000'}` : 'none', fontSize: 'calc(' + pl.wPct + ' * 0.34px + 6px)', lineHeight: 1.15, pointerEvents: 'none', whiteSpace: 'nowrap' }}>{pl.text}</div>}
             {pl._uploading && <span className="spin" style={{ position: 'absolute', top: 4, insetInlineEnd: 4, borderTopColor: 'var(--clay)', borderColor: 'rgba(0,0,0,.2)' }} />}
             {sel === pl.id && (
               <div onPointerDown={(e) => onResizeDown(e, pl)} style={{
@@ -227,8 +231,8 @@ export function Configurator({ params }) {
           : <Garment type={p.cat} color={colorHex(color)} view={side} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />}
         {pls.map((pl) => (
           <div key={pl.id} style={{ position: 'absolute', left: pl.xPct + '%', top: pl.yPct + '%', width: pl.wPct + '%', transform: `translate(-50%,-50%) rotate(${pl.rot}deg)` }}>
-            {pl.type === 'image' && <img src={pl.img} style={{ width: '100%', display: 'block', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,.18))' }} />}
-            {pl.type === 'text' && <div style={{ width: '100%', textAlign: 'center', fontWeight: 800, color: pl.color, fontSize: 'calc(' + pl.wPct + ' * 0.34px + 6px)', lineHeight: 1.05, whiteSpace: 'nowrap' }}>{pl.text}</div>}
+            {pl.type === 'image' && <img src={pl.img} style={{ width: '100%', display: 'block', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,.18))', transform: `scaleX(${pl.flipH ? -1 : 1}) scaleY(${pl.flipV ? -1 : 1})` }} />}
+            {pl.type === 'text' && <div style={{ width: '100%', textAlign: pl.align || 'center', fontWeight: pl.bold !== false ? 800 : 400, fontStyle: pl.italic ? 'italic' : 'normal', fontFamily: pl.font || 'Arial, sans-serif', color: pl.color, WebkitTextStroke: pl.outline ? `${Math.max(1, Math.round(pl.wPct * 0.06))}px ${pl.outlineColor || '#000000'}` : 'none', fontSize: 'calc(' + pl.wPct + ' * 0.34px + 6px)', lineHeight: 1.05, whiteSpace: 'nowrap' }}>{pl.text}</div>}
           </div>
         ))}
       </div>
@@ -382,6 +386,44 @@ export function Configurator({ params }) {
                     <input type="color" value={selPl.color} onChange={(e) => updateSel({ color: e.target.value })} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%' }} />
                   </label>
                 </div>
+              </div>
+
+              {/* Text outline */}
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink-2)' }}>{lang === 'ar' ? 'حدود النص (outline)' : 'Text outline'}</div>
+                  <button onClick={() => updateSel({ outline: !selPl.outline })} style={{ height: 28, padding: '0 12px', borderRadius: 99, fontSize: 12, fontWeight: 700, background: selPl.outline ? 'var(--ink)' : 'var(--paper)', color: selPl.outline ? '#fff' : 'var(--ink)', boxShadow: selPl.outline ? 'none' : 'inset 0 0 0 1.3px var(--line)' }}>
+                    {selPl.outline ? (lang === 'ar' ? 'مفعّل ✓' : 'On ✓') : (lang === 'ar' ? 'إيقاف' : 'Off')}
+                  </button>
+                </div>
+                {selPl.outline && (
+                  <div className="fade-in" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 12, color: 'var(--ink-3)', whiteSpace: 'nowrap' }}>{lang === 'ar' ? 'لون الحدود' : 'Outline color'}</span>
+                    {['#000000','#ffffff','#BE5E37','#334A3A','#3C5A86'].map((c) => (
+                      <button key={c} onClick={() => updateSel({ outlineColor: c })} style={{ width: 26, height: 26, borderRadius: '50%', background: c, boxShadow: (selPl.outlineColor || '#000000') === c ? '0 0 0 2px var(--clay-wash),0 0 0 4px var(--ink)' : 'inset 0 0 0 1px rgba(0,0,0,.2)', flexShrink: 0 }} />
+                    ))}
+                    <label style={{ width: 26, height: 26, borderRadius: '50%', background: selPl.outlineColor || '#000', boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.2)', cursor: 'pointer', position: 'relative', flexShrink: 0 }}>
+                      <input type="color" value={selPl.outlineColor || '#000000'} onChange={(e) => updateSel({ outlineColor: e.target.value })} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%' }} />
+                    </label>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Flip buttons for images */}
+          {selPl.type === 'image' && (
+            <div style={{ marginTop: 14 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8, color: 'var(--ink-2)' }}>{lang === 'ar' ? 'قلب الصورة' : 'Flip image'}</div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={() => updateSel({ flipH: !selPl.flipH })} style={{ flex: 1, height: 36, borderRadius: 9, fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, background: selPl.flipH ? 'var(--ink)' : 'var(--paper)', color: selPl.flipH ? '#fff' : 'var(--ink)', boxShadow: selPl.flipH ? 'none' : 'inset 0 0 0 1.3px var(--line)' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="19,8 12,3 5,8"/><polyline points="5,16 12,21 19,16"/></svg>
+                  {lang === 'ar' ? 'أفقي' : 'Horizontal'}
+                </button>
+                <button onClick={() => updateSel({ flipV: !selPl.flipV })} style={{ flex: 1, height: 36, borderRadius: 9, fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, background: selPl.flipV ? 'var(--ink)' : 'var(--paper)', color: selPl.flipV ? '#fff' : 'var(--ink)', boxShadow: selPl.flipV ? 'none' : 'inset 0 0 0 1.3px var(--line)' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="3" y1="12" x2="21" y2="12"/><polyline points="8,5 3,12 8,19"/><polyline points="16,5 21,12 16,19"/></svg>
+                  {lang === 'ar' ? 'عمودي' : 'Vertical'}
+                </button>
               </div>
             </div>
           )}
