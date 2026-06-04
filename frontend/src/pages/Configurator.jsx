@@ -78,26 +78,28 @@ export function Configurator({ params }) {
     };
     reader.readAsDataURL(file);
   };
-  // Reusable color picker: swatches row + large free-pick button showing current hex
+  // Color picker: 2-row grid of swatches + custom picker integrated at the end
   const ColorPicker = ({ value, onChange, swatches }) => {
-    const sw = swatches || ['#23211D','#ffffff','#BE5E37','#334A3A','#C79A3B','#3C5A86','#A8423A','#E8D5B7'];
+    const sw = swatches || ['#0E0E0E','#ffffff','#e74c3c','#e67e22','#f1c40f','#2ecc71','#3498db','#9b59b6','#BE5E37','#334A3A','#C79A3B','#3C5A86','#A8423A','#E8D5B7','#95a5a6','#2c3e50'];
+    const isCustom = !sw.includes(value);
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {/* Swatches */}
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-          {sw.map((c) => (
-            <button key={c} onClick={() => onChange(c)} style={{
-              width: 28, height: 28, borderRadius: '50%', background: c, flexShrink: 0, transition: 'transform .15s',
-              boxShadow: value === c ? '0 0 0 2.5px #fff, 0 0 0 4.5px #111' : 'inset 0 0 0 1px rgba(0,0,0,.18)',
-              transform: value === c ? 'scale(1.15)' : 'scale(1)',
-            }} />
-          ))}
-        </div>
-        {/* Large free-pick button */}
-        <label style={{ display: 'flex', alignItems: 'center', gap: 10, height: 40, borderRadius: 10, padding: '0 12px', cursor: 'pointer', boxShadow: 'inset 0 0 0 1.4px var(--line)', background: 'var(--paper)', position: 'relative', overflow: 'hidden' }}>
-          <span style={{ width: 22, height: 22, borderRadius: 6, background: value, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.15)', flexShrink: 0 }} />
-          <span style={{ fontSize: 12.5, fontWeight: 700, fontFamily: 'monospace', color: 'var(--ink-2)', letterSpacing: '.04em' }}>{value}</span>
-          <span style={{ marginInlineStart: 'auto', fontSize: 12, color: 'var(--ink-3)' }}>{lang === 'ar' ? 'اختر لوناً' : 'Pick colour'}</span>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 6 }}>
+        {sw.map((c) => (
+          <button key={c} onClick={() => onChange(c)} style={{
+            aspectRatio: '1', borderRadius: 8, background: c, transition: 'transform .12s, box-shadow .12s',
+            boxShadow: value === c ? '0 0 0 2px #fff, 0 0 0 4px #111' : 'inset 0 0 0 1px rgba(0,0,0,.12)',
+            transform: value === c ? 'scale(1.18)' : 'scale(1)',
+          }} />
+        ))}
+        {/* Custom picker slot */}
+        <label title={lang === 'ar' ? 'لون مخصص' : 'Custom'} style={{
+          aspectRatio: '1', borderRadius: 8, cursor: 'pointer', position: 'relative', overflow: 'hidden',
+          background: isCustom ? value : 'conic-gradient(red,yellow,lime,aqua,blue,magenta,red)',
+          boxShadow: isCustom ? '0 0 0 2px #fff, 0 0 0 4px #111' : 'inset 0 0 0 1px rgba(0,0,0,.12)',
+          transform: isCustom ? 'scale(1.18)' : 'scale(1)', transition: 'transform .12s',
+          display: 'grid', placeItems: 'center',
+        }}>
+          {!isCustom && <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,.6)', pointerEvents: 'none' }}>+</span>}
           <input type="color" value={value} onChange={(e) => onChange(e.target.value)} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%' }} />
         </label>
       </div>
