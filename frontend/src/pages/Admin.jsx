@@ -155,12 +155,154 @@ function OrderDetailModal({ order, onClose, onStatus, onDelete, lang, t }) {
   const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   // Print / save-as-PDF a clean delivery note
   const printOrder = () => {
-    const w = window.open('', '_blank', 'width=460,height=680');
+    const w = window.open('', '_blank', 'width=620,height=900');
     if (!w) return;
-    const rows = order.items.map((it) => `<tr><td>${esc(it.productName || it.pid)}${it.custom ? ' &#127912;' : ''}</td><td>${esc([it.color, it.size].filter(Boolean).join(' / '))}</td><td class="c">${esc(it.qty)}</td></tr>`).join('');
-    w.document.write(`<!doctype html><html dir="${lang === 'ar' ? 'rtl' : 'ltr'}"><head><meta charset="utf-8"><title>${esc(order.id)}</title><style>*{font-family:Arial,Helvetica,sans-serif;color:#111;box-sizing:border-box}body{padding:26px;max-width:480px;margin:auto}h1{font-size:20px;letter-spacing:.14em;margin:0}.sub{color:#666;font-size:12px;margin:3px 0 18px}.box{border:1px solid #e2e2e2;border-radius:10px;padding:13px 16px;margin-bottom:14px;font-size:13px}.r{display:flex;justify-content:space-between;gap:12px;margin:4px 0}.k{color:#888}table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:start;color:#888;font-weight:600;border-bottom:2px solid #111;padding:6px 4px}td{text-align:start;padding:8px 4px;border-bottom:1px solid #eee}.c{text-align:center}.tot{font-size:19px;font-weight:bold;margin-top:16px;text-align:end}.cod{margin-top:6px;font-size:12px;color:#666;text-align:end}@media print{body{padding:0}}</style></head><body><h1>AC COLLECTION</h1><div class="sub">${lang === 'ar' ? 'وصل تسليم' : 'Delivery note'} · ${esc(order.id)} · ${esc(order.date || '')}</div><div class="box"><div class="r"><span class="k">${lang === 'ar' ? 'الزبون' : 'Customer'}</span><b>${esc(order.name)}</b></div><div class="r"><span class="k">${lang === 'ar' ? 'الهاتف' : 'Phone'}</span><span dir="ltr">${esc(order.phone)}</span></div><div class="r"><span class="k">${lang === 'ar' ? 'العنوان' : 'Address'}</span><span>${esc(order.wilaya)} · ${esc(order.commune)}${order.address ? ' · ' + esc(order.address) : ''}</span></div><div class="r"><span class="k">${lang === 'ar' ? 'التوصيل' : 'Delivery'}</span><span>${order.deliveryMode === 'desk' ? (lang === 'ar' ? 'نقطة استلام' : 'Pickup point') : (lang === 'ar' ? 'للمنزل' : 'Home')}</span></div></div><table><thead><tr><th>${lang === 'ar' ? 'المنتج' : 'Item'}</th><th>${lang === 'ar' ? 'اللون / المقاس' : 'Colour / size'}</th><th class="c">${lang === 'ar' ? 'الكمية' : 'Qty'}</th></tr></thead><tbody>${rows}</tbody></table><div class="tot">${lang === 'ar' ? 'المجموع' : 'Total'}: ${esc(order.total)} DA</div><div class="cod">${lang === 'ar' ? 'الدفع عند الاستلام' : 'Cash on delivery'}${order.note ? ' · ' + esc(order.note) : ''}</div></body></html>`);
+    const dateStr = order.date ? new Date(order.date).toLocaleDateString('fr-DZ', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
+    const rows = order.items.map((it) => {
+      const lineTotal = (it.unitPrice || 0) * (it.qty || 1);
+      return `<tr>
+        <td>${esc(it.productName || it.pid)}${it.custom ? ' <span class="custom-badge">personnalisé</span>' : ''}<br><small>${esc([it.color, it.size].filter(Boolean).join(' / '))}</small></td>
+        <td class="c">${esc(it.qty)}</td>
+        <td class="r">${(it.unitPrice||0).toLocaleString('fr-DZ')} DA</td>
+        <td class="r"><b>${lineTotal.toLocaleString('fr-DZ')} DA</b></td>
+      </tr>`;
+    }).join('');
+    const subtotal = order.subtotal || (order.total - (order.deliveryFee || 0));
+    const fee = order.deliveryFee || 0;
+    const deliveryLabel = order.deliveryMode === 'desk' ? 'Point de retrait' : 'Livraison à domicile';
+    w.document.write(`<!doctype html>
+<html dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>BON-${esc(order.id)}</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Arial',sans-serif;font-size:13px;color:#111;background:#fff;padding:18px 22px;max-width:600px;margin:auto}
+  /* ---- Header ---- */
+  .header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:12px;border-bottom:2.5px solid #111;margin-bottom:14px}
+  .brand{font-size:22px;font-weight:900;letter-spacing:.18em}
+  .brand span{font-weight:400;font-size:13px;letter-spacing:.06em;display:block;color:#555;margin-top:2px}
+  .bon-info{text-align:right;font-size:12px;color:#444;line-height:1.7}
+  .bon-info b{font-size:14px;color:#111}
+  /* ---- Two-column info ---- */
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+  .info-box{border:1px solid #ddd;border-radius:4px;padding:10px 13px}
+  .info-box .title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#888;margin-bottom:7px;border-bottom:1px solid #eee;padding-bottom:4px}
+  .info-box .row{display:flex;justify-content:space-between;margin:3px 0;font-size:12.5px}
+  .info-box .row .k{color:#777}
+  .info-box .row .v{font-weight:600;text-align:right;max-width:160px}
+  /* ---- Items table ---- */
+  table{width:100%;border-collapse:collapse;margin-bottom:0;font-size:12.5px}
+  thead tr{background:#111;color:#fff}
+  thead th{padding:8px 10px;text-align:left;font-weight:700;font-size:11.5px;letter-spacing:.04em}
+  thead th.c{text-align:center}
+  thead th.r{text-align:right}
+  tbody tr:nth-child(even){background:#f8f8f8}
+  tbody td{padding:8px 10px;border-bottom:1px solid #e8e8e8;vertical-align:top}
+  tbody td.c{text-align:center}
+  tbody td.r{text-align:right;white-space:nowrap}
+  tbody td small{color:#888;font-size:11px}
+  .custom-badge{background:#f0e0d6;color:#8b3a1a;font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;letter-spacing:.04em}
+  /* ---- Totals ---- */
+  .totals{border:1px solid #ddd;border-radius:4px;width:220px;margin-left:auto;margin-top:0;font-size:12.5px}
+  .totals .tr{display:flex;justify-content:space-between;padding:6px 12px;border-bottom:1px solid #eee}
+  .totals .tr:last-child{border-bottom:none;background:#111;color:#fff;border-radius:0 0 3px 3px;font-size:14px;font-weight:800}
+  .totals .tr .k{color:inherit}
+  /* ---- Note ---- */
+  .note-box{margin-top:10px;border:1px dashed #ccc;border-radius:4px;padding:8px 12px;font-size:12px;color:#555}
+  .note-box b{color:#111;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+  /* ---- Footer ---- */
+  .footer{margin-top:16px;padding-top:12px;border-top:1.5px dashed #bbb;display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:11.5px}
+  .sig-box{border:1px solid #ccc;border-radius:4px;padding:8px 12px;height:60px;display:flex;flex-direction:column;justify-content:space-between}
+  .sig-box .sig-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888}
+  .cod-stamp{border:2px solid #111;border-radius:4px;padding:8px 12px;text-align:center;height:60px;display:flex;flex-direction:column;justify-content:center}
+  .cod-stamp .amount{font-size:18px;font-weight:900}
+  .cod-stamp .label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#555;margin-top:2px}
+  .legal{grid-column:1/-1;text-align:center;color:#aaa;font-size:10.5px;margin-top:4px}
+  @media print{
+    body{padding:10px 14px}
+    @page{margin:8mm;size:A5}
+  }
+</style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="brand">AC COLLECTION<span>Prêt-à-porter personnalisé · Algérie</span></div>
+    </div>
+    <div class="bon-info">
+      <b>BON DE LIVRAISON</b><br>
+      N° <b>${esc(order.id)}</b><br>
+      Date : ${dateStr}<br>
+      Mode : ${deliveryLabel}
+    </div>
+  </div>
+
+  <!-- CLIENT + LIVRAISON -->
+  <div class="cols">
+    <div class="info-box">
+      <div class="title">Informations client</div>
+      <div class="row"><span class="k">Nom</span><span class="v">${esc(order.name)}</span></div>
+      <div class="row"><span class="k">Téléphone</span><span class="v" dir="ltr">${esc(order.phone)}</span></div>
+    </div>
+    <div class="info-box">
+      <div class="title">Adresse de livraison</div>
+      <div class="row"><span class="k">Wilaya</span><span class="v">${esc(order.wilaya)}</span></div>
+      <div class="row"><span class="k">Commune</span><span class="v">${esc(order.commune)}</span></div>
+      ${order.address ? `<div class="row"><span class="k">Adresse</span><span class="v">${esc(order.address)}</span></div>` : ''}
+    </div>
+  </div>
+
+  <!-- ARTICLES -->
+  <table>
+    <thead>
+      <tr>
+        <th>Désignation</th>
+        <th class="c">Qté</th>
+        <th class="r">Prix unit.</th>
+        <th class="r">Montant</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows}
+      <tr style="background:#f0f0f0">
+        <td colspan="3" style="text-align:right;padding:7px 10px;font-size:12px;color:#666">Sous-total</td>
+        <td class="r" style="padding:7px 10px">${subtotal.toLocaleString('fr-DZ')} DA</td>
+      </tr>
+      <tr style="background:#f0f0f0">
+        <td colspan="3" style="text-align:right;padding:7px 10px;font-size:12px;color:#666">Frais de livraison</td>
+        <td class="r" style="padding:7px 10px">${fee.toLocaleString('fr-DZ')} DA</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- TOTAL + NOTE -->
+  <div class="totals">
+    <div class="tr"><span class="k">TOTAL À ENCAISSER</span><span>${order.total.toLocaleString('fr-DZ')} DA</span></div>
+  </div>
+
+  ${order.note ? `<div class="note-box"><b>Remarque :</b> ${esc(order.note)}</div>` : ''}
+
+  <!-- FOOTER: SIGNATURE + CACHET COD -->
+  <div class="footer">
+    <div class="sig-box">
+      <div class="sig-title">Signature &amp; cachet livreur</div>
+      <div style="border-bottom:1px solid #ccc;width:100%;margin-bottom:2px"></div>
+    </div>
+    <div class="cod-stamp">
+      <div class="amount">${order.total.toLocaleString('fr-DZ')} DA</div>
+      <div class="label">&#128; Paiement à la livraison (COD)</div>
+    </div>
+    <div class="legal">
+      AC Collection · Algérie · Commande ${esc(order.id)} · Document généré automatiquement
+    </div>
+  </div>
+
+</body></html>`);
     w.document.close(); w.focus();
-    setTimeout(() => { try { w.print(); } catch (e) {} }, 300);
+    setTimeout(() => { try { w.print(); } catch (e) {} }, 400);
   };
   return (
     <div className="fade-in" onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 95, background: 'rgba(10,10,10,.55)', display: 'grid', placeItems: isMobile ? 'end' : 'center', padding: isMobile ? 0 : 24 }}>
