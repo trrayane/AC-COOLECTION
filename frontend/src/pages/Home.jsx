@@ -62,29 +62,38 @@ function FeatureBand() {
 }
 
 function CategoryStrip() {
-  const { t, lang, navigate } = useShop();
+  const { t, lang, navigate, products } = useShop();
+  const photoFor = (id) => { const p = products.find((x) => x.cat === id && x.photos && x.photos.length); return p ? p.photos[0].url : null; };
   const cats = [
-    { id: 'tshirt', label: t.nav_tshirt, color: 'ink', sub: lang === 'en' ? '12 styles' : '12 موديل' },
-    { id: 'pull', label: t.nav_pull, color: 'slate', sub: lang === 'en' ? 'Premium knit' : 'صوف فاخر' },
-    { id: 'hoodie', label: t.nav_hoodie, color: 'ink', sub: lang === 'en' ? 'Heavy fleece' : 'صوف ثقيل' },
+    { id: 'tshirt', label: t.nav_tshirt, color: 'ink' },
+    { id: 'pull', label: t.nav_pull, color: 'slate' },
+    { id: 'hoodie', label: t.nav_hoodie, color: 'ink' },
   ];
   return (
     <section className="wrap" style={{ marginTop: 72 }}>
       <SectionHead eyebrow={lang === 'en' ? 'Categories' : 'الفئات'} title={t.shop_cat} />
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 16 }}>
-        {cats.map((c) => (
-          <button key={c.id} onClick={() => navigate('catalog', { cat: c.id })} className="cat-card" style={{
-            position: 'relative', textAlign: 'start', borderRadius: 'var(--r-lg)', overflow: 'hidden', aspectRatio: '5/4',
-            background: `radial-gradient(120% 110% at 70% 15%, ${colorTint(c.color)}, ${shade(colorTint(c.color), -10)})`,
-          }}>
-            <div style={{ position: 'absolute', inset: 0, transform: 'translateX(14%)' }}><GarmentTile type={c.id} color={colorHex(c.color)} /></div>
-            <div style={{ position: 'absolute', insetInlineStart: 22, bottom: 20, zIndex: 2 }}>
-              <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-.02em' }}>{c.label}</div>
-              <div className="muted" style={{ fontSize: 13, fontWeight: 600 }}>{c.sub}</div>
-            </div>
-            <span style={{ position: 'absolute', top: 18, insetInlineEnd: 18, width: 38, height: 38, borderRadius: '50%', background: 'var(--paper-2)', display: 'grid', placeItems: 'center', boxShadow: 'var(--shadow-sm)' }}><Icon name="arrow" size={18} /></span>
-          </button>
-        ))}
+        {cats.map((c) => {
+          const img = photoFor(c.id);
+          const n = products.filter((x) => x.cat === c.id).length;
+          const sub = lang === 'en' ? `${n} ${n === 1 ? 'style' : 'styles'}` : `${n} موديل`;
+          return (
+            <button key={c.id} onClick={() => navigate('catalog', { cat: c.id })} className="cat-card" style={{
+              position: 'relative', textAlign: 'start', borderRadius: 'var(--r-lg)', overflow: 'hidden', aspectRatio: '5/4',
+              background: `radial-gradient(120% 110% at 70% 15%, ${colorTint(c.color)}, ${shade(colorTint(c.color), -10)})`,
+            }}>
+              {img
+                ? <img src={img} alt={c.label} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                : <div style={{ position: 'absolute', inset: 0, transform: 'translateX(14%)' }}><GarmentTile type={c.id} color={colorHex(c.color)} /></div>}
+              <div style={{ position: 'absolute', insetInline: 0, bottom: 0, height: '55%', background: 'linear-gradient(transparent, rgba(255,255,255,.92))', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', insetInlineStart: 22, bottom: 20, zIndex: 2 }}>
+                <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-.02em' }}>{c.label}</div>
+                <div className="muted" style={{ fontSize: 13, fontWeight: 600 }}>{sub}</div>
+              </div>
+              <span style={{ position: 'absolute', top: 18, insetInlineEnd: 18, width: 38, height: 38, borderRadius: '50%', background: 'var(--paper-2)', display: 'grid', placeItems: 'center', boxShadow: 'var(--shadow-sm)', zIndex: 2 }}><Icon name="arrow" size={18} /></span>
+            </button>
+          );
+        })}
       </div>
     </section>
   );

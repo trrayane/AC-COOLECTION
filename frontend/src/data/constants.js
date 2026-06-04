@@ -60,21 +60,17 @@ export const CATEGORIES = [
 // Printable areas per garment type
 export const PRINT_ZONES = {
   tshirt: [
-    { id: 'front',  en: 'Front',          ar: 'الأمام' },
-    { id: 'back',   en: 'Back',           ar: 'الخلف' },
-    { id: 'sleeve', en: 'Sleeve',         ar: 'الكُم' },
-    { id: 'pocket', en: 'Chest (pocket)', ar: 'الصدر' },
+    { id: 'front', en: 'Front', ar: 'الأمام' },
+    { id: 'back',  en: 'Back',  ar: 'الخلف' },
   ],
   pull: [
-    { id: 'front',  en: 'Front',  ar: 'الأمام' },
-    { id: 'back',   en: 'Back',   ar: 'الخلف' },
-    { id: 'sleeve', en: 'Sleeve', ar: 'الكُم' },
+    { id: 'front', en: 'Front', ar: 'الأمام' },
+    { id: 'back',  en: 'Back',  ar: 'الخلف' },
   ],
   hoodie: [
-    { id: 'front',  en: 'Front',  ar: 'الأمام' },
-    { id: 'back',   en: 'Back',   ar: 'الخلف' },
-    { id: 'sleeve', en: 'Sleeve', ar: 'الكُم' },
-    { id: 'hood',   en: 'Hood',   ar: 'الغطاء' },
+    { id: 'front', en: 'Front', ar: 'الأمام' },
+    { id: 'back',  en: 'Back',  ar: 'الخلف' },
+    { id: 'hood',  en: 'Hood',  ar: 'الغطاء' },
   ],
 };
 

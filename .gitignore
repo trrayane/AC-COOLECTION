@@ -26,3 +26,4 @@ backend/vercel.json
 backend/.vercel
 # Vercel CLI link files
 .vercel/
+_up/
