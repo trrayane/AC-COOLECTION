@@ -21,9 +21,9 @@ import { Admin } from './pages/Admin.jsx';
 function Splash() {
   return (
     <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: 'var(--paper)' }}>
-      <div style={{ textAlign: 'center' }}>
+      <div className="fade-in" style={{ textAlign: 'center' }}>
         <Logo size={26} />
-        <div className="spin" style={{ margin: '22px auto 0', borderTopColor: 'var(--ink)', borderColor: 'var(--line-2)' }} />
+        <div className="dots" style={{ marginTop: 24 }}><span /><span /><span /></div>
       </div>
     </div>
   );
