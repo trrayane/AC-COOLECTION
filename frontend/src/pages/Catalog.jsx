@@ -146,9 +146,8 @@ export function Catalog({ params, gridVariant = 'standard' }) {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
             <span className="muted" style={{ fontSize: 14, fontWeight: 600 }}>{list.length} {t.results}</span>
-            {activeCount > 0 && (
+            {(f.colors.length > 0 || f.sizes.length > 0) && (
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {f.onlyNew && <span className="chip on">{t.nav_new}</span>}
                 {f.colors.map((c) => <button key={c} className="chip" onClick={() => setF((s) => ({ ...s, colors: s.colors.filter((x) => x !== c) }))}><span style={{ width: 12, height: 12, borderRadius: 9, background: colorHex(c) }} /> {colorLabel(c, lang)} <Icon name="close" size={12} /></button>)}
                 {f.sizes.map((s) => <button key={s} className="chip" onClick={() => setF((st) => ({ ...st, sizes: st.sizes.filter((x) => x !== s) }))}>{s} <Icon name="close" size={12} /></button>)}
               </div>
