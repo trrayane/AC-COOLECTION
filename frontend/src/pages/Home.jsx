@@ -85,10 +85,9 @@ function CategoryStrip() {
               {img
                 ? <img src={img} alt={c.label} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                 : <div style={{ position: 'absolute', inset: 0, transform: 'translateX(14%)' }}><GarmentTile type={c.id} color={colorHex(c.color)} /></div>}
-              <div style={{ position: 'absolute', insetInline: 0, bottom: 0, height: '55%', background: 'linear-gradient(transparent, rgba(255,255,255,.92))', pointerEvents: 'none' }} />
-              <div style={{ position: 'absolute', insetInlineStart: 22, bottom: 20, zIndex: 2 }}>
-                <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-.02em' }}>{c.label}</div>
-                <div className="muted" style={{ fontSize: 13, fontWeight: 600 }}>{sub}</div>
+              <div style={{ position: 'absolute', insetInlineStart: 16, bottom: 16, zIndex: 2, background: 'rgba(255,255,255,.86)', backdropFilter: 'blur(6px)', borderRadius: 14, padding: '9px 15px', boxShadow: 'var(--shadow-sm)' }}>
+                <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-.02em', color: 'var(--ink)', lineHeight: 1.1 }}>{c.label}</div>
+                <div className="dim" style={{ fontSize: 12.5, fontWeight: 600 }}>{sub}</div>
               </div>
               <span style={{ position: 'absolute', top: 18, insetInlineEnd: 18, width: 38, height: 38, borderRadius: '50%', background: 'var(--paper-2)', display: 'grid', placeItems: 'center', boxShadow: 'var(--shadow-sm)', zIndex: 2 }}><Icon name="arrow" size={18} /></span>
             </button>
