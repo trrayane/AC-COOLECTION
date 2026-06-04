@@ -1,5 +1,6 @@
 import React from 'react';
 import { useShop } from '../store/ShopContext.js';
+import { useIsMobile } from '../components/chrome/useIsMobile.js';
 import { Icon } from '../components/ui/Icon.jsx';
 import { ProductCard } from '../components/product/ProductCard.jsx';
 import { ProductImage } from '../components/product/ProductImage.jsx';
@@ -9,6 +10,7 @@ import { shade } from '../components/garments/Garment.jsx';
 
 export function Promotions() {
   const { t, lang, navigate, products } = useShop();
+  const isMobile = useIsMobile();
 
   const onSale = [...products.filter((p) => p.oldPrice && p.oldPrice > p.price)]
     .sort((a, b) => (1 - b.price / b.oldPrice) - (1 - a.price / a.oldPrice));
@@ -42,27 +44,31 @@ export function Promotions() {
       </div>
 
       {/* Featured hero */}
-      <div className="card adm-in" style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1.3fr)', borderRadius: 'var(--r-xl)', overflow: 'hidden', marginBottom: 28, minHeight: 260 }}>
+      <div className="card adm-in" onClick={() => navigate('product', { id: hero.id, color: hero.colors[0] })} style={{
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr' : 'minmax(0,1fr) minmax(0,1.3fr)',
+        borderRadius: 'var(--r-xl)', overflow: 'hidden', marginBottom: 28, cursor: 'pointer',
+      }}>
         {/* Photo */}
-        <div style={{ background: `radial-gradient(120% 120% at 50% 20%, ${colorTint(hero.colors[0])}, ${shade(colorTint(hero.colors[0]), -10)})`, position: 'relative', minHeight: 220 }}>
+        <div style={{ background: `radial-gradient(120% 120% at 50% 20%, ${colorTint(hero.colors[0])}, ${shade(colorTint(hero.colors[0]), -10)})`, position: 'relative', minHeight: isMobile ? 220 : 260 }}>
           <ProductImage p={hero} color={hero.colors[0]} />
-          <span style={{ position: 'absolute', top: 16, insetInlineStart: 16, background: 'var(--clay)', color: '#fff', fontWeight: 800, fontSize: 20, padding: '6px 16px', borderRadius: 99 }}>−{heroPct}%</span>
+          <span style={{ position: 'absolute', top: 14, insetInlineStart: 14, background: 'var(--clay)', color: '#fff', fontWeight: 800, fontSize: 18, padding: '5px 14px', borderRadius: 99 }}>−{heroPct}%</span>
         </div>
 
         {/* Info */}
-        <div style={{ padding: 'clamp(20px,3vw,36px)', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 12 }}>
+        <div style={{ padding: isMobile ? '20px 20px 24px' : 'clamp(20px,3vw,36px)', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10 }}>
           <div>
             <span className="eyebrow" style={{ color: 'var(--clay-deep)' }}>{lang === 'ar' ? 'أفضل عرض' : 'Best deal'}</span>
-            <h2 style={{ fontSize: 'clamp(20px,2.5vw,28px)', marginTop: 6, lineHeight: 1.2 }}>{hero['name_' + lang]}</h2>
+            <h2 style={{ fontSize: isMobile ? 22 : 'clamp(20px,2.5vw,28px)', marginTop: 6, lineHeight: 1.2 }}>{hero['name_' + lang]}</h2>
           </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-            <span style={{ fontSize: 28, fontWeight: 800, color: 'var(--clay-deep)' }}>{fmtDA(hero.price, lang)}</span>
-            <span className="dim" style={{ fontSize: 17, textDecoration: 'line-through' }}>{fmtDA(hero.oldPrice, lang)}</span>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: isMobile ? 26 : 30, fontWeight: 800, color: 'var(--clay-deep)', whiteSpace: 'nowrap' }}>{fmtDA(hero.price, lang)}</span>
+            <span className="dim" style={{ fontSize: 16, textDecoration: 'line-through', whiteSpace: 'nowrap' }}>{fmtDA(hero.oldPrice, lang)}</span>
           </div>
-          <p style={{ color: 'var(--good)', fontWeight: 700, fontSize: 14 }}>
+          <p style={{ color: 'var(--good)', fontWeight: 700, fontSize: 13.5 }}>
             {lang === 'ar' ? `توفير ${fmtDA(hero.oldPrice - hero.price, lang)}` : `Save ${fmtDA(hero.oldPrice - hero.price, lang)}`}
           </p>
-          <button className="btn btn-clay btn-lg" style={{ marginTop: 4, alignSelf: 'flex-start' }} onClick={() => navigate('product', { id: hero.id, color: hero.colors[0] })}>
+          <button className="btn btn-clay btn-lg" style={{ marginTop: 6, alignSelf: isMobile ? 'stretch' : 'flex-start' }} onClick={(e) => { e.stopPropagation(); navigate('product', { id: hero.id, color: hero.colors[0] }); }}>
             {lang === 'ar' ? 'اطلب الآن' : 'Shop now'} <Icon name="arrow" size={17} />
           </button>
         </div>
