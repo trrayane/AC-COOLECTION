@@ -18,9 +18,10 @@ import { Configurator } from './pages/Configurator.jsx';
 import { Checkout, Confirmation, CartDrawer } from './pages/Checkout.jsx';
 import { Admin } from './pages/Admin.jsx';
 import { Wishlist } from './pages/Wishlist.jsx';
+import { Promotions } from './pages/Promotions.jsx';
 
 // ── Browser-history routing helpers ─────────────────────────
-const ROUTES = ['home', 'catalog', 'product', 'configurator', 'checkout', 'confirmation', 'wishlist', 'admin'];
+const ROUTES = ['home', 'catalog', 'product', 'configurator', 'checkout', 'confirmation', 'wishlist', 'promotions', 'admin'];
 function parsePath() {
   const seg = (typeof window !== 'undefined' ? window.location.pathname : '/').split('/').filter(Boolean);
   const page = seg[0] || 'home';
@@ -198,6 +199,7 @@ export default function App() {
           {p === 'checkout' && <Checkout />}
           {p === 'confirmation' && <Confirmation order={lastOrder} />}
           {p === 'wishlist' && <Wishlist />}
+          {p === 'promotions' && <Promotions />}
           {p === 'admin' && <Admin />}
         </main>
         {!isAdmin && <Footer />}

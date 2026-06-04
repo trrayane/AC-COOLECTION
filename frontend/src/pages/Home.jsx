@@ -135,10 +135,30 @@ export function Home() {
   const { t, lang, navigate, products } = useShop();
   const newIn = products.filter((p) => p.new).slice(0, 4);
   const best = [...products].sort((a, b) => b.sold - a.sold).slice(0, 4);
+  const onSale = products.filter((p) => p.oldPrice && p.oldPrice > p.price);
   return (
     <div className="fade-in">
       <HeroSplit />
       <FeatureBand />
+      {onSale.length > 0 && (
+        <section className="wrap home-sec">
+          <div onClick={() => navigate('promotions')} style={{ cursor: 'pointer', background: 'var(--ink)', borderRadius: 'var(--r-xl)', padding: 'clamp(18px,3vw,28px) clamp(20px,4vw,36px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <span style={{ width: 48, height: 48, borderRadius: 14, background: 'var(--clay)', display: 'grid', placeItems: 'center', flexShrink: 0 }}><Icon name="tag" size={24} style={{ color: '#fff' }} /></span>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: 'clamp(17px,2.5vw,22px)', color: '#fff' }}>{lang === 'ar' ? `${onSale.length} منتج في التخفيضات` : `${onSale.length} item${onSale.length > 1 ? 's' : ''} on sale`}</div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,.65)', marginTop: 3 }}>{lang === 'ar' ? 'عروض محدودة — اطلع عليها الآن' : 'Limited-time deals — shop now'}</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              {onSale.slice(0, 3).map((p) => { const pct = Math.round((1 - p.price / p.oldPrice) * 100); return (
+                <span key={p.id} style={{ background: 'var(--clay)', color: '#fff', borderRadius: 99, padding: '5px 13px', fontSize: 13, fontWeight: 800 }}>−{pct}%</span>
+              ); })}
+              <span style={{ color: 'rgba(255,255,255,.7)', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>{lang === 'ar' ? 'عرض الكل' : 'View all'} <Icon name="arrow" size={15} /></span>
+            </div>
+          </div>
+        </section>
+      )}
       <section className="wrap home-sec">
         <SectionHead eyebrow={t.new_sub} title={t.new_in} action={t.see_all} onAction={() => navigate('catalog', { filter: 'new' })} />
         <div className="prod-grid">

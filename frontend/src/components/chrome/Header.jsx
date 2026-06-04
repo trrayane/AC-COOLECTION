@@ -6,7 +6,8 @@ import { Logo } from '../ui/Logo.jsx';
 import { Icon } from '../ui/Icon.jsx';
 
 export function Header() {
-  const { t, lang, setLang, navigate, cartCount, wishlistCount, openCart } = useShop();
+  const { t, lang, setLang, navigate, cartCount, wishlistCount, openCart, products } = useShop();
+  const hasPromos = products.some((p) => p.oldPrice && p.oldPrice > p.price);
   const isMobile = useIsMobile();
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
@@ -55,6 +56,12 @@ export function Header() {
                 }} onMouseEnter={(e) => e.currentTarget.style.background = 'var(--sand)'}
                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>{l.label}</button>
               ))}
+              {hasPromos && (
+                <button onClick={() => navigate('promotions')} style={{
+                  padding: '8px 14px', borderRadius: 999, fontSize: 14, fontWeight: 700,
+                  color: '#fff', background: 'var(--clay)', display: 'flex', alignItems: 'center', gap: 6,
+                }}><Icon name="tag" size={14} /> {lang === 'ar' ? 'تخفيضات' : 'Promos'}</button>
+              )}
               <button onClick={() => navigate('configurator', {})} style={{
                 padding: '8px 14px', borderRadius: 999, fontSize: 14, fontWeight: 700, color: 'var(--clay-deep)',
                 display: 'flex', alignItems: 'center', gap: 6,
@@ -109,6 +116,12 @@ export function Header() {
                 borderBottom: '1px solid var(--line)',
               }}>{l.label}</button>
             ))}
+            {hasPromos && (
+              <button onClick={() => { navigate('promotions'); setMenuOpen(false); }} style={{
+                textAlign: lang === 'ar' ? 'right' : 'left', padding: '13px 4px', fontSize: 18, fontWeight: 700, color: 'var(--clay)',
+                display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid var(--line)',
+              }}><Icon name="tag" size={18} /> {lang === 'ar' ? 'التخفيضات' : 'Promotions'}</button>
+            )}
             <button onClick={() => { navigate('configurator', {}); setMenuOpen(false); }} style={{
               textAlign: lang === 'ar' ? 'right' : 'left', padding: '13px 4px', fontSize: 18, fontWeight: 700, color: 'var(--clay-deep)',
               display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid var(--line)',
