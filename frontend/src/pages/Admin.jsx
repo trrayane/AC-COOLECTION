@@ -149,12 +149,28 @@ function OrderDetailModal({ order, onClose, onStatus, onDelete, lang, t }) {
   // Force-download URL (Cloudinary fl_attachment keeps the customer's original file/format)
   const dl = (url) => (typeof url === 'string' && url.includes('res.cloudinary.com') && url.includes('/upload/')) ? url.replace('/upload/', '/upload/fl_attachment/') : url;
   const designFiles = order.items.filter((i) => i.custom).flatMap((i) => ((i.customData && i.customData.placements) || []).filter((pl) => pl.type === 'image' && pl.img).map((pl) => ({ url: pl.img, side: zoneView(pl.zone) })));
+  // Phone → international (Algeria +213) for tel:/WhatsApp
+  const digits = String(order.phone || '').replace(/\D/g, '');
+  const intl = digits.startsWith('213') ? digits : digits.startsWith('0') ? '213' + digits.slice(1) : '213' + digits;
+  const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Print / save-as-PDF a clean delivery note
+  const printOrder = () => {
+    const w = window.open('', '_blank', 'width=460,height=680');
+    if (!w) return;
+    const rows = order.items.map((it) => `<tr><td>${esc(it.productName || it.pid)}${it.custom ? ' &#127912;' : ''}</td><td>${esc([it.color, it.size].filter(Boolean).join(' / '))}</td><td class="c">${esc(it.qty)}</td></tr>`).join('');
+    w.document.write(`<!doctype html><html dir="${lang === 'ar' ? 'rtl' : 'ltr'}"><head><meta charset="utf-8"><title>${esc(order.id)}</title><style>*{font-family:Arial,Helvetica,sans-serif;color:#111;box-sizing:border-box}body{padding:26px;max-width:480px;margin:auto}h1{font-size:20px;letter-spacing:.14em;margin:0}.sub{color:#666;font-size:12px;margin:3px 0 18px}.box{border:1px solid #e2e2e2;border-radius:10px;padding:13px 16px;margin-bottom:14px;font-size:13px}.r{display:flex;justify-content:space-between;gap:12px;margin:4px 0}.k{color:#888}table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:start;color:#888;font-weight:600;border-bottom:2px solid #111;padding:6px 4px}td{text-align:start;padding:8px 4px;border-bottom:1px solid #eee}.c{text-align:center}.tot{font-size:19px;font-weight:bold;margin-top:16px;text-align:end}.cod{margin-top:6px;font-size:12px;color:#666;text-align:end}@media print{body{padding:0}}</style></head><body><h1>AC COLLECTION</h1><div class="sub">${lang === 'ar' ? 'وصل تسليم' : 'Delivery note'} · ${esc(order.id)} · ${esc(order.date || '')}</div><div class="box"><div class="r"><span class="k">${lang === 'ar' ? 'الزبون' : 'Customer'}</span><b>${esc(order.name)}</b></div><div class="r"><span class="k">${lang === 'ar' ? 'الهاتف' : 'Phone'}</span><span dir="ltr">${esc(order.phone)}</span></div><div class="r"><span class="k">${lang === 'ar' ? 'العنوان' : 'Address'}</span><span>${esc(order.wilaya)} · ${esc(order.commune)}${order.address ? ' · ' + esc(order.address) : ''}</span></div><div class="r"><span class="k">${lang === 'ar' ? 'التوصيل' : 'Delivery'}</span><span>${order.deliveryMode === 'desk' ? (lang === 'ar' ? 'نقطة استلام' : 'Pickup point') : (lang === 'ar' ? 'للمنزل' : 'Home')}</span></div></div><table><thead><tr><th>${lang === 'ar' ? 'المنتج' : 'Item'}</th><th>${lang === 'ar' ? 'اللون / المقاس' : 'Colour / size'}</th><th class="c">${lang === 'ar' ? 'الكمية' : 'Qty'}</th></tr></thead><tbody>${rows}</tbody></table><div class="tot">${lang === 'ar' ? 'المجموع' : 'Total'}: ${esc(order.total)} DA</div><div class="cod">${lang === 'ar' ? 'الدفع عند الاستلام' : 'Cash on delivery'}${order.note ? ' · ' + esc(order.note) : ''}</div></body></html>`);
+    w.document.close(); w.focus();
+    setTimeout(() => { try { w.print(); } catch (e) {} }, 300);
+  };
   return (
     <div className="fade-in" onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 95, background: 'rgba(10,10,10,.55)', display: 'grid', placeItems: isMobile ? 'end' : 'center', padding: isMobile ? 0 : 24 }}>
       <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: isMobile ? '100%' : 'min(720px, calc(100vw - 20px))', maxHeight: '92vh', overflow: 'auto', animation: 'fadeUp .28s cubic-bezier(.2,.8,.2,1)', borderRadius: isMobile ? '22px 22px 0 0' : 'var(--r-lg)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', borderBottom: '1px solid var(--line)', position: 'sticky', top: 0, background: 'var(--paper-2)', zIndex: 2 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><span style={{ fontWeight: 800, fontSize: 20 }}>{order.id}</span><StatusBadge status={order.status} lang={lang} /></div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button onClick={printOrder} title={lang === 'en' ? 'Print / PDF' : 'طباعة / PDF'} style={{ width: 34, height: 34, borderRadius: 9, display: 'grid', placeItems: 'center', color: 'var(--ink-2)', boxShadow: 'inset 0 0 0 1.3px var(--line)' }}>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V3h12v6" /><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2" /><rect x="6" y="14" width="12" height="7" rx="1" /></svg>
+            </button>
             <button onClick={() => onDelete(order)} title={lang === 'en' ? 'Delete order' : 'حذف الطلب'} style={{ width: 34, height: 34, borderRadius: 9, display: 'grid', placeItems: 'center', color: 'var(--danger)', boxShadow: 'inset 0 0 0 1.3px var(--line)' }}><Icon name="trash" size={18} /></button>
             <button onClick={onClose}><Icon name="close" size={22} /></button>
           </div>
@@ -166,6 +182,12 @@ function OrderDetailModal({ order, onClose, onStatus, onDelete, lang, t }) {
               {[['user', order.name], ['phone', order.phone], ['pin', order.wilaya + ' · ' + order.commune]].map(([ic, v]) => (
                 <div key={v} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14.5 }}><Icon name={ic} size={17} style={{ color: 'var(--ink-3)' }} /> <span dir={ic === 'phone' ? 'ltr' : undefined} style={{ fontWeight: 600 }}>{v}</span></div>
               ))}
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 13 }}>
+              <a href={`tel:+${intl}`} className="btn btn-ghost btn-sm" style={{ flex: 1, textDecoration: 'none' }}><Icon name="phone" size={15} /> {lang === 'ar' ? 'اتصال' : 'Call'}</a>
+              <a href={`https://wa.me/${intl}`} target="_blank" rel="noreferrer" className="btn btn-sm" style={{ flex: 1, textDecoration: 'none', background: '#25D366', color: '#fff', border: 'none' }}>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M17.5 14.4c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.22 3.08.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35zM12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.26A10 10 0 1 0 12 2zm0 18.2c-1.5 0-2.96-.4-4.24-1.16l-.3-.18-2.85.75.76-2.78-.2-.31A8.2 8.2 0 1 1 12 20.2z" /></svg> WhatsApp
+              </a>
             </div>
             <div className="eyebrow" style={{ margin: '22px 0 12px' }}>{lang === 'en' ? 'Items' : 'المنتجات'}</div>
             {order.items.map((it, i) => {
@@ -274,6 +296,17 @@ function ProductModal({ product, onClose, onSave, lang, t }) {
             </Field>
             <Field label={t.price + ' (DA)'}><input className="field" type="number" value={f.price} onChange={(e) => setF({ ...f, price: +e.target.value })} /></Field>
           </div>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 12 }}>
+            <Field label={lang === 'ar' ? 'السعر القديم (تخفيض)' : 'Old price — promo (DA)'}>
+              <input className="field" type="number" value={f.oldPrice || ''} placeholder={lang === 'ar' ? 'فارغ = بدون تخفيض' : 'Empty = no discount'} onChange={(e) => setF({ ...f, oldPrice: e.target.value === '' ? null : +e.target.value })} />
+            </Field>
+            <Field label={lang === 'ar' ? 'وسم' : 'Tag'}>
+              <button type="button" onClick={() => setF({ ...f, new: !f.new })} style={{ width: '100%', height: 46, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontWeight: 700, fontSize: 14, background: f.new ? 'var(--ink)' : 'var(--paper-2)', color: f.new ? 'var(--paper)' : 'var(--ink-2)', boxShadow: f.new ? 'none' : 'inset 0 0 0 1.4px var(--line)' }}>
+                <Icon name={f.new ? 'check' : 'spark'} size={16} /> {lang === 'ar' ? 'منتج جديد' : 'Mark as New'}
+              </button>
+            </Field>
+          </div>
+          {f.oldPrice > 0 && f.oldPrice <= f.price && <p style={{ color: 'var(--danger)', fontSize: 12, marginTop: -8, fontWeight: 600 }}>{lang === 'ar' ? 'السعر القديم يجب أن يكون أكبر من السعر الحالي' : 'Old price should be higher than the price to show a discount.'}</p>}
           <Field label={t.color}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
               <label title={lang === 'ar' ? 'انقر لاختيار اللون' : 'Click to pick a colour'} style={{ position: 'relative', width: 54, height: 54, borderRadius: '50%', background: colorHex(f.colors[0] || '#111111'), boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.18)', display: 'grid', placeItems: 'center', cursor: 'pointer', flexShrink: 0 }}>
