@@ -126,13 +126,10 @@ export function ProductDetail({ params }) {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 11, marginTop: 30 }}>
+            <button className="btn btn-primary btn-lg btn-block" onClick={add}><Icon name="bag" size={18} /> {t.add_cart}</button>
             <button className="btn btn-clay btn-lg btn-block" onClick={() => navigate('configurator', { id: p.id, color })}>
               <Icon name="spark" size={18} /> {t.customize}
             </button>
-            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 11 }}>
-              <button className="btn btn-primary btn-lg" style={{ flex: 1 }} onClick={add}><Icon name="bag" size={18} /> {t.add_cart}</button>
-              <button className="btn btn-ghost btn-lg" style={{ flex: 1 }} onClick={() => { if (size) { addToCart({ pid: p.id, color, size, qty: 1, custom: false }); navigate('checkout'); } else setErr(true); }}>{t.buy_now}</button>
-            </div>
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, marginTop: 26, paddingTop: 22, borderTop: '1px solid var(--line)' }}>
