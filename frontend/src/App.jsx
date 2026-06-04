@@ -18,6 +18,23 @@ import { Configurator } from './pages/Configurator.jsx';
 import { Checkout, Confirmation, CartDrawer } from './pages/Checkout.jsx';
 import { Admin } from './pages/Admin.jsx';
 
+// ── Browser-history routing helpers ─────────────────────────
+const ROUTES = ['home', 'catalog', 'product', 'configurator', 'checkout', 'confirmation', 'admin'];
+function parsePath() {
+  const seg = (typeof window !== 'undefined' ? window.location.pathname : '/').split('/').filter(Boolean);
+  const page = seg[0] || 'home';
+  if (!ROUTES.includes(page)) return { page: 'home', params: {} };
+  const params = {};
+  if ((page === 'product' || page === 'configurator') && seg[1]) params.id = decodeURIComponent(seg[1]);
+  return { page, params };
+}
+function urlFor(page, params = {}) {
+  if (page === 'home') return '/';
+  let u = '/' + page;
+  if ((page === 'product' || page === 'configurator') && params.id) u += '/' + encodeURIComponent(params.id);
+  return u;
+}
+
 function Splash() {
   return (
     <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: 'var(--paper)' }}>
@@ -31,7 +48,7 @@ function Splash() {
 
 export default function App() {
   const [lang, setLangState] = React.useState(() => localStorage.getItem('cshop_lang') || 'en');
-  const [route, setRoute] = React.useState({ page: 'home', params: {} });
+  const [route, setRoute] = React.useState(() => parsePath());
   const [cart, setCart] = React.useState([]);
   const [cartOpen, setCartOpen] = React.useState(false);
   const [products, setProducts] = React.useState([]);
@@ -59,8 +76,23 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── navigation ────────────────────────────────────────────
-  const navigate = (page, params = {}) => { setRoute({ page, params }); window.scrollTo({ top: 0, behavior: 'auto' }); };
+  // ── navigation (synced with browser history so ◀/▶ work) ──
+  const navigate = (page, params = {}) => {
+    setRoute({ page, params });
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    try { window.history.pushState({ page, params }, '', urlFor(page, params)); } catch (e) {}
+  };
+  React.useEffect(() => {
+    try { window.history.replaceState({ page: route.page, params: route.params }, '', urlFor(route.page, route.params)); } catch (e) {}
+    const onPop = (e) => {
+      const s = (e.state && e.state.page) ? e.state : parsePath();
+      setRoute({ page: s.page, params: s.params || {} });
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── helpers ───────────────────────────────────────────────
   const getProduct = (id) => products.find((p) => p.id === id);
