@@ -53,7 +53,7 @@ html, body { margin: 0; padding: 0; }
 
 body {
   font-family: var(--sans);
-  background: var(--paper);
+  background: var(--ink); /* shows only in overscroll/safe-area; content sits on a white wrapper */
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;

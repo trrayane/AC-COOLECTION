@@ -188,9 +188,9 @@ export default function App() {
 
   return (
     <ShopCtx.Provider value={ctx}>
-      <div dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+      <div dir={lang === 'ar' ? 'rtl' : 'ltr'} style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--paper)' }}>
         {!isAdmin && <Header />}
-        <main style={{ paddingBottom: isAdmin ? 0 : 40 }}>
+        <main style={{ flex: 1, paddingBottom: isAdmin ? 0 : 40 }}>
           {p === 'home' && <Home />}
           {p === 'catalog' && <Catalog params={route.params} />}
           {p === 'product' && <ProductDetail params={route.params} />}
