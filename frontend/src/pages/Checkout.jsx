@@ -258,7 +258,7 @@ export function Checkout() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                     <Icon name="tag" size={15} style={{ color: 'var(--good)' }} />
                     <span style={{ fontWeight: 700, fontSize: 13, color: '#2a6a2a' }}>{promo.code}</span>
-                    <span style={{ fontSize: 12, color: '#2a6a2a' }}>— {promo.type === 'percent' ? `-${promo.value}%` : `-${fmtDA(promo.value, lang)}`}</span>
+                    <span style={{ fontSize: 12, color: '#2a6a2a' }}>{promo.type === 'percent' ? `-${promo.value}%` : `-${fmtDA(promo.value, lang)}`}</span>
                   </div>
                   <button onClick={() => setPromo(null)} style={{ color: '#2a6a2a', padding: 2 }}><Icon name="close" size={14} /></button>
                 </div>
@@ -279,7 +279,7 @@ export function Checkout() {
             <div style={{ paddingTop: 12 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 8 }}><span className="muted">{t.co_subtotal}</span><span style={{ fontWeight: 600 }}>{fmtDA(cartSubtotal, lang)}</span></div>
               {discount > 0 && <div className="fade-in" style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 8 }}><span style={{ color: 'var(--good)', fontWeight: 600 }}>{lang === 'ar' ? 'تخفيض' : 'Discount'} ({promo.code})</span><span style={{ color: 'var(--good)', fontWeight: 700 }}>−{fmtDA(discount, lang)}</span></div>}
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 8 }}><span className="muted">{t.co_delivery}</span><span style={{ fontWeight: 600 }}>{form.wilaya ? fmtDA(delivery, lang) : '—'}</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 8 }}><span className="muted">{t.co_delivery}</span><span style={{ fontWeight: 600 }}>{form.wilaya ? fmtDA(delivery, lang) : '...'}</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingTop: 12, borderTop: '1px solid var(--line)' }}><span style={{ fontWeight: 700 }}>{t.co_total}</span><span style={{ fontWeight: 800, fontSize: 22 }}>{fmtDA(total, lang)}</span></div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'var(--clay-wash)', borderRadius: 'var(--r-md)', padding: '12px 14px', marginTop: 16 }}>

@@ -20,7 +20,7 @@ export function Wishlist() {
       {items.length === 0 ? (
         <div className="center" style={{ padding: '70px 0', color: 'var(--ink-3)' }}>
           <Icon name="heart" size={44} />
-          <p style={{ marginTop: 14, fontSize: 16 }}>{lang === 'en' ? 'No saved items yet — tap the heart on a product to save it.' : 'لا توجد عناصر محفوظة بعد — اضغط القلب على منتج لحفظه.'}</p>
+          <p style={{ marginTop: 14, fontSize: 16 }}>{lang === 'en' ? 'No saved items yet. Tap the heart on a product to save it.' : 'لا توجد عناصر محفوظة بعد. اضغط القلب على منتج لحفظه.'}</p>
           <button className="btn btn-clay btn-lg" style={{ marginTop: 18 }} onClick={() => navigate('catalog', {})}>{t.see_all}</button>
         </div>
       ) : (

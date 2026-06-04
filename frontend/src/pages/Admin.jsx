@@ -440,7 +440,7 @@ function ProductModal({ product, onClose, onSave, lang, t }) {
             <Field label={t.price + ' (DA)'}><input className="field" type="number" value={f.price} onChange={(e) => setF({ ...f, price: +e.target.value })} /></Field>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 12 }}>
-            <Field label={lang === 'ar' ? 'السعر القديم (تخفيض)' : 'Old price — promo (DA)'}>
+            <Field label={lang === 'ar' ? 'السعر القديم (تخفيض)' : 'Old price / promo (DA)'}>
               <input className="field" type="number" value={f.oldPrice || ''} placeholder={lang === 'ar' ? 'فارغ = بدون تخفيض' : 'Empty = no discount'} onChange={(e) => setF({ ...f, oldPrice: e.target.value === '' ? null : +e.target.value })} />
             </Field>
             <Field label={lang === 'ar' ? 'وسم' : 'Tag'}>
