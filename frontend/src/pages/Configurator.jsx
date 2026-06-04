@@ -78,6 +78,32 @@ export function Configurator({ params }) {
     };
     reader.readAsDataURL(file);
   };
+  // Reusable color picker: swatches row + large free-pick button showing current hex
+  const ColorPicker = ({ value, onChange, swatches }) => {
+    const sw = swatches || ['#23211D','#ffffff','#BE5E37','#334A3A','#C79A3B','#3C5A86','#A8423A','#E8D5B7'];
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {/* Swatches */}
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+          {sw.map((c) => (
+            <button key={c} onClick={() => onChange(c)} style={{
+              width: 28, height: 28, borderRadius: '50%', background: c, flexShrink: 0, transition: 'transform .15s',
+              boxShadow: value === c ? '0 0 0 2.5px #fff, 0 0 0 4.5px #111' : 'inset 0 0 0 1px rgba(0,0,0,.18)',
+              transform: value === c ? 'scale(1.15)' : 'scale(1)',
+            }} />
+          ))}
+        </div>
+        {/* Large free-pick button */}
+        <label style={{ display: 'flex', alignItems: 'center', gap: 10, height: 40, borderRadius: 10, padding: '0 12px', cursor: 'pointer', boxShadow: 'inset 0 0 0 1.4px var(--line)', background: 'var(--paper)', position: 'relative', overflow: 'hidden' }}>
+          <span style={{ width: 22, height: 22, borderRadius: 6, background: value, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.15)', flexShrink: 0 }} />
+          <span style={{ fontSize: 12.5, fontWeight: 700, fontFamily: 'monospace', color: 'var(--ink-2)', letterSpacing: '.04em' }}>{value}</span>
+          <span style={{ marginInlineStart: 'auto', fontSize: 12, color: 'var(--ink-3)' }}>{lang === 'ar' ? 'اختر لوناً' : 'Pick colour'}</span>
+          <input type="color" value={value} onChange={(e) => onChange(e.target.value)} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%' }} />
+        </label>
+      </div>
+    );
+  };
+
   const FONTS = [
     { value: 'Arial, sans-serif',                label: 'Arial' },
     { value: '"Montserrat", sans-serif',          label: 'Montserrat' },
@@ -373,38 +399,27 @@ export function Configurator({ params }) {
                 </div>
               </div>
 
-              {/* Color — swatches + free picker */}
+              {/* Color */}
               <div>
-                <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 5, color: 'var(--ink-2)' }}>{lang === 'ar' ? 'اللون' : 'Color'}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
-                  {['#23211D','#ffffff','#BE5E37','#334A3A','#C79A3B','#3C5A86','#A8423A'].map((c) => (
-                    <button key={c} onClick={() => updateSel({ color: c })} style={{ width: 28, height: 28, borderRadius: '50%', background: c, boxShadow: selPl.color === c ? '0 0 0 2px var(--clay-wash),0 0 0 4px var(--ink)' : 'inset 0 0 0 1px rgba(0,0,0,.2)', flexShrink: 0 }} />
-                  ))}
-                  {/* Free color picker */}
-                  <label title={lang === 'ar' ? 'لون مخصص' : 'Custom color'} style={{ width: 28, height: 28, borderRadius: '50%', background: selPl.color, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.2)', cursor: 'pointer', position: 'relative', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
-                    <span style={{ fontSize: 14, pointerEvents: 'none', filter: 'invert(1) grayscale(1)' }}>+</span>
-                    <input type="color" value={selPl.color} onChange={(e) => updateSel({ color: e.target.value })} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%' }} />
-                  </label>
-                </div>
+                <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8, color: 'var(--ink-2)' }}>{lang === 'ar' ? 'لون النص' : 'Text color'}</div>
+                <ColorPicker value={selPl.color} onChange={(c) => updateSel({ color: c })} />
               </div>
 
               {/* Text outline */}
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink-2)' }}>{lang === 'ar' ? 'حدود النص (outline)' : 'Text outline'}</div>
-                  <button onClick={() => updateSel({ outline: !selPl.outline })} style={{ height: 28, padding: '0 12px', borderRadius: 99, fontSize: 12, fontWeight: 700, background: selPl.outline ? 'var(--ink)' : 'var(--paper)', color: selPl.outline ? '#fff' : 'var(--ink)', boxShadow: selPl.outline ? 'none' : 'inset 0 0 0 1.3px var(--line)' }}>
-                    {selPl.outline ? (lang === 'ar' ? 'مفعّل ✓' : 'On ✓') : (lang === 'ar' ? 'إيقاف' : 'Off')}
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink-2)' }}>{lang === 'ar' ? 'حدود النص' : 'Text outline'}</div>
+                  <button onClick={() => updateSel({ outline: !selPl.outline })} style={{ height: 26, padding: '0 12px', borderRadius: 99, fontSize: 12, fontWeight: 700, background: selPl.outline ? 'var(--ink)' : 'var(--paper)', color: selPl.outline ? '#fff' : 'var(--ink)', boxShadow: selPl.outline ? 'none' : 'inset 0 0 0 1.3px var(--line)' }}>
+                    {selPl.outline ? '✓ On' : 'Off'}
                   </button>
                 </div>
                 {selPl.outline && (
-                  <div className="fade-in" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 12, color: 'var(--ink-3)', whiteSpace: 'nowrap' }}>{lang === 'ar' ? 'لون الحدود' : 'Outline color'}</span>
-                    {['#000000','#ffffff','#BE5E37','#334A3A','#3C5A86'].map((c) => (
-                      <button key={c} onClick={() => updateSel({ outlineColor: c })} style={{ width: 26, height: 26, borderRadius: '50%', background: c, boxShadow: (selPl.outlineColor || '#000000') === c ? '0 0 0 2px var(--clay-wash),0 0 0 4px var(--ink)' : 'inset 0 0 0 1px rgba(0,0,0,.2)', flexShrink: 0 }} />
-                    ))}
-                    <label style={{ width: 26, height: 26, borderRadius: '50%', background: selPl.outlineColor || '#000', boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.2)', cursor: 'pointer', position: 'relative', flexShrink: 0 }}>
-                      <input type="color" value={selPl.outlineColor || '#000000'} onChange={(e) => updateSel({ outlineColor: e.target.value })} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%' }} />
-                    </label>
+                  <div className="fade-in">
+                    <ColorPicker
+                      value={selPl.outlineColor || '#000000'}
+                      onChange={(c) => updateSel({ outlineColor: c })}
+                      swatches={['#000000','#ffffff','#BE5E37','#334A3A','#C79A3B','#3C5A86','#A8423A','#E8D5B7']}
+                    />
                   </div>
                 )}
               </div>
