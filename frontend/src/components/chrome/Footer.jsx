@@ -69,7 +69,14 @@ export function Footer() {
         </div>
         <div style={{ height: 1, background: 'rgba(255,255,255,.14)', margin: '40px 0 22px' }} />
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, justifyContent: 'space-between', alignItems: 'center', fontSize: 12.5, color: 'rgba(255,255,255,.5)' }}>
-          <span>© 2026 AC Collection. {lang === 'en' ? 'All rights reserved.' : 'كل الحقوق محفوظة.'}</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+            <span>© 2026 AC Collection. {lang === 'en' ? 'All rights reserved.' : 'كل الحقوق محفوظة.'}</span>
+            <a href="mailto:rayaneterki55@gmail.com" style={{ color: 'rgba(255,255,255,.4)', textDecoration: 'none', fontSize: 12, transition: 'color .15s' }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'rgba(255,255,255,.75)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,.4)'}>
+              rayaneterki55@gmail.com
+            </a>
+          </div>
           <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Icon name="truck" size={16} /> {lang === 'en' ? 'Cash on delivery · 58 wilayas' : 'الدفع عند الاستلام · 58 ولاية'}
           </span>
