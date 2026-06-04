@@ -517,7 +517,7 @@ function AdminDashboard({ onLogout }) {
                   <h3 style={{ fontSize: 16 }}>{lang === 'en' ? 'Recent orders' : 'الطلبات الأخيرة'}</h3>
                   <button onClick={() => setTab('orders')} style={{ fontSize: 13, fontWeight: 600, color: 'var(--clay-deep)' }}>{t.see_all}</button>
                 </div>
-                {loading ? <p className="dim" style={{ padding: '20px 0', fontSize: 14 }}>{t.loading}</p>
+                {loading ? <div className="center" style={{ padding: '24px 0' }}><div className="dots" style={{ display: 'inline-flex' }}><span /><span /><span /></div></div>
                   : orders.length === 0 ? <p className="dim" style={{ padding: '20px 0', fontSize: 14 }}>{t.adm_no_orders}</p>
                   : orders.slice(0, 6).map((o) => (
                   <div key={o.id} className="adm-row" onClick={() => setDetail(o)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 8px', margin: '0 -8px', borderTop: '1px solid var(--line)' }}>
@@ -553,7 +553,7 @@ function AdminDashboard({ onLogout }) {
                     <span>{t.adm_customer}</span><span>{t.co_commune}</span><span>{t.adm_date}</span><span>{t.adm_total}</span><span>{t.adm_status}</span><span></span>
                   </div>
                 )}
-                {loading ? <div className="center dim" style={{ padding: '40px 0', fontSize: 14 }}>{t.loading}</div>
+                {loading ? <div className="center" style={{ padding: '48px 0' }}><div className="dots" style={{ display: 'inline-flex' }}><span /><span /><span /></div></div>
                   : filteredOrders.length === 0 ? <div className="center" style={{ padding: '54px 0', color: 'var(--ink-3)' }}><Icon name="search" size={32} /><p style={{ marginTop: 10, fontSize: 14 }}>{t.adm_no_orders}</p></div>
                   : filteredOrders.map((o, i) => <OrderRow key={o.id} o={o} isMobile={isMobile} lang={lang} delay={Math.min(i, 12) * 0.025} onOpen={setDetail} onAdvance={handleStatus} />)}
               </div>

@@ -5,10 +5,10 @@ const { requireAdmin } = require('../middleware/auth');
 const { deliveryFee, ORDER_STATUSES } = require('../constants');
 const { notifyNewOrder } = require('../services/notify');
 
-const itemInclude = {
-  model: OrderItem, as: 'items',
-  include: [{ model: Product, as: 'product', include: [{ model: ProductPhoto, as: 'photos' }] }],
-};
+// Snapshots only (productName/price/color/size live on the item). The frontend
+// resolves product details/photos from its in-memory catalog, so we skip the
+// heavy product+photos join → smaller, faster responses.
+const itemInclude = { model: OrderItem, as: 'items' };
 
 // ── Anti-spam (layer 1: per-IP burst, in-memory) ────────────
 const orderHits = new Map(); // ip -> [timestamps]
