@@ -84,11 +84,14 @@ export const STATUS_META = {
 };
 export const STATUS_FLOW = ['pending', 'prep', 'shipped', 'delivered'];
 
-// Local delivery-fee estimate (the backend re-computes the authoritative total).
+// Per-wilaya delivery fees in DZD as [home, desk]. Default 700/400; only the
+// exceptions are listed. Mirrors the backend (which stays authoritative).
+const WILAYA_FEES = {
+  '01': [1300, 700], '08': [800, 400], '11': [1500, 700], '16': [600, 400],
+  '33': [1800, 1500], '37': [1300, 700], '49': [1300, 700], '51': [800, 500], '52': [800, 500],
+};
 export function deliveryFee(wilaya, mode) {
-  const big = ['16 Alger', '09 Blida', '35 Boumerdès', '42 Tipaza'];
-  const tier = big.includes(wilaya) ? 0 : (parseInt(wilaya) > 32 ? 2 : 1);
-  const home = [400, 600, 900][tier];
-  const desk = [250, 350, 500][tier];
+  const code = ((String(wilaya).match(/\d{1,2}/) || [''])[0]).padStart(2, '0');
+  const [home, desk] = WILAYA_FEES[code] || [700, 400];
   return mode === 'desk' ? desk : home;
 }

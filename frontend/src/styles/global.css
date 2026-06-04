@@ -199,7 +199,6 @@ textarea.field { height: auto; padding: 13px 16px; resize: vertical; line-height
 
 /* Announcement bar — seamless scrolling marquee */
 .marquee-track { display: flex; width: max-content; animation: marquee 48s linear infinite; will-change: transform; }
-@media (hover: hover) { .marquee:hover .marquee-track { animation-play-state: paused; } }
 @keyframes marquee { to { transform: translateX(-50%); } }
 
 /* Range inputs */
