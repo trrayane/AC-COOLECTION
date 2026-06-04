@@ -21,6 +21,8 @@ export function ProductDetail({ params }) {
   const [err, setErr] = React.useState(false);
   const [gi, setGi] = React.useState(0);
   React.useEffect(() => { setGi(0); setColor(params.color || (p && p.colors[0])); }, [params.id]);
+  // If the selected size is out of stock for the chosen colour, deselect it
+  React.useEffect(() => { if (p && size && p.stock && p.stock[`${color}:${size}`] === 0) setSize(null); }, [color]);
 
   if (!p) return <div className="wrap dim" style={{ padding: '80px 24px' }}>{t.loading}</div>;
 
@@ -107,14 +109,19 @@ export function ProductDetail({ params }) {
               <button className="muted" style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 5 }}><Icon name="note" size={14} /> {t.size_guide}</button>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
-              {p.sizes.map((s) => (
-                <button key={s} onClick={() => { setSize(s); setErr(false); }} style={{
-                  minWidth: 52, height: 50, borderRadius: 12, fontWeight: 700, fontSize: 14,
-                  background: size === s ? 'var(--ink)' : 'var(--paper-2)', color: size === s ? 'var(--paper)' : 'var(--ink)',
-                  boxShadow: size === s ? 'none' : 'inset 0 0 0 1.5px ' + (err ? 'var(--danger)' : 'var(--line)'),
-                  transition: 'all .15s',
-                }}>{s}</button>
-              ))}
+              {p.sizes.map((s) => {
+                const soldOut = p.stock && p.stock[`${color}:${s}`] === 0;
+                return (
+                  <button key={s} disabled={soldOut} onClick={() => { if (soldOut) return; setSize(s); setErr(false); }}
+                    title={soldOut ? (lang === 'en' ? 'Out of stock' : 'نفد المخزون') : undefined} style={{
+                    minWidth: 52, height: 50, borderRadius: 12, fontWeight: 700, fontSize: 14,
+                    background: size === s ? 'var(--ink)' : 'var(--paper-2)', color: soldOut ? 'var(--ink-3)' : (size === s ? 'var(--paper)' : 'var(--ink)'),
+                    boxShadow: size === s ? 'none' : 'inset 0 0 0 1.5px ' + (err && !soldOut ? 'var(--danger)' : 'var(--line)'),
+                    opacity: soldOut ? 0.5 : 1, cursor: soldOut ? 'not-allowed' : 'pointer', textDecoration: soldOut ? 'line-through' : 'none',
+                    transition: 'all .15s',
+                  }}>{s}</button>
+                );
+              })}
             </div>
             {err && <p style={{ color: 'var(--danger)', fontSize: 13, marginTop: 8, fontWeight: 600 }}>{lang === 'en' ? 'Please select a size.' : 'يرجى اختيار المقاس.'}</p>}
           </div>

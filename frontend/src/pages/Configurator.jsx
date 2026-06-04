@@ -247,7 +247,7 @@ export function Configurator({ params }) {
           <div style={{ flex: 1 }}>
             <div className="field-label">{t.select_size} {sizeErr && <span style={{ color: 'var(--danger)' }}>*</span>}</div>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              {p.sizes.map((s) => <button key={s} onClick={() => { setSize(s); setSizeErr(false); }} style={{ minWidth: 38, height: 34, borderRadius: 9, fontWeight: 700, fontSize: 12.5, background: size === s ? 'var(--ink)' : 'var(--paper)', color: size === s ? '#fff' : 'var(--ink)', boxShadow: size === s ? 'none' : 'inset 0 0 0 1.3px var(--line)' }}>{s}</button>)}
+              {p.sizes.map((s) => { const soldOut = p.stock && p.stock[`${color}:${s}`] === 0; return <button key={s} disabled={soldOut} title={soldOut ? (lang === 'en' ? 'Out of stock' : 'نفد المخزون') : undefined} onClick={() => { if (soldOut) return; setSize(s); setSizeErr(false); }} style={{ minWidth: 38, height: 34, borderRadius: 9, fontWeight: 700, fontSize: 12.5, background: size === s ? 'var(--ink)' : 'var(--paper)', color: soldOut ? 'var(--ink-3)' : (size === s ? '#fff' : 'var(--ink)'), boxShadow: size === s ? 'none' : 'inset 0 0 0 1.3px var(--line)', opacity: soldOut ? 0.5 : 1, cursor: soldOut ? 'not-allowed' : 'pointer', textDecoration: soldOut ? 'line-through' : 'none' }}>{s}</button>; })}
             </div>
           </div>
         </div>
