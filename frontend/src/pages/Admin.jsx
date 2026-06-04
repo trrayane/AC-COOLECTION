@@ -294,6 +294,25 @@ function ProductModal({ product, onClose, onSave, lang, t }) {
             </div>
             <p className="dim" style={{ fontSize: 12, marginTop: 7 }}>{lang === 'ar' ? 'المقاسات المتاحة لهذا المنتج' : 'Sizes available for this product'}</p>
           </Field>
+          {(f.sizes || []).length > 0 && (
+            <Field label={lang === 'ar' ? 'المخزون لكل مقاس' : 'Stock per size'}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                {(f.sizes || []).map((s) => {
+                  const key = `${f.colors[0]}:${s}`;
+                  const val = (f.stock && f.stock[key] != null) ? f.stock[key] : '';
+                  return (
+                    <div key={s} style={{ width: 60 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, textAlign: 'center', marginBottom: 4 }}>{s}</div>
+                      <input className="field" type="number" min="0" value={val} placeholder="∞"
+                        onChange={(e) => { const raw = e.target.value; setF((cur) => { const stock = { ...(cur.stock || {}) }; if (raw === '') delete stock[key]; else stock[key] = Math.max(0, parseInt(raw, 10) || 0); return { ...cur, stock }; }); }}
+                        style={{ height: 42, textAlign: 'center', padding: '0 6px' }} />
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="dim" style={{ fontSize: 12, marginTop: 7 }}>{lang === 'ar' ? 'الكمية لكل مقاس · فارغ = غير محدود · 0 = نفد' : 'Quantity per size · empty = unlimited · 0 = sold out'}</p>
+            </Field>
+          )}
         </div>
         <div style={{ display: 'flex', gap: 12, padding: '0 24px 24px' }}>
           <button className="btn btn-ghost btn-block" onClick={onClose}>{t.adm_cancel}</button>
