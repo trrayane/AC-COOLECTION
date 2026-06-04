@@ -139,4 +139,31 @@ router.patch('/:id/status', requireAdmin, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+// DELETE /api/orders/:id  (admin: delete one order + its items)
+router.delete('/:id', requireAdmin, async (req, res, next) => {
+  try {
+    const order = await Order.findByPk(req.params.id);
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    await OrderItem.destroy({ where: { orderId: order.id } });
+    await order.destroy();
+    res.json({ ok: true });
+  } catch (e) { next(e); }
+});
+
+// DELETE /api/orders?status=cancelled  (admin: bulk-clear every order of a status)
+router.delete('/', requireAdmin, async (req, res, next) => {
+  try {
+    const status = req.query.status;
+    if (!ORDER_STATUSES.includes(status)) {
+      return res.status(400).json({ error: 'A valid ?status= is required' });
+    }
+    const ids = (await Order.findAll({ where: { status }, attributes: ['id'] })).map((o) => o.id);
+    if (ids.length) {
+      await OrderItem.destroy({ where: { orderId: { [Op.in]: ids } } });
+      await Order.destroy({ where: { id: { [Op.in]: ids } } });
+    }
+    res.json({ ok: true, deleted: ids.length });
+  } catch (e) { next(e); }
+});
+
 module.exports = router;

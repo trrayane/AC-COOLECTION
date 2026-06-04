@@ -57,6 +57,8 @@ export const api = {
     list: () => req('/api/orders', { auth: true }),
     get: (id) => req('/api/orders/' + id, { auth: true }),
     setStatus: (id, status) => req(`/api/orders/${id}/status`, { method: 'PATCH', body: { status }, auth: true }),
+    remove: (id) => req('/api/orders/' + id, { method: 'DELETE', auth: true }),
+    clear: (status) => req('/api/orders?status=' + encodeURIComponent(status), { method: 'DELETE', auth: true }),
   },
 
   upload: {

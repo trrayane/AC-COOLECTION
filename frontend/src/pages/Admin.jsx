@@ -48,7 +48,7 @@ function CountUp({ value, fmt }) {
 function StatusBadge({ status, lang, onClick, title }) {
   const m = STATUS_META[status] || STATUS_META.pending;
   const Tag = onClick ? 'button' : 'span';
-  return <Tag onClick={onClick} title={title} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, height: 26, padding: '0 11px', borderRadius: 99, fontSize: 12, fontWeight: 700, color: m.color, background: m.bg, whiteSpace: 'nowrap', cursor: onClick ? 'pointer' : 'default' }}>
+  return <Tag onClick={onClick} title={title} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, height: 26, minWidth: 122, padding: '0 12px', borderRadius: 99, fontSize: 12, fontWeight: 700, color: m.color, background: m.bg, whiteSpace: 'nowrap', cursor: onClick ? 'pointer' : 'default' }}>
     <span style={{ width: 6, height: 6, borderRadius: 9, background: m.dot }} /> {m[lang]}
   </Tag>;
 }
@@ -142,7 +142,7 @@ function PhotoManager({ f, addPending, removeExisting, removePending, lang }) {
   );
 }
 
-function OrderDetailModal({ order, onClose, onStatus, lang, t }) {
+function OrderDetailModal({ order, onClose, onStatus, onDelete, lang, t }) {
   const isMobile = useIsMobile();
   const { getProduct } = useShop();
   const productFor = (it) => getProduct(it.pid) || { id: it.pid, cat: 'tshirt', name_en: it.productName || 'Product', name_ar: it.productName || 'منتج', colors: [it.color || 'ink'], photos: [] };
@@ -154,7 +154,10 @@ function OrderDetailModal({ order, onClose, onStatus, lang, t }) {
       <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: isMobile ? '100%' : 'min(720px, calc(100vw - 20px))', maxHeight: '92vh', overflow: 'auto', animation: 'fadeUp .28s cubic-bezier(.2,.8,.2,1)', borderRadius: isMobile ? '22px 22px 0 0' : 'var(--r-lg)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', borderBottom: '1px solid var(--line)', position: 'sticky', top: 0, background: 'var(--paper-2)', zIndex: 2 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><span style={{ fontWeight: 800, fontSize: 20 }}>{order.id}</span><StatusBadge status={order.status} lang={lang} /></div>
-          <button onClick={onClose}><Icon name="close" size={22} /></button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button onClick={() => onDelete(order)} title={lang === 'en' ? 'Delete order' : 'حذف الطلب'} style={{ width: 34, height: 34, borderRadius: 9, display: 'grid', placeItems: 'center', color: 'var(--danger)', boxShadow: 'inset 0 0 0 1.3px var(--line)' }}><Icon name="trash" size={18} /></button>
+            <button onClick={onClose}><Icon name="close" size={22} /></button>
+          </div>
         </div>
         <div style={{ padding: 24, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 24 }}>
           <div>
@@ -323,7 +326,7 @@ function ProductModal({ product, onClose, onSave, lang, t }) {
   );
 }
 
-function OrderRow({ o, isMobile, lang, onOpen, onAdvance, delay }) {
+function OrderRow({ o, isMobile, lang, onOpen, onAdvance, onDelete, delay }) {
   const nxt = nextStatus(o.status);
   if (isMobile) {
     return (
@@ -355,6 +358,7 @@ function OrderRow({ o, isMobile, lang, onOpen, onAdvance, delay }) {
       <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }} onClick={(e) => e.stopPropagation()}>
         {nxt && <button onClick={() => onAdvance(o.id, nxt)} title={STATUS_META[nxt][lang]} style={{ width: 30, height: 30, borderRadius: 9, background: 'var(--ink)', color: '#fff', display: 'grid', placeItems: 'center' }}><Icon name="check" size={15} /></button>}
         <button onClick={() => onOpen(o)} style={{ width: 30, height: 30, borderRadius: 9, boxShadow: 'inset 0 0 0 1.3px var(--line)', display: 'grid', placeItems: 'center', color: 'var(--ink-2)' }}><Icon name="eye" size={15} /></button>
+        <button onClick={() => onDelete(o)} title={lang === 'en' ? 'Delete' : 'حذف'} style={{ width: 30, height: 30, borderRadius: 9, boxShadow: 'inset 0 0 0 1.3px var(--line)', display: 'grid', placeItems: 'center', color: 'var(--danger)' }}><Icon name="trash" size={15} /></button>
       </div>
     </div>
   );
@@ -455,6 +459,7 @@ function AdminDashboard({ onLogout }) {
   const [query, setQuery] = React.useState('');
   const [editing, setEditing] = React.useState(undefined);
   const [confirmDel, setConfirmDel] = React.useState(null);
+  const [delOrder, setDelOrder] = React.useState(null);
   const [prodQuery, setProdQuery] = React.useState('');
   const [prodCat, setProdCat] = React.useState('all');
 
@@ -473,6 +478,22 @@ function AdminDashboard({ onLogout }) {
     } catch (e) { toast(e.message, 'warn'); }
   };
 
+  const removeOrder = async (id) => {
+    try {
+      await api.orders.remove(id);
+      setOrders((os) => os.filter((o) => o.id !== id));
+      setDetail((d) => (d && d.id === id ? null : d));
+      toast(lang === 'ar' ? 'تم حذف الطلب' : 'Order deleted');
+    } catch (e) { toast(e.message, 'warn'); }
+  };
+  const clearByStatus = async (status) => {
+    try {
+      const r = await api.orders.clear(status);
+      setOrders((os) => os.filter((o) => o.status !== status));
+      toast((lang === 'ar' ? 'تم حذف ' : 'Deleted ') + (r.deleted ?? 0) + (lang === 'ar' ? ' طلب' : ''));
+    } catch (e) { toast(e.message, 'warn'); }
+  };
+
   const today = new Date().toISOString().slice(0, 10);
   const pending = orders.filter((o) => o.status === 'pending').length;
   const revDay = orders.filter((o) => o.date === today && o.status !== 'cancelled').reduce((s, o) => s + o.total, 0);
@@ -486,6 +507,7 @@ function AdminDashboard({ onLogout }) {
 
   let filteredOrders = statusFilter === 'all' ? orders : orders.filter((o) => o.status === statusFilter);
   if (query.trim()) { const q = query.toLowerCase(); filteredOrders = filteredOrders.filter((o) => (o.id + o.name + o.wilaya + o.commune).toLowerCase().includes(q)); }
+  const statusCount = statusFilter === 'all' ? 0 : orders.filter((o) => o.status === statusFilter).length;
 
   const exportCSV = () => {
     const rows = [['Order', 'Customer', 'Phone', 'Wilaya', 'Commune', 'Total', 'Status', 'Date']];
@@ -576,6 +598,9 @@ function AdminDashboard({ onLogout }) {
                   <input className="field" style={{ height: 46, paddingInlineStart: 40 }} placeholder={t.adm_search_orders} value={query} onChange={(e) => setQuery(e.target.value)} />
                 </div>
                 <button className="btn btn-ghost" onClick={exportCSV}><Icon name="upload" size={15} /> {t.adm_export}</button>
+                {statusFilter !== 'all' && statusCount > 0 && (
+                  <button className="btn btn-ghost" style={{ color: 'var(--danger)' }} onClick={() => setDelOrder({ bulk: true, status: statusFilter, count: statusCount })}><Icon name="trash" size={15} /> {(lang === 'ar' ? 'حذف الكل' : 'Delete all')} ({statusCount})</button>
+                )}
               </div>
               <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginBottom: 16 }}>
                 <button className={'chip' + (statusFilter === 'all' ? ' on' : '')} onClick={() => setStatusFilter('all')}>{lang === 'en' ? 'All' : 'الكل'} ({orders.length})</button>
@@ -589,7 +614,7 @@ function AdminDashboard({ onLogout }) {
                 )}
                 {loading ? <div className="center" style={{ padding: '48px 0' }}><div className="dots" style={{ display: 'inline-flex' }}><span /><span /><span /></div></div>
                   : filteredOrders.length === 0 ? <div className="center" style={{ padding: '54px 0', color: 'var(--ink-3)' }}><Icon name="search" size={32} /><p style={{ marginTop: 10, fontSize: 14 }}>{t.adm_no_orders}</p></div>
-                  : filteredOrders.map((o, i) => <OrderRow key={o.id} o={o} isMobile={isMobile} lang={lang} delay={Math.min(i, 12) * 0.025} onOpen={setDetail} onAdvance={handleStatus} />)}
+                  : filteredOrders.map((o, i) => <OrderRow key={o.id} o={o} isMobile={isMobile} lang={lang} delay={Math.min(i, 12) * 0.025} onOpen={setDetail} onAdvance={handleStatus} onDelete={setDelOrder} />)}
               </div>
             </div>
           )}
@@ -696,7 +721,7 @@ function AdminDashboard({ onLogout }) {
         </div>
       </div>
 
-      {detail && <OrderDetailModal order={detail} onClose={() => setDetail(null)} onStatus={handleStatus} lang={lang} t={t} />}
+      {detail && <OrderDetailModal order={detail} onClose={() => setDetail(null)} onStatus={handleStatus} onDelete={setDelOrder} lang={lang} t={t} />}
       {editing !== undefined && <ProductModal product={editing} onClose={() => setEditing(undefined)} onSave={saveAndClose} lang={lang} t={t} />}
       {confirmDel && (
         <div className="fade-in" onClick={() => setConfirmDel(null)} style={{ position: 'fixed', inset: 0, zIndex: 96, background: 'rgba(10,10,10,.55)', display: 'grid', placeItems: 'center', padding: 24 }}>
@@ -707,6 +732,19 @@ function AdminDashboard({ onLogout }) {
             <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
               <button className="btn btn-ghost btn-block" onClick={() => setConfirmDel(null)}>{t.adm_cancel}</button>
               <button className="btn btn-block" style={{ background: 'var(--danger)', color: '#fff' }} onClick={() => { deleteProduct(confirmDel.id); setConfirmDel(null); }}>{t.adm_delete}</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {delOrder && (
+        <div className="fade-in" onClick={() => setDelOrder(null)} style={{ position: 'fixed', inset: 0, zIndex: 96, background: 'rgba(10,10,10,.55)', display: 'grid', placeItems: 'center', padding: 24 }}>
+          <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: 'min(360px, calc(100vw - 20px))', padding: 24, textAlign: 'center', animation: 'fadeUp .25s' }}>
+            <span style={{ width: 52, height: 52, borderRadius: '50%', background: '#F8E0DD', color: 'var(--danger)', display: 'grid', placeItems: 'center', margin: '0 auto 14px' }}><Icon name="trash" size={24} /></span>
+            <h3 style={{ fontSize: 18 }}>{delOrder.bulk ? (lang === 'ar' ? `حذف ${delOrder.count} طلب؟` : `Delete ${delOrder.count} orders?`) : (lang === 'ar' ? 'حذف الطلب؟' : 'Delete this order?')}</h3>
+            <p className="muted" style={{ fontSize: 14, marginTop: 8 }}>{delOrder.bulk ? (lang === 'ar' ? 'لا يمكن التراجع عن هذا الإجراء' : 'This cannot be undone.') : (delOrder.id + ' · ' + delOrder.name)}</p>
+            <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+              <button className="btn btn-ghost btn-block" onClick={() => setDelOrder(null)}>{t.adm_cancel}</button>
+              <button className="btn btn-block" style={{ background: 'var(--danger)', color: '#fff' }} onClick={() => { delOrder.bulk ? clearByStatus(delOrder.status) : removeOrder(delOrder.id); setDelOrder(null); }}>{t.adm_delete}</button>
             </div>
           </div>
         </div>
