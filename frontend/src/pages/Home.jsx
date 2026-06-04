@@ -8,6 +8,7 @@ import { SectionHead } from '../components/ui/SectionHead.jsx';
 import { ProductCard } from '../components/product/ProductCard.jsx';
 import { Garment, GarmentTile, shade } from '../components/garments/Garment.jsx';
 import { colorHex, colorTint } from '../data/constants.js';
+import heroImg from '../assets/hero.jpg';
 
 function HeroSplit() {
   const { t, lang, navigate } = useShop();
@@ -28,8 +29,8 @@ function HeroSplit() {
             <button className="btn btn-ghost btn-lg" onClick={() => navigate('configurator', {})}><Icon name="spark" size={17} /> {t.hero_cta2}</button>
           </div>
         </div>
-        <div style={{ position: 'relative', background: 'linear-gradient(160% 100% at 60% 20%, #F4F4F3, #E9E9E7)', display: 'grid', placeItems: 'center', padding: 30 }}>
-          <Garment type="hoodie" color={colorHex('ink')} style={{ width: '74%', maxHeight: 460, filter: 'drop-shadow(0 30px 50px rgba(0,0,0,.22))' }} />
+        <div style={{ position: 'relative', background: 'linear-gradient(160% 100% at 60% 20%, #F4F4F3, #E9E9E7)', display: 'grid', placeItems: 'center', overflow: 'hidden' }}>
+          <img src={heroImg} alt="Premium tee" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
           <div style={{ position: 'absolute', bottom: 22, insetInlineStart: 22, background: 'var(--paper-2)', borderRadius: 'var(--r-md)', padding: '12px 16px', boxShadow: 'var(--shadow-md)', display: 'flex', alignItems: 'center', gap: 11 }}>
             <span style={{ width: 38, height: 38, borderRadius: '50%', background: 'var(--clay-wash)', display: 'grid', placeItems: 'center', color: 'var(--clay-deep)' }}><Icon name="spark" size={20} /></span>
             <div><div style={{ fontWeight: 700, fontSize: 13 }}>{lang === 'en' ? 'Customizable' : 'قابل للتخصيص'}</div><div className="dim" style={{ fontSize: 12 }}>{lang === 'en' ? 'Logo · text · position' : 'شعار · نص · موضع'}</div></div>
@@ -85,9 +86,10 @@ function CategoryStrip() {
               {img
                 ? <img src={img} alt={c.label} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                 : <div style={{ position: 'absolute', inset: 0, transform: 'translateX(14%)' }}><GarmentTile type={c.id} color={colorHex(c.color)} /></div>}
-              <div style={{ position: 'absolute', insetInlineStart: 16, bottom: 16, zIndex: 2, background: 'rgba(255,255,255,.86)', backdropFilter: 'blur(6px)', borderRadius: 14, padding: '9px 15px', boxShadow: 'var(--shadow-sm)' }}>
-                <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-.02em', color: 'var(--ink)', lineHeight: 1.1 }}>{c.label}</div>
-                <div className="dim" style={{ fontSize: 12.5, fontWeight: 600 }}>{sub}</div>
+              <div style={{ position: 'absolute', insetInline: 0, bottom: 0, height: '52%', background: 'linear-gradient(transparent, rgba(0,0,0,.6))', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', insetInlineStart: 22, bottom: 20, zIndex: 2 }}>
+                <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-.02em', color: '#fff' }}>{c.label}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,.8)' }}>{sub}</div>
               </div>
               <span style={{ position: 'absolute', top: 18, insetInlineEnd: 18, width: 38, height: 38, borderRadius: '50%', background: 'var(--paper-2)', display: 'grid', placeItems: 'center', boxShadow: 'var(--shadow-sm)', zIndex: 2 }}><Icon name="arrow" size={18} /></span>
             </button>
