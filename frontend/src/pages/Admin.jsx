@@ -382,48 +382,63 @@ function AdminLogin({ onAuthed }) {
   };
   const clear = () => setError('');
   return (
-    <div dir={lang === 'ar' ? 'rtl' : 'ltr'} style={{ minHeight: '100vh', background: '#0E0E0E', display: 'grid', placeItems: 'center', padding: 24, position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(60% 45% at 50% 0%, rgba(255,255,255,.07), transparent 70%)' }} />
-      <form onSubmit={submit} className="fade-up" style={{ position: 'relative', width: 'min(400px, calc(100vw - 20px))', background: 'var(--paper)', borderRadius: 'var(--r-xl)', padding: 'clamp(24px, 6vw, 34px) clamp(20px, 6vw, 32px)', boxShadow: 'var(--shadow-lg)' }}>
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <span style={{ width: 54, height: 54, borderRadius: 16, background: 'var(--ink)', color: '#fff', display: 'grid', placeItems: 'center' }}><Icon name="lock" size={24} /></span>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16 }}><Logo size={22} /></div>
-        <h1 style={{ fontSize: 22, textAlign: 'center', marginTop: 14 }}>{lang === 'ar' ? 'لوحة الإدارة' : 'Admin dashboard'}</h1>
-        <p className="muted center" style={{ fontSize: 13.5, marginTop: 6, marginBottom: 22 }}>{lang === 'ar' ? 'سجّل الدخول لإدارة متجرك' : 'Sign in to manage your store'}</p>
+    <div dir={lang === 'ar' ? 'rtl' : 'ltr'} style={{ minHeight: '100vh', background: '#0B0B0C', display: 'grid', placeItems: 'center', padding: 24, position: 'relative', overflow: 'hidden' }}>
+      {/* ambient glows */}
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(65% 50% at 50% -8%, rgba(255,255,255,.10), transparent 60%), radial-gradient(55% 45% at 50% 112%, rgba(193,124,90,.16), transparent 60%)' }} />
+      {/* faint dot grid */}
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px)', backgroundSize: '22px 22px', WebkitMaskImage: 'radial-gradient(75% 65% at 50% 38%, #000, transparent)', maskImage: 'radial-gradient(75% 65% at 50% 38%, #000, transparent)' }} />
 
-        {error && (
-          <div className="fade-in" style={{ display: 'flex', alignItems: 'center', gap: 9, background: '#F8E0DD', color: 'var(--danger)', borderRadius: 'var(--r-md)', padding: '11px 14px', fontSize: 13.5, fontWeight: 600, marginBottom: 14 }}>
-            <Icon name="close" size={16} style={{ flexShrink: 0 }} /> {error}
-          </div>
-        )}
+      <div className="fade-up" style={{ position: 'relative', width: 'min(410px, calc(100vw - 20px))' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 22 }}><Logo size={24} light /></div>
 
-        <div style={{ display: 'grid', gap: 13 }}>
-          <div>
-            <div className="field-label">{t.adm_username}</div>
-            <div style={{ position: 'relative' }}>
-              <span style={{ position: 'absolute', insetInlineStart: 13, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-3)' }}><Icon name="user" size={17} /></span>
-              <input className="field" style={{ paddingInlineStart: 40 }} value={username} onChange={(e) => { setUsername(e.target.value); clear(); }} placeholder={t.adm_username} autoFocus autoComplete="username" />
+        <form onSubmit={submit} style={{ background: 'var(--paper)', borderRadius: 24, padding: 'clamp(24px, 6vw, 34px)', boxShadow: '0 30px 80px -24px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.05)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 13 }}>
+            <span style={{ width: 46, height: 46, borderRadius: 14, background: 'var(--ink)', color: '#fff', display: 'grid', placeItems: 'center', flexShrink: 0 }}><Icon name="lock" size={21} /></span>
+            <div>
+              <h1 style={{ fontSize: 19, lineHeight: 1.15 }}>{lang === 'ar' ? 'لوحة الإدارة' : 'Admin dashboard'}</h1>
+              <p className="muted" style={{ fontSize: 13 }}>{lang === 'ar' ? 'سجّل الدخول لإدارة متجرك' : 'Sign in to manage your store'}</p>
             </div>
           </div>
-          <div>
-            <div className="field-label">{t.adm_password}</div>
-            <div style={{ position: 'relative' }}>
-              <span style={{ position: 'absolute', insetInlineStart: 13, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-3)' }}><Icon name="lock" size={17} /></span>
-              <input className="field" type={showPw ? 'text' : 'password'} style={{ paddingInlineStart: 40, paddingInlineEnd: 44 }} value={password} onChange={(e) => { setPassword(e.target.value); clear(); }} placeholder={t.adm_password} autoComplete="current-password" />
-              <button type="button" onClick={() => setShowPw((s) => !s)} aria-label="show/hide password" style={{ position: 'absolute', insetInlineEnd: 8, top: '50%', transform: 'translateY(-50%)', color: showPw ? 'var(--ink)' : 'var(--ink-3)', padding: 6 }}><Icon name="eye" size={18} /></button>
-            </div>
-          </div>
-          <button className="btn btn-clay btn-lg btn-block" type="submit" disabled={busy || !username || !password} style={{ marginTop: 4 }}>
-            {busy ? <span className="spin" /> : <Icon name="logout" size={17} />} {t.adm_login}
-          </button>
-        </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, marginTop: 18, color: 'var(--ink-3)', fontSize: 12 }}>
-          <Icon name="shield" size={14} /> {lang === 'ar' ? 'منطقة آمنة · دخول مصرّح به فقط' : 'Secure area · authorized access only'}
-        </div>
-        <button type="button" className="btn btn-ghost btn-block btn-sm" style={{ marginTop: 14 }} onClick={() => navigate('home')}><Icon name="arrowL" size={15} /> {t.adm_back_shop}</button>
-      </form>
+          <div style={{ height: 1, background: 'var(--line)', margin: '20px 0' }} />
+
+          {error && (
+            <div className="fade-in" style={{ display: 'flex', alignItems: 'center', gap: 9, background: '#F8E0DD', color: 'var(--danger)', borderRadius: 'var(--r-md)', padding: '11px 14px', fontSize: 13.5, fontWeight: 600, marginBottom: 14 }}>
+              <Icon name="close" size={16} style={{ flexShrink: 0 }} /> {error}
+            </div>
+          )}
+
+          <div style={{ display: 'grid', gap: 13 }}>
+            <div>
+              <div className="field-label">{t.adm_username}</div>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', insetInlineStart: 13, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-3)' }}><Icon name="user" size={17} /></span>
+                <input className="field" style={{ paddingInlineStart: 40 }} value={username} onChange={(e) => { setUsername(e.target.value); clear(); }} placeholder={t.adm_username} autoFocus autoComplete="username" />
+              </div>
+            </div>
+            <div>
+              <div className="field-label">{t.adm_password}</div>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', insetInlineStart: 13, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-3)' }}><Icon name="lock" size={17} /></span>
+                <input className="field" type={showPw ? 'text' : 'password'} style={{ paddingInlineStart: 40, paddingInlineEnd: 44 }} value={password} onChange={(e) => { setPassword(e.target.value); clear(); }} placeholder={t.adm_password} autoComplete="current-password" />
+                <button type="button" onClick={() => setShowPw((s) => !s)} aria-label="show/hide password" style={{ position: 'absolute', insetInlineEnd: 8, top: '50%', transform: 'translateY(-50%)', color: showPw ? 'var(--ink)' : 'var(--ink-3)', padding: 6 }}><Icon name="eye" size={18} /></button>
+              </div>
+            </div>
+            <button className="btn btn-clay btn-lg btn-block" type="submit" disabled={busy || !username || !password} style={{ marginTop: 4 }}>
+              {busy ? <span className="spin" /> : <Icon name="logout" size={17} />} {t.adm_login}
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, marginTop: 18, color: 'var(--ink-3)', fontSize: 12 }}>
+            <Icon name="shield" size={14} /> {lang === 'ar' ? 'منطقة آمنة · دخول مصرّح به فقط' : 'Secure area · authorized access only'}
+          </div>
+        </form>
+
+        <button type="button" onClick={() => navigate('home')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, margin: '18px auto 0', color: 'rgba(255,255,255,.6)', fontSize: 13, fontWeight: 600, transition: 'color .15s' }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')} onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,.6)')}>
+          <Icon name="arrowL" size={15} /> {t.adm_back_shop}
+        </button>
+      </div>
     </div>
   );
 }

@@ -148,7 +148,7 @@ export function Configurator({ params }) {
       <div ref={stageRef} onPointerDown={() => setSel(null)} style={{
         position: 'relative', aspectRatio: '4/5', borderRadius: 'var(--r-xl)', overflow: 'hidden',
         background: `radial-gradient(120% 120% at 50% 18%, ${colorTint(color)}, ${shade(colorTint(color), -10)})`,
-        userSelect: 'none', touchAction: 'none',
+        userSelect: 'none', touchAction: 'pan-y', /* let the page scroll when touching the photo; elements below capture their own drags */
       }}>
         {baseImg
           ? <img src={baseImg} alt={p['name_' + lang]} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
@@ -166,7 +166,7 @@ export function Configurator({ params }) {
         {zonePlacements.map((pl) => (
           <div key={pl.id} onPointerDown={(e) => onElemDown(e, pl)} style={{
             position: 'absolute', left: pl.xPct + '%', top: pl.yPct + '%', width: pl.wPct + '%',
-            transform: `translate(-50%,-50%) rotate(${pl.rot}deg)`, cursor: 'grab',
+            transform: `translate(-50%,-50%) rotate(${pl.rot}deg)`, cursor: 'grab', touchAction: 'none',
             outline: sel === pl.id ? '2px solid var(--clay)' : 'none', outlineOffset: 3, borderRadius: 2,
           }}>
             {pl.type === 'image' && <img src={pl.img} draggable="false" style={{ width: '100%', display: 'block', pointerEvents: 'none', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,.18))', opacity: pl._uploading ? 0.6 : 1 }} />}
@@ -175,7 +175,7 @@ export function Configurator({ params }) {
             {sel === pl.id && (
               <div onPointerDown={(e) => onResizeDown(e, pl)} style={{
                 position: 'absolute', insetInlineEnd: -9, bottom: -9, width: 18, height: 18, borderRadius: '50%',
-                background: 'var(--clay)', border: '2px solid #fff', cursor: 'nwse-resize', boxShadow: 'var(--shadow-sm)',
+                background: 'var(--clay)', border: '2px solid #fff', cursor: 'nwse-resize', touchAction: 'none', boxShadow: 'var(--shadow-sm)',
               }} />
             )}
           </div>
