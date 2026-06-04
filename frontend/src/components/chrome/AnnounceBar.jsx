@@ -21,8 +21,8 @@ export function AnnounceBar() {
   );
 
   return (
-    <div className="marquee" style={{ background: 'var(--ink)', color: 'var(--paper)', overflow: 'hidden', height: 36 }}>
-      <div className="marquee-track" style={{ height: 36, alignItems: 'center', animationDirection: lang === 'ar' ? 'reverse' : 'normal' }}>
+    <div className="marquee" dir="ltr" style={{ background: 'var(--ink)', color: 'var(--paper)', overflow: 'hidden', height: 36 }}>
+      <div className="marquee-track" style={{ height: 36, alignItems: 'center' }}>
         <Group /><Group hidden />
       </div>
     </div>
