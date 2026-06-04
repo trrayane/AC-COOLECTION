@@ -78,28 +78,50 @@ export function Configurator({ params }) {
     };
     reader.readAsDataURL(file);
   };
-  // Color picker: big current-color button + preset swatches
+  // Custom in-page color picker (no native popup — fully scrollable on mobile)
+  // Uses HSL internally; hex ↔ hsl helpers below.
+  const hexToHsl = (hex) => {
+    let r = parseInt(hex.slice(1,3),16)/255, g = parseInt(hex.slice(3,5),16)/255, b = parseInt(hex.slice(5,7),16)/255;
+    const max = Math.max(r,g,b), min = Math.min(r,g,b); let h,s,l=(max+min)/2;
+    if (max===min){h=s=0;}else{const d=max-min;s=l>0.5?d/(2-max-min):d/(max+min);switch(max){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;default:h=(r-g)/d+4;}h/=6;}
+    return [Math.round(h*360), Math.round(s*100), Math.round(l*100)];
+  };
+  const hslToHex = (h,s,l) => {
+    s/=100; l/=100; const k=n=>{ const c=(n+h/30)%12; const a=s*Math.min(l,1-l); return l-a*Math.max(-1,Math.min(k=>k-3,Math.min(9-k,1))(c)); };
+    const f=n=>{const c=(n+h/30)%12,a=s*Math.min(l,1-l);return Math.round((l-a*Math.max(-1,Math.min(c-3,Math.min(9-c,1))))*255).toString(16).padStart(2,'0');};
+    return '#'+f(0)+f(8)+f(4);
+  };
   const ColorPicker = ({ value, onChange, swatches }) => {
-    const sw = swatches || ['#0E0E0E','#ffffff','#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c','#3498db','#9b59b6','#BE5E37','#334A3A','#C79A3B'];
+    const sw = swatches || ['#0E0E0E','#ffffff','#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c','#3498db','#8e44ad','#BE5E37','#334A3A','#C79A3B'];
+    const safeHex = /^#[0-9a-fA-F]{6}$/.test(value) ? value : '#000000';
+    const [h,s,l] = hexToHsl(safeHex);
+    const isLight = l > 55;
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {/* Big current color — click to open native picker */}
-        <label style={{ cursor: 'pointer', position: 'relative', display: 'block' }}>
-          <div style={{
-            height: 52, borderRadius: 12, background: value,
-            boxShadow: 'inset 0 0 0 1.5px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.1)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'filter .15s',
-          }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={parseInt(value.slice(1),16) > 0x888888 ? '#000' : '#fff'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: .7 }}>
-              <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
-            </svg>
-            <span style={{ fontSize: 13, fontWeight: 700, fontFamily: 'monospace', color: parseInt(value.slice(1),16) > 0x888888 ? '#000' : '#fff', opacity: .85, letterSpacing: '.06em' }}>{value.toUpperCase()}</span>
+        {/* Color preview */}
+        <div style={{ height: 48, borderRadius: 12, background: safeHex, boxShadow: 'inset 0 0 0 1.5px rgba(0,0,0,.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <span style={{ fontSize: 12.5, fontWeight: 700, fontFamily: 'monospace', color: isLight ? '#000' : '#fff', opacity: .8, letterSpacing: '.06em' }}>{safeHex.toUpperCase()}</span>
+        </div>
+        {/* Hue slider */}
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '.06em' }}>{lang === 'ar' ? 'اللون' : 'Hue'}</div>
+          <div style={{ position: 'relative', height: 28, borderRadius: 99, background: 'linear-gradient(to right,hsl(0,90%,55%),hsl(30,90%,55%),hsl(60,90%,55%),hsl(90,90%,55%),hsl(120,90%,55%),hsl(150,90%,55%),hsl(180,90%,55%),hsl(210,90%,55%),hsl(240,90%,55%),hsl(270,90%,55%),hsl(300,90%,55%),hsl(330,90%,55%),hsl(360,90%,55%))', boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.1)' }}>
+            <input type="range" min="0" max="360" value={h} onChange={(e) => onChange(hslToHex(+e.target.value, s||80, l||55))}
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', margin: 0 }} />
+            <div style={{ position: 'absolute', top: '50%', left: (h/360*100)+'%', transform: 'translate(-50%,-50%)', width: 22, height: 22, borderRadius: '50%', background: `hsl(${h},90%,55%)`, border: '2.5px solid #fff', boxShadow: '0 1px 4px rgba(0,0,0,.3)', pointerEvents: 'none' }} />
           </div>
-          <input type="color" value={value} onChange={(e) => onChange(e.target.value)}
-            style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', borderRadius: 12 }} />
-        </label>
+        </div>
+        {/* Lightness slider */}
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '.06em' }}>{lang === 'ar' ? 'السطوع' : 'Light'}</div>
+          <div style={{ position: 'relative', height: 28, borderRadius: 99, background: `linear-gradient(to right, #000, hsl(${h},80%,50%), #fff)`, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.1)' }}>
+            <input type="range" min="5" max="95" value={l} onChange={(e) => onChange(hslToHex(h, s||80, +e.target.value))}
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', margin: 0 }} />
+            <div style={{ position: 'absolute', top: '50%', left: ((l-5)/90*100)+'%', transform: 'translate(-50%,-50%)', width: 22, height: 22, borderRadius: '50%', background: safeHex, border: '2.5px solid #fff', boxShadow: '0 1px 4px rgba(0,0,0,.3)', pointerEvents: 'none' }} />
+          </div>
+        </div>
         {/* Quick swatches */}
-        <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {sw.map((c) => (
             <button key={c} onClick={() => onChange(c)} style={{
               width: 30, height: 30, borderRadius: 8, background: c, flexShrink: 0, transition: 'transform .12s, box-shadow .12s',
