@@ -6,6 +6,7 @@ import { ProductImage } from '../components/product/ProductImage.jsx';
 import { colorTint, fmtDA } from '../data/constants.js';
 import { shade } from '../components/garments/Garment.jsx';
 
+
 export function Promotions() {
   const { t, lang, navigate, products } = useShop();
 
@@ -67,36 +68,12 @@ export function Promotions() {
         </div>
       </div>
 
-      {/* Rest as compact list */}
+      {/* Rest as card grid */}
       {rest.length > 0 && (
         <>
-          <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 14 }}>{lang === 'ar' ? 'عروض أخرى' : 'More deals'}</h3>
-          <div style={{ display: 'grid', gap: 1, borderRadius: 'var(--r-lg)', overflow: 'hidden', boxShadow: 'inset 0 0 0 1px var(--line)' }}>
-            {rest.map((p) => {
-              const pct = Math.round((1 - p.price / p.oldPrice) * 100);
-              const saving = p.oldPrice - p.price;
-              return (
-                <div key={p.id} className="adm-row" onClick={() => navigate('product', { id: p.id, color: p.colors[0] })} style={{ display: 'grid', gridTemplateColumns: '56px 1fr auto', alignItems: 'center', gap: 14, padding: '13px 16px', background: 'var(--paper)', cursor: 'pointer', borderBottom: '1px solid var(--line)' }}>
-                  <div style={{ width: 56, height: 68, borderRadius: 10, overflow: 'hidden', background: colorTint(p.colors[0]), flexShrink: 0 }}>
-                    <ProductImage p={p} color={p.colors[0]} />
-                  </div>
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p['name_' + lang]}</div>
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
-                      <span style={{ fontWeight: 800, fontSize: 15, color: 'var(--clay-deep)' }}>{fmtDA(p.price, lang)}</span>
-                      <span className="dim" style={{ fontSize: 13, textDecoration: 'line-through' }}>{fmtDA(p.oldPrice, lang)}</span>
-                    </div>
-                    <div style={{ fontSize: 12, color: 'var(--good)', fontWeight: 600, marginTop: 2 }}>
-                      {lang === 'ar' ? `توفير ${fmtDA(saving, lang)}` : `Save ${fmtDA(saving, lang)}`}
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
-                    <span style={{ background: 'var(--clay)', color: '#fff', fontWeight: 800, fontSize: 13, padding: '4px 11px', borderRadius: 99 }}>−{pct}%</span>
-                    <Icon name="arrow" size={16} style={{ color: 'var(--ink-3)' }} />
-                  </div>
-                </div>
-              );
-            })}
+          <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 16 }}>{lang === 'ar' ? 'عروض أخرى' : 'More deals'}</h3>
+          <div className="prod-grid">
+            {rest.map((p, i) => <ProductCard key={p.id} p={p} index={i} />)}
           </div>
         </>
       )}

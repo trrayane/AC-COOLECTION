@@ -4,13 +4,13 @@
 
 export const I18N = {
   en: {
-    nav_new: 'New In', nav_tshirt: 'T-shirts', nav_pull: 'Sweaters', nav_hoodie: 'Hoodies',
+    nav_new: 'New Arrivals', nav_tshirt: 'T-shirts', nav_pull: 'Sweaters', nav_hoodie: 'Hoodies',
     nav_custom: 'Customize', search: 'Search for an item…',
     hero_eyebrow: 'Autumn Collection · Made in Algeria',
     hero_title: 'Wear your', hero_title_em: 'signature.',
     hero_sub: 'Premium cotton sweaters, t-shirts and hoodies — customize them with your own design. Cash on delivery, anywhere in Algeria.',
     hero_cta: 'Shop the collection', hero_cta2: 'Customize an item',
-    new_in: 'New In', new_sub: 'Just arrived', see_all: 'View all',
+    new_in: 'New Arrivals', new_sub: 'Just arrived', see_all: 'View all',
     bestsellers: 'Best sellers', shop_cat: 'Shop by category',
     feat_custom_t: 'Your design, your garment',
     feat_custom_s: 'Upload a logo, place it wherever you want, add your instructions. We print, we deliver.',
