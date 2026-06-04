@@ -3,6 +3,7 @@ const { Op } = require('sequelize');
 const { Order, OrderItem, Product, ProductPhoto } = require('../models');
 const { requireAdmin } = require('../middleware/auth');
 const { deliveryFee, ORDER_STATUSES } = require('../constants');
+const { notifyNewOrder } = require('../services/notify');
 
 const itemInclude = {
   model: OrderItem, as: 'items',
@@ -95,6 +96,7 @@ router.post('/', async (req, res, next) => {
     }
 
     const full = await Order.findByPk(order.id, { include: [itemInclude] });
+    await notifyNewOrder(full); // alert the owner (Telegram/email) if configured — never throws
     res.status(201).json(full);
   } catch (e) { next(e); }
 });
