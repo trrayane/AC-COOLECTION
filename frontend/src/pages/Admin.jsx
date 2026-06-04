@@ -76,6 +76,7 @@ function Sidebar({ tab, setTab, lang, t, navigate, onLogout, pending }) {
     { id: 'orders', icon: 'box', label: t.adm_orders, badge: pending },
     { id: 'products', icon: 'tag', label: t.adm_products },
     { id: 'stock', icon: 'layers', label: t.adm_stock },
+    { id: 'promos', icon: 'tag', label: lang === 'ar' ? 'الكوبونات' : 'Promo codes' },
   ];
   return (
     <aside style={{ width: 244, flexShrink: 0, background: '#141414', color: '#fff', position: 'sticky', top: 0, alignSelf: 'flex-start', height: '100vh', display: 'flex', flexDirection: 'column', padding: '24px 16px' }}>
@@ -635,6 +636,8 @@ function AdminDashboard({ onLogout }) {
   const [editing, setEditing] = React.useState(undefined);
   const [confirmDel, setConfirmDel] = React.useState(null);
   const [delOrder, setDelOrder] = React.useState(null);
+  const [promos, setPromos] = React.useState([]);
+  const [promoForm, setPromoForm] = React.useState(null); // null=hidden, {}=new, {...}=editing
   const [prodQuery, setProdQuery] = React.useState('');
   const [prodCat, setProdCat] = React.useState('all');
 
@@ -643,6 +646,7 @@ function AdminDashboard({ onLogout }) {
     api.orders.list().then((data) => setOrders(data.map(normOrder))).catch((e) => toast(e.message, 'warn')).finally(() => setLoading(false));
   }, [toast]);
   React.useEffect(() => { loadOrders(); }, [loadOrders]);
+  React.useEffect(() => { if (tab === 'promos') api.promo.list().then(setPromos).catch(() => {}); }, [tab]);
 
   const handleStatus = async (id, status) => {
     try {
@@ -693,12 +697,13 @@ function AdminDashboard({ onLogout }) {
     toast(lang === 'ar' ? 'تم تصدير الطلبات' : 'Orders exported');
   };
 
-  const titles = { overview: t.adm_overview, orders: t.adm_orders, products: t.adm_products, stock: t.adm_stock };
+  const titles = { overview: t.adm_overview, orders: t.adm_orders, products: t.adm_products, stock: t.adm_stock, promos: lang === 'ar' ? 'الكوبونات' : 'Promo codes' };
   const subtitles = {
     overview: lang === 'ar' ? 'ملخص أداء متجرك' : 'Your store at a glance',
     orders: orders.length + ' ' + (lang === 'ar' ? 'طلب' : 'orders') + ' · ' + pending + ' ' + STATUS_META.pending[lang].toLowerCase(),
     products: products.length + ' ' + (lang === 'ar' ? 'منتج' : 'products'),
     stock: lowStock.length + ' ' + (lang === 'ar' ? 'تنبيه' : 'low-stock alerts'),
+    promos: lang === 'ar' ? 'كوبونات الخصم' : 'Discount coupons',
   };
 
   const saveAndClose = async (f) => { await saveProduct(f); setEditing(undefined); };
@@ -727,7 +732,7 @@ function AdminDashboard({ onLogout }) {
           </div>
           {isMobile && (
             <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '0 16px 12px' }} className="no-bar">
-              {['overview', 'orders', 'products', 'stock'].map((id) => (
+              {['overview', 'orders', 'products', 'stock', 'promos'].map((id) => (
                 <button key={id} onClick={() => setTab(id)} className={'chip' + (tab === id ? ' on' : '')} style={{ flexShrink: 0 }}>{titles[id]}</button>
               ))}
             </div>
@@ -842,6 +847,64 @@ function AdminDashboard({ onLogout }) {
                       </div>
                     );
                   })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {tab === 'promos' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+                <button className="btn btn-clay" onClick={() => setPromoForm({ code: '', type: 'percent', value: 10, active: true, usageLimit: '', expiresAt: '' })}><Icon name="plus" size={17} /> {lang === 'ar' ? 'كود جديد' : 'New code'}</button>
+              </div>
+              {promos.length === 0
+                ? <div className="center card" style={{ padding: '48px 0', color: 'var(--ink-3)' }}><Icon name="tag" size={36} /><p style={{ marginTop: 12, fontSize: 14 }}>{lang === 'ar' ? 'لا توجد كوبونات بعد' : 'No promo codes yet'}</p></div>
+                : <div className="card" style={{ overflow: 'hidden' }}>
+                    {!isMobile && <div style={{ display: 'grid', gridTemplateColumns: '1.2fr .6fr .8fr .6fr .7fr 80px', gap: 12, padding: '11px 20px', background: 'var(--sand)', borderBottom: '1px solid var(--line)', fontSize: 11.5, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.05em' }}>
+                      <span>{lang === 'ar' ? 'الكود' : 'Code'}</span><span>{lang === 'ar' ? 'النوع' : 'Type'}</span><span>{lang === 'ar' ? 'القيمة' : 'Value'}</span><span>{lang === 'ar' ? 'الاستخدام' : 'Uses'}</span><span>{lang === 'ar' ? 'الحالة' : 'Status'}</span><span />
+                    </div>}
+                    {promos.map((p, i) => (
+                      <div key={p.id} className="adm-row adm-in" style={{ display: isMobile ? 'flex' : 'grid', gridTemplateColumns: '1.2fr .6fr .8fr .6fr .7fr 80px', gap: 12, alignItems: 'center', padding: isMobile ? '14px 16px' : '13px 20px', borderTop: i ? '1px solid var(--line)' : 'none', flexWrap: 'wrap' }}>
+                        <span style={{ fontWeight: 800, fontSize: 15, letterSpacing: '.04em', fontFamily: 'monospace' }}>{p.code}</span>
+                        <span className="muted" style={{ fontSize: 13 }}>{p.type === 'percent' ? '%' : 'DA'}</span>
+                        <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--clay-deep)' }}>{p.type === 'percent' ? `-${p.value}%` : `-${p.value} DA`}</span>
+                        <span className="muted" style={{ fontSize: 13 }}>{p.usedCount}{p.usageLimit ? `/${p.usageLimit}` : ''}</span>
+                        <span><button onClick={async () => { await api.promo.update(p.id, { active: !p.active }); setPromos((ps) => ps.map((x) => x.id === p.id ? { ...x, active: !p.active } : x)); }} style={{ height: 26, padding: '0 11px', borderRadius: 99, fontSize: 12, fontWeight: 700, background: p.active ? '#E0F0E2' : '#f4f4f3', color: p.active ? '#2a6a2a' : 'var(--ink-3)' }}>{p.active ? (lang === 'ar' ? 'فعّال' : 'Active') : (lang === 'ar' ? 'موقوف' : 'Off')}</button></span>
+                        <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                          <button onClick={() => setPromoForm({ ...p, usageLimit: p.usageLimit || '', expiresAt: p.expiresAt || '' })} style={{ width: 30, height: 30, borderRadius: 9, boxShadow: 'inset 0 0 0 1.3px var(--line)', display: 'grid', placeItems: 'center' }}><Icon name="edit" size={14} /></button>
+                          <button onClick={async () => { await api.promo.remove(p.id); setPromos((ps) => ps.filter((x) => x.id !== p.id)); toast(lang === 'ar' ? 'تم الحذف' : 'Deleted'); }} style={{ width: 30, height: 30, borderRadius: 9, boxShadow: 'inset 0 0 0 1.3px var(--line)', display: 'grid', placeItems: 'center', color: 'var(--danger)' }}><Icon name="trash" size={14} /></button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>}
+              {promoForm !== null && (
+                <div className="fade-in" onClick={() => setPromoForm(null)} style={{ position: 'fixed', inset: 0, zIndex: 96, background: 'rgba(10,10,10,.55)', display: 'grid', placeItems: 'center', padding: 24 }}>
+                  <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: 'min(420px, calc(100vw - 20px))', padding: 24, animation: 'fadeUp .25s' }}>
+                    <h3 style={{ fontSize: 17, marginBottom: 18 }}>{promoForm.id ? (lang === 'ar' ? 'تعديل الكود' : 'Edit code') : (lang === 'ar' ? 'كود جديد' : 'New promo code')}</h3>
+                    <div style={{ display: 'grid', gap: 13 }}>
+                      {!promoForm.id && <div><div className="field-label">{lang === 'ar' ? 'الكود' : 'Code'}</div><input className="field" style={{ textTransform: 'uppercase' }} value={promoForm.code} onChange={(e) => setPromoForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))} placeholder="EX: SUMMER20" /></div>}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                        <div><div className="field-label">{lang === 'ar' ? 'النوع' : 'Type'}</div>
+                          <select className="field" value={promoForm.type} onChange={(e) => setPromoForm((f) => ({ ...f, type: e.target.value }))}><option value="percent">Percent (%)</option><option value="fixed">Fixed (DA)</option></select>
+                        </div>
+                        <div><div className="field-label">{lang === 'ar' ? 'القيمة' : 'Value'}</div><input className="field" type="number" min="1" value={promoForm.value} onChange={(e) => setPromoForm((f) => ({ ...f, value: +e.target.value }))} /></div>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                        <div><div className="field-label">{lang === 'ar' ? 'حد الاستخدام' : 'Usage limit'}</div><input className="field" type="number" min="0" value={promoForm.usageLimit} onChange={(e) => setPromoForm((f) => ({ ...f, usageLimit: e.target.value }))} placeholder={lang === 'ar' ? 'فارغ = غير محدود' : 'Empty = unlimited'} /></div>
+                        <div><div className="field-label">{lang === 'ar' ? 'تاريخ الانتهاء' : 'Expires'}</div><input className="field" type="date" value={promoForm.expiresAt} onChange={(e) => setPromoForm((f) => ({ ...f, expiresAt: e.target.value }))} /></div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+                      <button className="btn btn-ghost btn-block" onClick={() => setPromoForm(null)}>{t.adm_cancel}</button>
+                      <button className="btn btn-clay btn-block" onClick={async () => {
+                        try {
+                          if (promoForm.id) { const u = await api.promo.update(promoForm.id, promoForm); setPromos((ps) => ps.map((x) => x.id === promoForm.id ? u : x)); }
+                          else { const c = await api.promo.create(promoForm); setPromos((ps) => [c, ...ps]); }
+                          toast(lang === 'ar' ? 'تم الحفظ' : 'Saved'); setPromoForm(null);
+                        } catch (e) { toast(e.message, 'warn'); }
+                      }}><Icon name="check" size={16} /> {t.adm_save}</button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

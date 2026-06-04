@@ -61,6 +61,14 @@ export const api = {
     clear: (status) => req('/api/orders?status=' + encodeURIComponent(status), { method: 'DELETE', auth: true }),
   },
 
+  promo: {
+    validate: (code) => req('/api/promo/validate', { method: 'POST', body: { code } }),
+    list: () => req('/api/promo', { auth: true }),
+    create: (data) => req('/api/promo', { method: 'POST', body: data, auth: true }),
+    update: (id, data) => req('/api/promo/' + id, { method: 'PUT', body: data, auth: true }),
+    remove: (id) => req('/api/promo/' + id, { method: 'DELETE', auth: true }),
+  },
+
   upload: {
     design: (file) => {
       const fd = new FormData();

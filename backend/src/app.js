@@ -36,6 +36,7 @@ app.use('/api/products', require('./routes/products'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/meta', require('./routes/meta'));
 app.use('/api/upload', require('./routes/upload'));
+app.use('/api/promo', require('./routes/promo'));
 
 // Error handler
 app.use((err, req, res, next) => {

@@ -20,7 +20,17 @@ export function ProductDetail({ params }) {
   const [view, setView] = React.useState('front');
   const [err, setErr] = React.useState(false);
   const [gi, setGi] = React.useState(0);
+  const touchX = React.useRef(null);
   React.useEffect(() => { setGi(0); setColor(params.color || (p && p.colors[0])); }, [params.id]);
+
+  const onTouchStart = (e) => { touchX.current = e.touches[0].clientX; };
+  const onTouchEnd = (e, total) => {
+    if (touchX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchX.current;
+    touchX.current = null;
+    if (Math.abs(dx) < 40) return; // too short
+    setGi((i) => dx < 0 ? Math.min(i + 1, total - 1) : Math.max(i - 1, 0));
+  };
   // If the selected size is out of stock for the chosen colour, deselect it
   React.useEffect(() => { if (p && size && p.stock && p.stock[`${color}:${size}`] === 0) setSize(null); }, [color]);
 
@@ -45,11 +55,21 @@ export function ProductDetail({ params }) {
       <div className="wrap" style={{ paddingTop: 18, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'minmax(0,1.1fr) minmax(0,0.9fr)', gap: 40, alignItems: 'start' }}>
         {/* gallery */}
         <div style={{ position: isMobile ? 'static' : 'sticky', top: 84 }}>
-          <div style={{ borderRadius: 'var(--r-xl)', aspectRatio: '1/1', background: `radial-gradient(120% 120% at 50% 20%, ${colorTint(color)}, ${shade(colorTint(color), -10)})`, position: 'relative', overflow: 'hidden' }}>
+          <div style={{ borderRadius: 'var(--r-xl)', aspectRatio: '1/1', background: `radial-gradient(120% 120% at 50% 20%, ${colorTint(color)}, ${shade(colorTint(color), -10)})`, position: 'relative', overflow: 'hidden', touchAction: 'pan-y' }}
+            onTouchStart={hasPhotos ? onTouchStart : undefined}
+            onTouchEnd={hasPhotos ? (e) => onTouchEnd(e, photoArr.length) : undefined}>
             {p.new && <span className="pill pill-new" style={{ position: 'absolute', top: 18, insetInlineStart: 18, zIndex: 2 }}>{lang === 'en' ? 'New' : 'جديد'}</span>}
             {hasPhotos
               ? <img key={gi} src={photoArr[gi]} alt={p['name_' + lang]} className="fade-in" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
               : <Garment type={p.cat} color={colorHex(color)} view={view} style={{ width: '100%', height: '100%', padding: 40 }} />}
+            {/* Swipe dots indicator (mobile, multiple photos) */}
+            {hasPhotos && photoArr.length > 1 && (
+              <div style={{ position: 'absolute', bottom: 14, insetInline: 0, display: 'flex', justifyContent: 'center', gap: 6, zIndex: 3 }}>
+                {photoArr.map((_, i) => (
+                  <span key={i} onClick={() => setGi(i)} style={{ width: i === gi ? 18 : 7, height: 7, borderRadius: 99, background: '#fff', opacity: i === gi ? 1 : 0.5, transition: 'all .2s', cursor: 'pointer' }} />
+                ))}
+              </div>
+            )}
           </div>
           {hasPhotos ? (
             <div style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' }}>
