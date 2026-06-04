@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const { Op } = require('sequelize');
 const { Order, OrderItem, Product, ProductPhoto } = require('../models');
 const { requireAdmin } = require('../middleware/auth');
 const { deliveryFee, ORDER_STATUSES } = require('../constants');
@@ -7,6 +8,20 @@ const itemInclude = {
   model: OrderItem, as: 'items',
   include: [{ model: Product, as: 'product', include: [{ model: ProductPhoto, as: 'photos' }] }],
 };
+
+// ── Anti-spam (layer 1: per-IP burst, in-memory) ────────────
+const orderHits = new Map(); // ip -> [timestamps]
+const IP_WINDOW = 60 * 1000;     // 1 minute
+const IP_MAX = 5;                // max 5 order attempts / minute / IP
+function ipTooFast(req) {
+  const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+  const now = Date.now();
+  const recent = (orderHits.get(ip) || []).filter((t) => now - t < IP_WINDOW);
+  recent.push(now);
+  orderHits.set(ip, recent);
+  if (orderHits.size > 5000) orderHits.clear(); // guard against unbounded growth
+  return recent.length > IP_MAX;
+}
 
 // ── Public: place an order (Cash on Delivery) ───────────────
 // Body: { name, phone, wilaya, commune, address, deliveryMode, note,
@@ -19,6 +34,18 @@ router.post('/', async (req, res, next) => {
     }
     if (!Array.isArray(b.items) || b.items.length === 0) {
       return res.status(400).json({ error: 'Cart is empty' });
+    }
+
+    // Anti-spam layer 1: per-IP burst
+    if (ipTooFast(req)) {
+      return res.status(429).json({ error: 'Too many requests. Please wait a moment and try again.' });
+    }
+    // Anti-spam layer 2: same phone flooding (DB-backed, persists across serverless instances)
+    const recentSamePhone = await Order.count({
+      where: { phone: b.phone, createdAt: { [Op.gt]: new Date(Date.now() - 10 * 60 * 1000) } },
+    });
+    if (recentSamePhone >= 4) {
+      return res.status(429).json({ error: 'Too many orders from this number recently. Please try again later.' });
     }
 
     // Re-price everything on the server — never trust client totals.

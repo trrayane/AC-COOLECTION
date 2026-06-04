@@ -8,6 +8,7 @@ const cors = require('cors');
 
 const app = express();
 
+app.set('trust proxy', true); // behind Vercel/proxy: req.ip becomes the real client IP (X-Forwarded-For)
 app.use(cors({ origin: process.env.CLIENT_URL || '*' }));
 app.use(express.json({ limit: '2mb' }));
 
