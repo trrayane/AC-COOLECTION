@@ -61,6 +61,12 @@ export const api = {
     clear: (status) => req('/api/orders?status=' + encodeURIComponent(status), { method: 'DELETE', auth: true }),
   },
 
+  stockAlerts: {
+    register: (data) => req('/api/stock-alerts', { method: 'POST', body: data }),
+    list: () => req('/api/stock-alerts', { auth: true }),
+    done: (id) => req('/api/stock-alerts/' + id + '/done', { method: 'PATCH', auth: true }),
+  },
+
   promo: {
     validate: (code) => req('/api/promo/validate', { method: 'POST', body: { code } }),
     list: () => req('/api/promo', { auth: true }),

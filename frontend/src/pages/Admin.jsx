@@ -637,7 +637,8 @@ function AdminDashboard({ onLogout }) {
   const [confirmDel, setConfirmDel] = React.useState(null);
   const [delOrder, setDelOrder] = React.useState(null);
   const [promos, setPromos] = React.useState([]);
-  const [promoForm, setPromoForm] = React.useState(null); // null=hidden, {}=new, {...}=editing
+  const [promoForm, setPromoForm] = React.useState(null);
+  const [stockAlerts, setStockAlerts] = React.useState([]); // null=hidden, {}=new, {...}=editing
   const [prodQuery, setProdQuery] = React.useState('');
   const [prodCat, setProdCat] = React.useState('all');
 
@@ -647,6 +648,7 @@ function AdminDashboard({ onLogout }) {
   }, [toast]);
   React.useEffect(() => { loadOrders(); }, [loadOrders]);
   React.useEffect(() => { if (tab === 'promos') api.promo.list().then(setPromos).catch(() => {}); }, [tab]);
+  React.useEffect(() => { api.stockAlerts.list().then(setStockAlerts).catch(() => {}); }, []);
 
   const handleStatus = async (id, status) => {
     try {
@@ -767,6 +769,27 @@ function AdminDashboard({ onLogout }) {
                   </div>
                 ))}
               </div>
+              {stockAlerts.length > 0 && (
+                <div className="card adm-in" style={{ padding: 22, marginTop: 18, animationDelay: '.18s' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                    <h3 style={{ fontSize: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Icon name="bell" size={17} style={{ color: 'var(--clay)' }} />{lang === 'en' ? 'Stock-alert requests' : 'طلبات التنبيه بالمخزون'}</h3>
+                    <span style={{ fontSize: 12, fontWeight: 700, background: 'var(--clay)', color: '#fff', borderRadius: 99, padding: '3px 10px' }}>{stockAlerts.length}</span>
+                  </div>
+                  {stockAlerts.map((a) => {
+                    const prod = products.find((x) => x.id === a.productId);
+                    return (
+                      <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 0', borderTop: '1px solid var(--line)' }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: 600, fontSize: 13.5 }}>{prod ? prod['name_' + lang] : a.productId}</div>
+                          <div className="muted" style={{ fontSize: 12 }}>{[a.color, a.size].filter(Boolean).join(' · ')} · <span dir="ltr">{a.phone}</span></div>
+                        </div>
+                        <a href={'tel:' + a.phone} className="btn btn-ghost btn-sm"><Icon name="phone" size={13} /></a>
+                        <button className="btn btn-sm" style={{ background: 'var(--good)', color: '#fff', border: 'none' }} onClick={async () => { await api.stockAlerts.done(a.id); setStockAlerts((s) => s.filter((x) => x.id !== a.id)); }}><Icon name="check" size={13} /></button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 

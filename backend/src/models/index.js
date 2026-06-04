@@ -5,6 +5,7 @@ const Order = require('./Order');
 const OrderItem = require('./OrderItem');
 const AdminUser = require('./AdminUser');
 const PromoCode = require('./PromoCode');
+const StockAlert = require('./StockAlert');
 
 // ── Associations ────────────────────────────────────────────
 // A product has many photos; deleting the product deletes its photos.
@@ -26,4 +27,5 @@ module.exports = {
   OrderItem,
   AdminUser,
   PromoCode,
+  StockAlert,
 };

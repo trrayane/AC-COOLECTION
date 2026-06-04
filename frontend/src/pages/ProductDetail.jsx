@@ -10,6 +10,7 @@ import { SectionHead } from '../components/ui/SectionHead.jsx';
 import { ProductCard } from '../components/product/ProductCard.jsx';
 import { Garment, shade } from '../components/garments/Garment.jsx';
 import { colorHex, colorTint, colorLabel, fmtDA } from '../data/constants.js';
+import { api } from '../api/client.js';
 
 export function ProductDetail({ params }) {
   const { t, lang, navigate, addToCart, openCart, products, getProduct } = useShop();
@@ -20,6 +21,11 @@ export function ProductDetail({ params }) {
   const [view, setView] = React.useState('front');
   const [err, setErr] = React.useState(false);
   const [gi, setGi] = React.useState(0);
+  const [sizeGuide, setSizeGuide] = React.useState(false);
+  const [notifySize, setNotifySize] = React.useState(null); // size string when OOS clicked
+  const [notifyPhone, setNotifyPhone] = React.useState('');
+  const [notifyDone, setNotifyDone] = React.useState(false);
+  const [notifyLoading, setNotifyLoading] = React.useState(false);
   const touchX = React.useRef(null);
   React.useEffect(() => { setGi(0); setColor(params.color || (p && p.colors[0])); }, [params.id]);
 
@@ -124,15 +130,18 @@ export function ProductDetail({ params }) {
           )}
 
           <div style={{ marginTop: 24 }}>
-            <div style={{ marginBottom: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
               <span style={{ fontWeight: 700, fontSize: 14 }}>{t.select_size}</span>
+              <button onClick={() => setSizeGuide(true)} style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink-3)', display: 'flex', alignItems: 'center', gap: 5 }}>
+                <Icon name="note" size={14} /> {lang === 'ar' ? 'دليل المقاسات' : 'Size guide'}
+              </button>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
               {p.sizes.map((s) => {
                 const soldOut = p.stock && p.stock[`${color}:${s}`] === 0;
                 return (
-                  <button key={s} disabled={soldOut} onClick={() => { if (soldOut) return; setSize(s); setErr(false); }}
-                    title={soldOut ? (lang === 'en' ? 'Out of stock' : 'نفد المخزون') : undefined} style={{
+                  <button key={s} onClick={() => { if (soldOut) { setNotifySize(s); setNotifyDone(false); setNotifyPhone(''); } else { setSize(s); setErr(false); } }}
+                    title={soldOut ? (lang === 'en' ? 'Out of stock — click to be notified' : 'نفد المخزون — انقر للتنبيه') : undefined} style={{
                     minWidth: 52, height: 50, borderRadius: 12, fontWeight: 700, fontSize: 14,
                     background: size === s ? 'var(--ink)' : 'var(--paper-2)', color: soldOut ? 'var(--ink-3)' : (size === s ? 'var(--paper)' : 'var(--ink)'),
                     boxShadow: size === s ? 'none' : 'inset 0 0 0 1.5px ' + (err && !soldOut ? 'var(--danger)' : 'var(--line)'),
@@ -164,6 +173,86 @@ export function ProductDetail({ params }) {
         <SectionHead eyebrow={lang === 'en' ? 'You may also like' : 'قد يعجبك أيضاً'} title={lang === 'en' ? 'In the same spirit' : 'في نفس الأسلوب'} />
         <div className="prod-grid">{related.map((r, i) => <ProductCard key={r.id} p={r} index={i} />)}</div>
       </section>
+
+      {/* ── Size guide modal ── */}
+      {sizeGuide && (
+        <div className="fade-in" onClick={() => setSizeGuide(false)} style={{ position: 'fixed', inset: 0, zIndex: 90, background: 'rgba(10,10,10,.5)', display: 'grid', placeItems: isMobile ? 'end' : 'center', padding: isMobile ? 0 : 24 }}>
+          <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: isMobile ? '100%' : 'min(520px, calc(100vw - 20px))', maxHeight: '90vh', overflow: 'auto', borderRadius: isMobile ? '22px 22px 0 0' : 'var(--r-lg)', animation: 'fadeUp .25s' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', borderBottom: '1px solid var(--line)', position: 'sticky', top: 0, background: 'var(--paper-2)', zIndex: 2 }}>
+              <h3 style={{ fontWeight: 800, fontSize: 18 }}>{lang === 'ar' ? 'دليل المقاسات' : 'Size guide'}</h3>
+              <button onClick={() => setSizeGuide(false)}><Icon name="close" size={22} /></button>
+            </div>
+            <div style={{ padding: 24 }}>
+              <p className="muted" style={{ fontSize: 13.5, marginBottom: 18 }}>{lang === 'ar' ? 'قيس مقاسك بمتر القياس وقارنه بالجدول أدناه.' : 'Measure yourself with a tape measure and compare with the table below.'}</p>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+                  <thead>
+                    <tr style={{ background: 'var(--ink)', color: '#fff' }}>
+                      {[lang === 'ar' ? 'المقاس' : 'Size', lang === 'ar' ? 'الصدر (سم)' : 'Chest (cm)', lang === 'ar' ? 'الخصر (سم)' : 'Waist (cm)', lang === 'ar' ? 'الوزن (kg)' : 'Weight (kg)'].map((h) => (
+                        <th key={h} style={{ padding: '10px 14px', textAlign: 'center', fontWeight: 700, fontSize: 12.5, letterSpacing: '.05em' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      ['XS', '82–86',  '66–70',  '50–58'],
+                      ['S',  '88–92',  '72–76',  '58–68'],
+                      ['M',  '94–98',  '78–82',  '68–78'],
+                      ['L',  '100–104','84–88',  '78–90'],
+                      ['XL', '106–110','90–94',  '90–100'],
+                      ['XXL','112–118','96–102', '100–115'],
+                    ].map(([sz, ch, wt, kg], i) => (
+                      <tr key={sz} style={{ background: i % 2 ? 'var(--paper-2)' : 'var(--paper)' }}>
+                        <td style={{ padding: '11px 14px', textAlign: 'center', fontWeight: 800, fontSize: 15 }}>{sz}</td>
+                        <td style={{ padding: '11px 14px', textAlign: 'center' }}>{ch}</td>
+                        <td style={{ padding: '11px 14px', textAlign: 'center' }}>{wt}</td>
+                        <td style={{ padding: '11px 14px', textAlign: 'center' }}>{kg}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="dim" style={{ fontSize: 12, marginTop: 14 }}>{lang === 'ar' ? '💡 في حالة الشك بين مقاسين، نوصي باختيار المقاس الأكبر.' : '💡 When in doubt between two sizes, we recommend choosing the larger one.'}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Notify me (OOS) modal ── */}
+      {notifySize && (
+        <div className="fade-in" onClick={() => setNotifySize(null)} style={{ position: 'fixed', inset: 0, zIndex: 90, background: 'rgba(10,10,10,.5)', display: 'grid', placeItems: isMobile ? 'end' : 'center', padding: isMobile ? 0 : 24 }}>
+          <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: isMobile ? '100%' : 'min(400px, calc(100vw - 20px))', padding: 28, borderRadius: isMobile ? '22px 22px 0 0' : 'var(--r-lg)', animation: 'fadeUp .25s', textAlign: 'center' }}>
+            {notifyDone ? (
+              <>
+                <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#E0F0E2', display: 'grid', placeItems: 'center', margin: '0 auto 16px' }}>
+                  <Icon name="check" size={30} stroke={2.5} style={{ color: 'var(--good)' }} />
+                </div>
+                <h3 style={{ fontSize: 19 }}>{lang === 'ar' ? 'تم التسجيل!' : 'Registered!'}</h3>
+                <p className="muted" style={{ fontSize: 14, marginTop: 8 }}>{lang === 'ar' ? `سنتصل بك عندما يتوفر مقاس ${notifySize}` : `We'll call you when size ${notifySize} is back in stock.`}</p>
+                <button className="btn btn-ghost btn-block" style={{ marginTop: 20 }} onClick={() => setNotifySize(null)}>{lang === 'ar' ? 'إغلاق' : 'Close'}</button>
+              </>
+            ) : (
+              <>
+                <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'var(--sand)', display: 'grid', placeItems: 'center', margin: '0 auto 14px' }}>
+                  <Icon name="bell" size={24} style={{ color: 'var(--ink-2)' }} />
+                </div>
+                <h3 style={{ fontSize: 19 }}>{lang === 'ar' ? `مقاس ${notifySize} نفد` : `Size ${notifySize} is out of stock`}</h3>
+                <p className="muted" style={{ fontSize: 14, marginTop: 8, marginBottom: 20 }}>{lang === 'ar' ? 'اترك رقمك وسنتصل بك عند توفره.' : 'Leave your number and we\'ll call you when it\'s back.'}</p>
+                <div style={{ display: 'flex', gap: 9 }}>
+                  <input className="field" dir="ltr" value={notifyPhone} onChange={(e) => setNotifyPhone(e.target.value)} placeholder="0X XX XX XX XX" style={{ flex: 1 }} />
+                  <button className="btn btn-clay" disabled={!notifyPhone.trim() || notifyLoading} onClick={async () => {
+                    setNotifyLoading(true);
+                    try { await api.stockAlerts.register({ productId: p.id, color, size: notifySize, phone: notifyPhone.trim() }); setNotifyDone(true); }
+                    catch (e) { /* silently fail */ }
+                    finally { setNotifyLoading(false); }
+                  }}>{notifyLoading ? <span className="spin" /> : (lang === 'ar' ? 'تأكيد' : 'OK')}</button>
+                </div>
+                <button className="btn btn-ghost btn-block btn-sm" style={{ marginTop: 10 }} onClick={() => setNotifySize(null)}>{lang === 'ar' ? 'إلغاء' : 'Cancel'}</button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

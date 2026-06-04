@@ -37,6 +37,7 @@ app.use('/api/orders', require('./routes/orders'));
 app.use('/api/meta', require('./routes/meta'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/promo', require('./routes/promo'));
+app.use('/api/stock-alerts', require('./routes/stock-alerts'));
 
 // Error handler
 app.use((err, req, res, next) => {
