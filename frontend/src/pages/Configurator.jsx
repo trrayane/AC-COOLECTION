@@ -78,7 +78,19 @@ export function Configurator({ params }) {
     };
     reader.readAsDataURL(file);
   };
-  const addText = () => { if (!textInput.trim()) return; addPlacement({ type: 'text', text: textInput.trim(), color: '#23211D', wPct: 34 }); setTextInput(''); };
+  const FONTS = [
+    { value: 'Arial, sans-serif',           label: 'Arial' },
+    { value: '"Georgia", serif',            label: 'Georgia' },
+    { value: '"Courier New", monospace',    label: 'Courier' },
+    { value: '"Impact", sans-serif',        label: 'Impact' },
+    { value: '"Trebuchet MS", sans-serif',  label: 'Trebuchet' },
+    { value: '"Palatino", serif',           label: 'Palatino' },
+  ];
+  const addText = () => {
+    if (!textInput.trim()) return;
+    addPlacement({ type: 'text', text: textInput.trim(), color: '#23211D', font: FONTS[0].value, bold: true, italic: false, align: 'center', wPct: 34 });
+    setTextInput('');
+  };
   const updateSel = (patch) => setPlacements((s) => s.map((pl) => (pl.id === sel ? { ...pl, ...patch } : pl)));
   const removeSel = () => { setPlacements((s) => s.filter((pl) => pl.id !== sel)); setSel(null); };
   const selPl = placements.find((pl) => pl.id === sel);
@@ -170,7 +182,7 @@ export function Configurator({ params }) {
             outline: sel === pl.id ? '2px solid var(--clay)' : 'none', outlineOffset: 3, borderRadius: 2,
           }}>
             {pl.type === 'image' && <img src={pl.img} draggable="false" style={{ width: '100%', display: 'block', pointerEvents: 'none', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,.18))', opacity: pl._uploading ? 0.6 : 1 }} />}
-            {pl.type === 'text' && <div style={{ width: '100%', textAlign: 'center', fontWeight: 800, color: pl.color, fontSize: 'calc(' + pl.wPct + ' * 0.34px + 6px)', lineHeight: 1.05, pointerEvents: 'none', whiteSpace: 'nowrap' }}>{pl.text}</div>}
+            {pl.type === 'text' && <div style={{ width: '100%', textAlign: pl.align || 'center', fontWeight: pl.bold !== false ? 800 : 400, fontStyle: pl.italic ? 'italic' : 'normal', fontFamily: pl.font || 'Arial, sans-serif', color: pl.color, fontSize: 'calc(' + pl.wPct + ' * 0.34px + 6px)', lineHeight: 1.15, pointerEvents: 'none', whiteSpace: 'nowrap' }}>{pl.text}</div>}
             {pl._uploading && <span className="spin" style={{ position: 'absolute', top: 4, insetInlineEnd: 4, borderTopColor: 'var(--clay)', borderColor: 'rgba(0,0,0,.2)' }} />}
             {sel === pl.id && (
               <div onPointerDown={(e) => onResizeDown(e, pl)} style={{
@@ -314,10 +326,59 @@ export function Configurator({ params }) {
             <input type="range" min="-180" max="180" value={selPl.rot} onChange={(e) => updateSel({ rot: +e.target.value })} style={{ width: '100%', accentColor: 'var(--clay)' }} />
           </div>
           {selPl.type === 'text' && (
-            <div style={{ display: 'flex', gap: 7, marginTop: 14 }}>
-              {['#23211D', '#BE5E37', '#334A3A', '#C79A3B', '#F7F5F0'].map((c) => (
-                <button key={c} onClick={() => updateSel({ color: c })} style={{ width: 26, height: 26, borderRadius: '50%', background: c, boxShadow: selPl.color === c ? '0 0 0 2px var(--clay-wash),0 0 0 4px var(--ink)' : 'inset 0 0 0 1px rgba(0,0,0,.15)' }} />
-              ))}
+            <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {/* Edit text content */}
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 5, color: 'var(--ink-2)' }}>{lang === 'ar' ? 'النص' : 'Text'}</div>
+                <input className="field" style={{ height: 40, fontSize: 13 }} value={selPl.text} onChange={(e) => updateSel({ text: e.target.value })} />
+              </div>
+
+              {/* Font family */}
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 5, color: 'var(--ink-2)' }}>{lang === 'ar' ? 'الخط' : 'Font'}</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {FONTS.map((f) => (
+                    <button key={f.value} onClick={() => updateSel({ font: f.value })} style={{
+                      height: 32, padding: '0 11px', borderRadius: 8, fontSize: 13, fontFamily: f.value,
+                      fontWeight: selPl.font === f.value ? 700 : 400,
+                      background: selPl.font === f.value ? 'var(--ink)' : 'var(--paper)',
+                      color: selPl.font === f.value ? '#fff' : 'var(--ink)',
+                      boxShadow: selPl.font === f.value ? 'none' : 'inset 0 0 0 1.3px var(--line)',
+                    }}>{f.label}</button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Style: Bold / Italic / Align */}
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 5, color: 'var(--ink-2)' }}>{lang === 'ar' ? 'النمط والمحاذاة' : 'Style & align'}</div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {/* Bold */}
+                  <button onClick={() => updateSel({ bold: !selPl.bold })} style={{ width: 36, height: 36, borderRadius: 9, fontWeight: 900, fontSize: 16, background: selPl.bold !== false ? 'var(--ink)' : 'var(--paper)', color: selPl.bold !== false ? '#fff' : 'var(--ink)', boxShadow: selPl.bold !== false ? 'none' : 'inset 0 0 0 1.3px var(--line)' }}>B</button>
+                  {/* Italic */}
+                  <button onClick={() => updateSel({ italic: !selPl.italic })} style={{ width: 36, height: 36, borderRadius: 9, fontStyle: 'italic', fontWeight: 700, fontSize: 16, background: selPl.italic ? 'var(--ink)' : 'var(--paper)', color: selPl.italic ? '#fff' : 'var(--ink)', boxShadow: selPl.italic ? 'none' : 'inset 0 0 0 1.3px var(--line)' }}>I</button>
+                  <div style={{ width: 1, background: 'var(--line)', margin: '0 2px' }} />
+                  {/* Align */}
+                  {[['left','≡ ←'],['center','≡'],['right','→ ≡']].map(([a, icon]) => (
+                    <button key={a} onClick={() => updateSel({ align: a })} style={{ width: 36, height: 36, borderRadius: 9, fontSize: 14, background: (selPl.align || 'center') === a ? 'var(--ink)' : 'var(--paper)', color: (selPl.align || 'center') === a ? '#fff' : 'var(--ink)', boxShadow: (selPl.align || 'center') === a ? 'none' : 'inset 0 0 0 1.3px var(--line)' }}>{icon}</button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Color — swatches + free picker */}
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 5, color: 'var(--ink-2)' }}>{lang === 'ar' ? 'اللون' : 'Color'}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
+                  {['#23211D','#ffffff','#BE5E37','#334A3A','#C79A3B','#3C5A86','#A8423A'].map((c) => (
+                    <button key={c} onClick={() => updateSel({ color: c })} style={{ width: 28, height: 28, borderRadius: '50%', background: c, boxShadow: selPl.color === c ? '0 0 0 2px var(--clay-wash),0 0 0 4px var(--ink)' : 'inset 0 0 0 1px rgba(0,0,0,.2)', flexShrink: 0 }} />
+                  ))}
+                  {/* Free color picker */}
+                  <label title={lang === 'ar' ? 'لون مخصص' : 'Custom color'} style={{ width: 28, height: 28, borderRadius: '50%', background: selPl.color, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.2)', cursor: 'pointer', position: 'relative', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                    <span style={{ fontSize: 14, pointerEvents: 'none', filter: 'invert(1) grayscale(1)' }}>+</span>
+                    <input type="color" value={selPl.color} onChange={(e) => updateSel({ color: e.target.value })} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%' }} />
+                  </label>
+                </div>
+              </div>
             </div>
           )}
         </div>
