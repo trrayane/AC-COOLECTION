@@ -57,10 +57,12 @@ export function Header() {
                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>{l.label}</button>
               ))}
               <button onClick={() => navigate('promotions')} style={{
-                padding: '8px 14px', borderRadius: 999, fontSize: 14, fontWeight: 700,
-                color: hasActivePromos ? '#fff' : 'var(--ink)', background: hasActivePromos ? 'var(--clay)' : 'transparent',
-                display: 'flex', alignItems: 'center', gap: 6,
-              }}><Icon name="tag" size={14} /> {lang === 'ar' ? 'تخفيضات' : 'Promos'}</button>
+                padding: '8px 14px', borderRadius: 999, fontSize: 14, fontWeight: 600, color: 'var(--ink)',
+              }} onMouseEnter={(e) => e.currentTarget.style.background = 'var(--sand)'}
+                 onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                {lang === 'ar' ? 'تخفيضات' : 'Promos'}
+                {hasActivePromos && <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: 'var(--clay)', marginInlineStart: 5, verticalAlign: 'middle', marginBottom: 2 }} />}
+              </button>
               <button onClick={() => navigate('configurator', {})} style={{
                 padding: '8px 14px', borderRadius: 999, fontSize: 14, fontWeight: 700, color: 'var(--clay-deep)',
                 display: 'flex', alignItems: 'center', gap: 6,
