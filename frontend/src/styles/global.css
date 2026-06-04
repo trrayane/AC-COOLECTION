@@ -198,8 +198,8 @@ textarea.field { height: auto; padding: 13px 16px; resize: vertical; line-height
 @keyframes dotPulse { 0%, 80%, 100% { transform: scale(.5); opacity: .3; } 40% { transform: scale(1); opacity: 1; } }
 
 /* Announcement bar — seamless scrolling marquee */
-.marquee-track { display: flex; width: max-content; animation: marquee 26s linear infinite; will-change: transform; }
-.marquee:hover .marquee-track { animation-play-state: paused; }
+.marquee-track { display: flex; width: max-content; animation: marquee 48s linear infinite; will-change: transform; }
+@media (hover: hover) { .marquee:hover .marquee-track { animation-play-state: paused; } }
 @keyframes marquee { to { transform: translateX(-50%); } }
 
 /* Range inputs */
