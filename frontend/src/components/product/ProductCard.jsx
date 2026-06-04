@@ -8,11 +8,12 @@ import { colorTint, fmtDA } from '../../data/constants.js';
 import { shade } from '../garments/Garment.jsx';
 
 export function ProductCard({ p, index = 0 }) {
-  const { t, lang, navigate } = useShop();
+  const { t, lang, navigate, toggleWishlist, isWishlisted } = useShop();
   const [hover, setHover] = React.useState(false);
   const [ci, setCi] = React.useState(0);
   const color = p.colors[ci];
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
+  const wished = isWishlisted(p.id);
 
   return (
     <article className="fade-up" style={{ animationDelay: (index % 8) * 0.04 + 's', cursor: 'pointer' }}
@@ -28,11 +29,13 @@ export function ProductCard({ p, index = 0 }) {
           {p.new && <span className="pill pill-new">{lang === 'en' ? 'New' : 'جديد'}</span>}
           {discount > 0 && <span className="pill pill-soft">-{discount}%</span>}
         </div>
-        <button onClick={(e) => e.stopPropagation()} style={{
-          position: 'absolute', top: 12, insetInlineEnd: 12, zIndex: 2, width: 34, height: 34, borderRadius: '50%',
-          background: 'rgba(255,255,255,.8)', backdropFilter: 'blur(6px)', display: 'grid', placeItems: 'center',
-          color: 'var(--ink-2)', opacity: hover ? 1 : 0, transition: 'opacity .2s, transform .2s', transform: hover ? 'none' : 'scale(.8)',
-        }} aria-label="wishlist"><Icon name="heart" size={17} /></button>
+        <button onClick={(e) => { e.stopPropagation(); toggleWishlist(p.id); }} aria-label="wishlist" style={{
+          position: 'absolute', top: 12, insetInlineEnd: 12, zIndex: 3, width: 34, height: 34, borderRadius: '50%',
+          background: 'rgba(255,255,255,.85)', backdropFilter: 'blur(6px)', display: 'grid', placeItems: 'center', boxShadow: 'var(--shadow-sm)',
+          color: wished ? 'var(--clay)' : 'var(--ink-2)', opacity: hover || wished ? 1 : 0, transition: 'opacity .2s, transform .2s', transform: hover || wished ? 'none' : 'scale(.8)',
+        }}>
+          <Icon name="heart" size={17} stroke={wished ? 0 : 2} style={wished ? { fill: 'var(--clay)' } : undefined} />
+        </button>
 
         <div style={{ position: 'absolute', inset: 0, transition: 'transform .4s', transform: hover ? 'scale(1.04)' : 'none' }}>
           <ProductImage p={p} color={color} view={hover ? 'back' : 'front'} />

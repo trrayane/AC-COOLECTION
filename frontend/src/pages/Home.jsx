@@ -49,7 +49,7 @@ function FeatureBand() {
     { icon: 'shield', h: t.feat_cod_t, s: t.feat_cod_s },
   ];
   return (
-    <section className="wrap" style={{ marginTop: 64 }}>
+    <section className="wrap home-sec">
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 16 }}>
         {feats.map((f) => (
           <div key={f.h} className="card" style={{ padding: 24, display: 'flex', gap: 16, alignItems: 'flex-start' }}>
@@ -71,7 +71,7 @@ function CategoryStrip() {
     { id: 'hoodie', label: t.nav_hoodie, color: 'ink' },
   ];
   return (
-    <section className="wrap" style={{ marginTop: 72 }}>
+    <section className="wrap home-sec">
       <SectionHead eyebrow={lang === 'en' ? 'Categories' : 'الفئات'} title={t.shop_cat} />
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 16 }}>
         {cats.map((c) => {
@@ -106,7 +106,7 @@ function CustomPromo() {
     ? [['Upload', 'PNG or SVG logo'], ['Place', 'Front, back, sleeve…'], ['Annotate', 'Your instructions'], ['Order', 'We print & deliver']]
     : [['حمّل', 'شعار PNG أو SVG'], ['ضع', 'أمام، خلف، كُم…'], ['دوّن', 'تعليماتك'], ['اطلب', 'نطبع ونوصّل']];
   return (
-    <section className="wrap" style={{ marginTop: 80 }}>
+    <section className="wrap home-sec">
       <div style={{ borderRadius: 'var(--r-xl)', background: 'var(--ink)', color: 'var(--paper)', padding: 'clamp(28px,4vw,52px)', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', insetInlineEnd: '-4%', top: '-20%', width: 360, height: 360, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,.12), transparent 70%)' }} />
         <div style={{ position: 'relative', zIndex: 2, maxWidth: 560 }}>
@@ -139,7 +139,7 @@ export function Home() {
     <div className="fade-in">
       <HeroSplit />
       <FeatureBand />
-      <section className="wrap" style={{ marginTop: 76 }}>
+      <section className="wrap home-sec">
         <SectionHead eyebrow={t.new_sub} title={t.new_in} action={t.see_all} onAction={() => navigate('catalog', { filter: 'new' })} />
         <div className="prod-grid">
           {newIn.map((p, i) => <ProductCard key={p.id} p={p} index={i} />)}
@@ -147,7 +147,7 @@ export function Home() {
       </section>
       <CategoryStrip />
       <CustomPromo />
-      <section className="wrap" style={{ marginTop: 80 }}>
+      <section className="wrap home-sec">
         <SectionHead eyebrow={lang === 'en' ? 'Most loved' : 'الأكثر طلباً'} title={t.bestsellers} action={t.see_all} onAction={() => navigate('catalog', { sort: 'pop' })} />
         <div className="prod-grid">
           {best.map((p, i) => <ProductCard key={p.id} p={p} index={i} />)}

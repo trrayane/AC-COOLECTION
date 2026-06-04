@@ -104,9 +104,8 @@ export function ProductDetail({ params }) {
           )}
 
           <div style={{ marginTop: 24 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+            <div style={{ marginBottom: 10 }}>
               <span style={{ fontWeight: 700, fontSize: 14 }}>{t.select_size}</span>
-              <button className="muted" style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 5 }}><Icon name="note" size={14} /> {t.size_guide}</button>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
               {p.sizes.map((s) => {
@@ -130,7 +129,7 @@ export function ProductDetail({ params }) {
             <button className="btn btn-clay btn-lg btn-block" onClick={() => navigate('configurator', { id: p.id, color })}>
               <Icon name="spark" size={18} /> {t.customize}
             </button>
-            <div style={{ display: 'flex', gap: 11 }}>
+            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 11 }}>
               <button className="btn btn-primary btn-lg" style={{ flex: 1 }} onClick={add}><Icon name="bag" size={18} /> {t.add_cart}</button>
               <button className="btn btn-ghost btn-lg" style={{ flex: 1 }} onClick={() => { if (size) { addToCart({ pid: p.id, color, size, qty: 1, custom: false }); navigate('checkout'); } else setErr(true); }}>{t.buy_now}</button>
             </div>

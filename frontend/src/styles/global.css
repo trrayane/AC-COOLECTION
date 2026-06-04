@@ -237,6 +237,7 @@ input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; border-radius
 html { background: var(--ink); } /* dark overscroll / safe-area, matches the top bar & footer */
 body { overflow-x: clip; }
 img, svg, video { max-width: 100%; }
+.home-sec { margin-top: 72px; } /* spacing between home sections (tighter on mobile below) */
 
 @media (max-width: 700px) {
   .wrap { padding: 0 16px; }
@@ -244,6 +245,7 @@ img, svg, video { max-width: 100%; }
   .prod-grid, .prod-grid-3, .prod-grid-ed { gap: 12px; }
   /* 16px min so iOS Safari doesn't auto-zoom when focusing a field */
   .field, input, textarea, select { font-size: 16px; }
+  .home-sec { margin-top: 44px; }
 }
 @media (max-width: 400px) {
   .wrap { padding: 0 12px; }

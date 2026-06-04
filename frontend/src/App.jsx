@@ -17,9 +17,10 @@ import { ProductDetail } from './pages/ProductDetail.jsx';
 import { Configurator } from './pages/Configurator.jsx';
 import { Checkout, Confirmation, CartDrawer } from './pages/Checkout.jsx';
 import { Admin } from './pages/Admin.jsx';
+import { Wishlist } from './pages/Wishlist.jsx';
 
 // ── Browser-history routing helpers ─────────────────────────
-const ROUTES = ['home', 'catalog', 'product', 'configurator', 'checkout', 'confirmation', 'admin'];
+const ROUTES = ['home', 'catalog', 'product', 'configurator', 'checkout', 'confirmation', 'wishlist', 'admin'];
 function parsePath() {
   const seg = (typeof window !== 'undefined' ? window.location.pathname : '/').split('/').filter(Boolean);
   const page = seg[0] || 'home';
@@ -51,6 +52,7 @@ export default function App() {
   const [route, setRoute] = React.useState(() => parsePath());
   const [cart, setCart] = React.useState([]);
   const [cartOpen, setCartOpen] = React.useState(false);
+  const [wishlist, setWishlist] = React.useState(() => { try { return JSON.parse(localStorage.getItem('cshop_wishlist') || '[]'); } catch (e) { return []; } });
   const [products, setProducts] = React.useState([]);
   const [meta, setMeta] = React.useState({ wilayas: [], communes: {} });
   const [toasts, setToasts] = React.useState([]);
@@ -65,6 +67,11 @@ export default function App() {
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = lang === 'ar' ? 'ar' : 'en';
   }, [lang]);
+
+  // ── wishlist (saved in the browser) ──────────────────────
+  React.useEffect(() => { localStorage.setItem('cshop_wishlist', JSON.stringify(wishlist)); }, [wishlist]);
+  const toggleWishlist = (id) => setWishlist((w) => (w.includes(id) ? w.filter((x) => x !== id) : [...w, id]));
+  const isWishlisted = (id) => wishlist.includes(id);
 
   // ── initial data ──────────────────────────────────────────
   const refreshProducts = React.useCallback(() => api.products.list().then(setProducts), []);
@@ -171,6 +178,7 @@ export default function App() {
     addToCart, removeFromCart, updateQty,
     placeOrder, saveProduct, deleteProduct, addPhotos, removePhotoAt,
     wilayas: meta.wilayas, communesFor, toast,
+    wishlist, toggleWishlist, isWishlisted, wishlistCount: wishlist.length,
   };
 
   if (loading) return <Splash />;
@@ -189,6 +197,7 @@ export default function App() {
           {p === 'configurator' && <Configurator params={route.params} />}
           {p === 'checkout' && <Checkout />}
           {p === 'confirmation' && <Confirmation order={lastOrder} />}
+          {p === 'wishlist' && <Wishlist />}
           {p === 'admin' && <Admin />}
         </main>
         {!isAdmin && <Footer />}

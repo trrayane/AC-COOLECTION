@@ -6,7 +6,7 @@ import { Logo } from '../ui/Logo.jsx';
 import { Icon } from '../ui/Icon.jsx';
 
 export function Header() {
-  const { t, lang, setLang, navigate, cartCount, openCart } = useShop();
+  const { t, lang, setLang, navigate, cartCount, wishlistCount, openCart } = useShop();
   const isMobile = useIsMobile();
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
@@ -74,6 +74,13 @@ export function Header() {
             <button onClick={() => navigate('admin')} aria-label="admin" title="Admin" style={{
               width: 38, height: 38, borderRadius: '50%', display: isMobile ? 'none' : 'grid', placeItems: 'center', color: 'var(--ink-2)',
             }}><Icon name="user" size={20} /></button>
+            <button onClick={() => navigate('wishlist')} aria-label="wishlist" style={{ position: 'relative', color: 'var(--ink)' }}>
+              <Icon name="heart" size={22} />
+              {wishlistCount > 0 && <span style={{
+                position: 'absolute', top: -6, insetInlineEnd: -7, minWidth: 18, height: 18, padding: '0 4px', borderRadius: 999,
+                background: 'var(--clay)', color: '#fff', fontSize: 11, fontWeight: 700, display: 'grid', placeItems: 'center',
+              }}>{wishlistCount}</span>}
+            </button>
             <button onClick={openCart} aria-label="cart" style={{ position: 'relative', color: 'var(--ink)' }}>
               <Icon name="bag" size={23} />
               {cartCount > 0 && <span style={{
