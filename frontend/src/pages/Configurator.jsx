@@ -359,8 +359,12 @@ export function Configurator({ params }) {
                   <button onClick={() => updateSel({ italic: !selPl.italic })} style={{ width: 36, height: 36, borderRadius: 9, fontStyle: 'italic', fontWeight: 700, fontSize: 16, background: selPl.italic ? 'var(--ink)' : 'var(--paper)', color: selPl.italic ? '#fff' : 'var(--ink)', boxShadow: selPl.italic ? 'none' : 'inset 0 0 0 1.3px var(--line)' }}>I</button>
                   <div style={{ width: 1, background: 'var(--line)', margin: '0 2px' }} />
                   {/* Align */}
-                  {[['left','≡ ←'],['center','≡'],['right','→ ≡']].map(([a, icon]) => (
-                    <button key={a} onClick={() => updateSel({ align: a })} style={{ width: 36, height: 36, borderRadius: 9, fontSize: 14, background: (selPl.align || 'center') === a ? 'var(--ink)' : 'var(--paper)', color: (selPl.align || 'center') === a ? '#fff' : 'var(--ink)', boxShadow: (selPl.align || 'center') === a ? 'none' : 'inset 0 0 0 1.3px var(--line)' }}>{icon}</button>
+                  {[
+                    ['left',   <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2" rx="1"/><rect x="1" y="6" width="9" height="2" rx="1"/><rect x="1" y="10" width="12" height="2" rx="1"/><rect x="1" y="14" width="7" height="2" rx="1"/></svg>],
+                    ['center', <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2" rx="1"/><rect x="3.5" y="6" width="9" height="2" rx="1"/><rect x="2" y="10" width="12" height="2" rx="1"/><rect x="4.5" y="14" width="7" height="2" rx="1"/></svg>],
+                    ['right',  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2" rx="1"/><rect x="6" y="6" width="9" height="2" rx="1"/><rect x="3" y="10" width="12" height="2" rx="1"/><rect x="8" y="14" width="7" height="2" rx="1"/></svg>],
+                  ].map(([a, icon]) => (
+                    <button key={a} onClick={() => updateSel({ align: a })} style={{ width: 36, height: 36, borderRadius: 9, display: 'grid', placeItems: 'center', background: (selPl.align || 'center') === a ? 'var(--ink)' : 'var(--paper)', color: (selPl.align || 'center') === a ? '#fff' : 'var(--ink)', boxShadow: (selPl.align || 'center') === a ? 'none' : 'inset 0 0 0 1.3px var(--line)' }}>{icon}</button>
                   ))}
                 </div>
               </div>
