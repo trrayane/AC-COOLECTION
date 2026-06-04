@@ -649,6 +649,47 @@ function AdminDashboard({ onLogout }) {
   React.useEffect(() => { loadOrders(); }, [loadOrders]);
   React.useEffect(() => { if (tab === 'promos') api.promo.list().then(setPromos).catch(() => {}); }, [tab]);
 
+  // ── New-order sound notification (polls every 30s) ──────────
+  const knownIds = React.useRef(null);
+  const [soundOn, setSoundOn] = React.useState(true);
+
+  const ding = React.useCallback(() => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      // Two-note ding: E5 then G#5
+      [[659, 0, 0.18], [830, 0.2, 0.22]].forEach(([freq, start, dur]) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine'; osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0, ctx.currentTime + start);
+        gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
+        osc.start(ctx.currentTime + start);
+        osc.stop(ctx.currentTime + start + dur);
+      });
+    } catch (e) {}
+  }, []);
+
+  React.useEffect(() => {
+    const poll = async () => {
+      try {
+        const fresh = await api.orders.list();
+        const ids = new Set(fresh.map((o) => o.id));
+        if (knownIds.current === null) { knownIds.current = ids; return; }
+        const newOnes = [...ids].filter((id) => !knownIds.current.has(id));
+        if (newOnes.length > 0) {
+          knownIds.current = ids;
+          setOrders(fresh.map(normOrder));
+          if (soundOn) ding();
+          toast((lang === 'ar' ? '🛒 طلب جديد!' : '🛒 New order!'), 'ok');
+        }
+      } catch (e) {}
+    };
+    const id = setInterval(poll, 30_000);
+    return () => clearInterval(id);
+  }, [soundOn, ding, toast, lang]);
+
   const handleStatus = async (id, status) => {
     try {
       const updated = await api.orders.setStatus(id, status);
@@ -725,6 +766,16 @@ function AdminDashboard({ onLogout }) {
             )}
             <div style={{ marginInlineStart: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
               {!isMobile && <span className="chip" style={{ cursor: 'default', gap: 8 }}><Icon name="calendar" size={15} /> {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>}
+              <button onClick={() => setSoundOn((s) => !s)} title={soundOn ? (lang === 'ar' ? 'إيقاف الصوت' : 'Mute notifications') : (lang === 'ar' ? 'تفعيل الصوت' : 'Unmute notifications')}
+                style={{ width: 40, height: 40, borderRadius: '50%', display: 'grid', placeItems: 'center', boxShadow: 'inset 0 0 0 1.3px var(--line)', color: soundOn ? 'var(--ink)' : 'var(--ink-3)', position: 'relative' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                  {soundOn
+                    ? <><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></>
+                    : <line x1="23" y1="9" x2="17" y2="15"/> }
+                </svg>
+                {!soundOn && <span style={{ position: 'absolute', top: 6, insetInlineEnd: 6, width: 8, height: 8, borderRadius: 9, background: 'var(--danger)', boxShadow: '0 0 0 2px var(--paper-2)' }} />}
+              </button>
               <button onClick={() => setTab('orders')} title={t.adm_pending} style={{ position: 'relative', width: 40, height: 40, borderRadius: '50%', display: 'grid', placeItems: 'center', boxShadow: 'inset 0 0 0 1.3px var(--line)', color: 'var(--ink-2)' }}>
                 <Icon name="bell" size={19} />
                 {pending > 0 && <span style={{ position: 'absolute', top: 6, insetInlineEnd: 6, width: 8, height: 8, borderRadius: 9, background: 'var(--clay)', boxShadow: '0 0 0 2px var(--paper-2)' }} />}
