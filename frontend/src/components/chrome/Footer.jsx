@@ -4,15 +4,22 @@ import { Logo } from '../ui/Logo.jsx';
 import { Icon } from '../ui/Icon.jsx';
 
 export function Footer() {
-  const { lang } = useShop();
-  const cols = lang === 'en' ? [
-    { h: 'Shop', items: ['New In', 'T-shirts', 'Sweaters', 'Hoodies', 'Customize'] },
-    { h: 'Help', items: ['Track order', 'Size guide', 'Shipping & returns', 'Contact us'] },
-    { h: 'The brand', items: ['Our story', 'Manufacturing', 'Stores', 'Become a reseller'] },
+  const { lang, navigate } = useShop();
+  const shopTitle = lang === 'en' ? 'Shop' : 'المتجر';
+  const shopLinks = [
+    { label: lang === 'en' ? 'New In' : 'الجديد', go: () => navigate('catalog', { filter: 'new' }) },
+    { label: lang === 'en' ? 'T-shirts' : 'تيشيرت', go: () => navigate('catalog', { cat: 'tshirt' }) },
+    { label: lang === 'en' ? 'Sweaters' : 'بلوفر', go: () => navigate('catalog', { cat: 'pull' }) },
+    { label: lang === 'en' ? 'Hoodies' : 'سويت', go: () => navigate('catalog', { cat: 'hoodie' }) },
+    { label: lang === 'en' ? 'Customize' : 'تخصيص', go: () => navigate('configurator', {}) },
+  ];
+  // Informational text (not fake links) until real pages exist
+  const infoCols = lang === 'en' ? [
+    { h: 'Help', items: ['Cash on delivery', 'Delivery to 58 wilayas', 'We call to confirm'] },
+    { h: 'The brand', items: ['Made in Algeria', 'Premium cotton', 'Custom printing'] },
   ] : [
-    { h: 'المتجر', items: ['الجديد', 'تيشيرت', 'بلوفر', 'سويت', 'تخصيص'] },
-    { h: 'المساعدة', items: ['تتبع الطلب', 'دليل المقاسات', 'التوصيل والإرجاع', 'اتصل بنا'] },
-    { h: 'العلامة', items: ['قصتنا', 'التصنيع', 'نقاط البيع', 'كن موزعاً'] },
+    { h: 'المساعدة', items: ['الدفع عند الاستلام', 'التوصيل لـ58 ولاية', 'نتصل بك للتأكيد'] },
+    { h: 'العلامة', items: ['صُنع في الجزائر', 'قطن فاخر', 'طباعة مخصّصة'] },
   ];
   return (
     <footer style={{ background: 'var(--ink)', color: 'var(--paper)', marginTop: 80 }}>
@@ -31,11 +38,22 @@ export function Footer() {
               ))}
             </div>
           </div>
-          {cols.map((c) => (
+          <div>
+            <h4 style={{ fontSize: 13, letterSpacing: '.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,.55)', marginBottom: 16 }}>{shopTitle}</h4>
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+              {shopLinks.map((l) => (
+                <li key={l.label}>
+                  <button onClick={l.go} style={{ fontSize: 14, color: 'rgba(255,255,255,.72)', padding: 0, textAlign: 'start' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')} onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,.72)')}>{l.label}</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+          {infoCols.map((c) => (
             <div key={c.h}>
               <h4 style={{ fontSize: 13, letterSpacing: '.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,.55)', marginBottom: 16 }}>{c.h}</h4>
               <ul style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
-                {c.items.map((i) => <li key={i} style={{ fontSize: 14, color: 'rgba(255,255,255,.72)', cursor: 'pointer' }}>{i}</li>)}
+                {c.items.map((i) => <li key={i} style={{ fontSize: 14, color: 'rgba(255,255,255,.72)' }}>{i}</li>)}
               </ul>
             </div>
           ))}

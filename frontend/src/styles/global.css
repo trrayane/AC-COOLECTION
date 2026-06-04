@@ -235,6 +235,8 @@ img, svg, video { max-width: 100%; }
   .wrap { padding: 0 16px; }
   .btn-lg { height: 50px; font-size: 14px; padding: 0 20px; }
   .prod-grid, .prod-grid-3, .prod-grid-ed { gap: 12px; }
+  /* 16px min so iOS Safari doesn't auto-zoom when focusing a field */
+  .field, input, textarea, select { font-size: 16px; }
 }
 @media (max-width: 400px) {
   .wrap { padding: 0 12px; }

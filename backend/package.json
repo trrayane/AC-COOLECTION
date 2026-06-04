@@ -9,7 +9,8 @@
     "dev": "nodemon src/server.js",
     "seed": "node src/seed/seed.js",
     "seed:photos": "node src/seed/photos.js",
-    "seed:tee-photos": "node src/seed/use-local-photos.js"
+    "seed:tee-photos": "node src/seed/use-local-photos.js",
+    "create-admin": "node src/seed/create-admin.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

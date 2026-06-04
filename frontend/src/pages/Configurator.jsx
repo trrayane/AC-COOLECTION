@@ -47,7 +47,7 @@ export function Configurator({ params }) {
 
   const zones = PRINT_ZONES[p.cat];
   const view = zoneView(zone);
-  const fee = placements.length > 0 ? 500 : 0;
+  const fee = 0; // customization is free (matches the "Free customization on every item" promise)
   const total = p.price + fee;
   const zonePlacements = placements.filter((pl) => zoneView(pl.zone) === view);
 
