@@ -78,30 +78,36 @@ export function Configurator({ params }) {
     };
     reader.readAsDataURL(file);
   };
-  // Color picker: 2-row grid of swatches + custom picker integrated at the end
+  // Color picker: big current-color button + preset swatches
   const ColorPicker = ({ value, onChange, swatches }) => {
-    const sw = swatches || ['#0E0E0E','#ffffff','#e74c3c','#e67e22','#f1c40f','#2ecc71','#3498db','#9b59b6','#BE5E37','#334A3A','#C79A3B','#3C5A86','#A8423A','#E8D5B7','#95a5a6','#2c3e50'];
-    const isCustom = !sw.includes(value);
+    const sw = swatches || ['#0E0E0E','#ffffff','#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c','#3498db','#9b59b6','#BE5E37','#334A3A','#C79A3B'];
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 6 }}>
-        {sw.map((c) => (
-          <button key={c} onClick={() => onChange(c)} style={{
-            aspectRatio: '1', borderRadius: 8, background: c, transition: 'transform .12s, box-shadow .12s',
-            boxShadow: value === c ? '0 0 0 2px #fff, 0 0 0 4px #111' : 'inset 0 0 0 1px rgba(0,0,0,.12)',
-            transform: value === c ? 'scale(1.18)' : 'scale(1)',
-          }} />
-        ))}
-        {/* Custom picker slot */}
-        <label title={lang === 'ar' ? 'لون مخصص' : 'Custom'} style={{
-          aspectRatio: '1', borderRadius: 8, cursor: 'pointer', position: 'relative', overflow: 'hidden',
-          background: isCustom ? value : 'conic-gradient(red,yellow,lime,aqua,blue,magenta,red)',
-          boxShadow: isCustom ? '0 0 0 2px #fff, 0 0 0 4px #111' : 'inset 0 0 0 1px rgba(0,0,0,.12)',
-          transform: isCustom ? 'scale(1.18)' : 'scale(1)', transition: 'transform .12s',
-          display: 'grid', placeItems: 'center',
-        }}>
-          {!isCustom && <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,.6)', pointerEvents: 'none' }}>+</span>}
-          <input type="color" value={value} onChange={(e) => onChange(e.target.value)} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%' }} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {/* Big current color — click to open native picker */}
+        <label style={{ cursor: 'pointer', position: 'relative', display: 'block' }}>
+          <div style={{
+            height: 52, borderRadius: 12, background: value,
+            boxShadow: 'inset 0 0 0 1.5px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.1)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'filter .15s',
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={parseInt(value.slice(1),16) > 0x888888 ? '#000' : '#fff'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: .7 }}>
+              <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
+            </svg>
+            <span style={{ fontSize: 13, fontWeight: 700, fontFamily: 'monospace', color: parseInt(value.slice(1),16) > 0x888888 ? '#000' : '#fff', opacity: .85, letterSpacing: '.06em' }}>{value.toUpperCase()}</span>
+          </div>
+          <input type="color" value={value} onChange={(e) => onChange(e.target.value)}
+            style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', borderRadius: 12 }} />
         </label>
+        {/* Quick swatches */}
+        <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
+          {sw.map((c) => (
+            <button key={c} onClick={() => onChange(c)} style={{
+              width: 30, height: 30, borderRadius: 8, background: c, flexShrink: 0, transition: 'transform .12s, box-shadow .12s',
+              boxShadow: value === c ? '0 0 0 2px #fff, 0 0 0 4px #111' : 'inset 0 0 0 1px rgba(0,0,0,.15)',
+              transform: value === c ? 'scale(1.2)' : 'scale(1)',
+            }} />
+          ))}
+        </div>
       </div>
     );
   };
