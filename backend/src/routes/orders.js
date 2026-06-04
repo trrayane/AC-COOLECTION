@@ -75,8 +75,11 @@ router.post('/', async (req, res, next) => {
     const fee = deliveryFee(b.wilaya, mode);
     const total = subtotal + fee;
 
-    const count = await Order.count();
-    const id = 'CMD-' + (7342 + count);
+    // Next id = highest existing number + 1 (robust to deleted orders, unlike a count).
+    const all = await Order.findAll({ attributes: ['id'] });
+    let maxNum = 7341;
+    for (const o of all) { const n = parseInt(String(o.id).replace(/\D/g, ''), 10); if (!Number.isNaN(n) && n > maxNum) maxNum = n; }
+    const id = 'CMD-' + (maxNum + 1);
     const customLine = lines.find((l) => l.custom);
 
     const order = await Order.create({
