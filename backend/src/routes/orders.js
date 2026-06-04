@@ -56,6 +56,11 @@ router.post('/', async (req, res, next) => {
       const product = await Product.findByPk(it.productId);
       if (!product) return res.status(400).json({ error: `Unknown product ${it.productId}` });
       const qty = Math.max(1, parseInt(it.qty, 10) || 1);
+      // Stock check (only when this variant's stock is tracked)
+      const avail = product.stock && product.stock[`${it.color}:${it.size}`];
+      if (typeof avail === 'number' && avail < qty) {
+        return res.status(409).json({ error: `Not enough stock for ${product.name_en} (${[it.color, it.size].filter(Boolean).join(' ')})` });
+      }
       const customFee = it.custom && it.customData && it.customData.fee ? parseInt(it.customData.fee, 10) || 0 : 0;
       const unitPrice = product.price + customFee;
       subtotal += unitPrice * qty;

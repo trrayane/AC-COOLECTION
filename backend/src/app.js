@@ -5,11 +5,26 @@ require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 
 const app = express();
 
 app.set('trust proxy', true); // behind Vercel/proxy: req.ip becomes the real client IP (X-Forwarded-For)
-app.use(cors({ origin: process.env.CLIENT_URL || '*' }));
+
+// Security headers (it's a JSON API, so CSP lives on the frontend host;
+// allow cross-origin so the frontend can load /uploads images in local dev).
+app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+
+// CORS: allow the configured site(s), any *.vercel.app, and non-browser clients.
+const allowed = (process.env.CLIENT_URL || '').split(',').map((s) => s.trim()).filter(Boolean);
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true);                 // curl, server-to-server, mobile apps
+    if (allowed.includes('*') || allowed.includes(origin)) return cb(null, true);
+    try { if (new URL(origin).hostname.endsWith('.vercel.app')) return cb(null, true); } catch (e) {}
+    return cb(new Error('Not allowed by CORS'));
+  },
+}));
 app.use(express.json({ limit: '2mb' }));
 
 // Local image fallback (only used when Cloudinary isn't configured / local dev)

@@ -29,26 +29,28 @@ function getTransporter() {
 }
 
 function buildEmail(order) {
+  const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
   const rows = (order.items || []).map((it) => `
     <tr>
-      <td style="padding:6px 0;border-bottom:1px solid #eee">${it.productName || it.productId} ${it.custom ? '🎨' : ''}</td>
-      <td style="padding:6px 0;border-bottom:1px solid #eee;color:#666">${[it.color, it.size].filter(Boolean).join(' · ')}</td>
-      <td style="padding:6px 0;border-bottom:1px solid #eee;text-align:right">×${it.qty}</td>
+      <td style="padding:6px 0;border-bottom:1px solid #eee">${esc(it.productName || it.productId)} ${it.custom ? '🎨' : ''}</td>
+      <td style="padding:6px 0;border-bottom:1px solid #eee;color:#666">${esc([it.color, it.size].filter(Boolean).join(' · '))}</td>
+      <td style="padding:6px 0;border-bottom:1px solid #eee;text-align:right">×${esc(it.qty)}</td>
     </tr>`).join('');
 
   const html = `
   <div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:auto;color:#111">
-    <h2 style="margin:0 0 4px">🛒 New order — ${order.id}</h2>
+    <h2 style="margin:0 0 4px">🛒 New order — ${esc(order.id)}</h2>
     <p style="margin:0 0 16px;color:#666">Cash on delivery${order.custom ? ' · 🎨 customized (see admin for the design)' : ''}</p>
     <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
-      <tr><td style="color:#666;padding:3px 0">Customer</td><td style="padding:3px 0"><b>${order.name}</b></td></tr>
-      <tr><td style="color:#666;padding:3px 0">Phone</td><td style="padding:3px 0">${order.phone}</td></tr>
-      <tr><td style="color:#666;padding:3px 0">Address</td><td style="padding:3px 0">${order.wilaya} · ${order.commune}${order.address ? ' · ' + order.address : ''}</td></tr>
+      <tr><td style="color:#666;padding:3px 0">Customer</td><td style="padding:3px 0"><b>${esc(order.name)}</b></td></tr>
+      <tr><td style="color:#666;padding:3px 0">Phone</td><td style="padding:3px 0">${esc(order.phone)}</td></tr>
+      <tr><td style="color:#666;padding:3px 0">Address</td><td style="padding:3px 0">${esc(order.wilaya)} · ${esc(order.commune)}${order.address ? ' · ' + esc(order.address) : ''}</td></tr>
       <tr><td style="color:#666;padding:3px 0">Delivery</td><td style="padding:3px 0">${order.deliveryMode === 'desk' ? 'Pickup point' : 'Home'}</td></tr>
     </table>
     <table style="width:100%;border-collapse:collapse;font-size:14px">${rows}</table>
-    <p style="font-size:18px;font-weight:bold;margin:16px 0 0">Total: ${order.total} DA</p>
-    ${order.note ? `<p style="background:#f4f4f3;padding:12px;border-radius:8px;font-size:14px"><b>Note:</b> ${order.note}</p>` : ''}
+    <p style="font-size:18px;font-weight:bold;margin:16px 0 0">Total: ${esc(order.total)} DA</p>
+    ${order.note ? `<p style="background:#f4f4f3;padding:12px;border-radius:8px;font-size:14px"><b>Note:</b> ${esc(order.note)}</p>` : ''}
   </div>`;
 
   const text = `New order ${order.id}\n${order.name} · ${order.phone}\n${order.wilaya} · ${order.commune}\nTotal: ${order.total} DA (COD)${order.custom ? '\nCustomized — see admin.' : ''}`;
