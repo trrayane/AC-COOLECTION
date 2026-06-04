@@ -134,9 +134,27 @@ router.patch('/:id/status', requireAdmin, async (req, res, next) => {
     if (!ORDER_STATUSES.includes(status)) {
       return res.status(400).json({ error: 'Invalid status' });
     }
-    const order = await Order.findByPk(req.params.id);
+    const order = await Order.findByPk(req.params.id, { include: [itemInclude] });
     if (!order) return res.status(404).json({ error: 'Order not found' });
+
+    const prev = order.status;
     await order.update({ status });
+
+    // Auto-restock when cancelling a non-cancelled order (return reserved units to inventory)
+    if (status === 'cancelled' && prev !== 'cancelled') {
+      for (const item of order.items || []) {
+        if (!item.color || !item.size) continue;
+        const product = await Product.findByPk(item.productId);
+        if (!product) continue;
+        const stock = { ...(product.stock || {}) };
+        const key = `${item.color}:${item.size}`;
+        if (typeof stock[key] === 'number') {
+          stock[key] = stock[key] + item.qty;
+          await product.update({ stock });
+        }
+      }
+    }
+
     const full = await Order.findByPk(order.id, { include: [itemInclude] });
     res.json(full);
   } catch (e) { next(e); }
