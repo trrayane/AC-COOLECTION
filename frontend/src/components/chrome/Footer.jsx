@@ -77,8 +77,13 @@ export function Footer() {
               rayaneterki55@gmail.com
             </a>
           </div>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Icon name="truck" size={16} /> {lang === 'en' ? 'Cash on delivery · 58 wilayas' : 'الدفع عند الاستلام · 58 ولاية'}
+          <span style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Icon name="truck" size={16} /> {lang === 'en' ? 'Cash on delivery · 58 wilayas' : 'الدفع عند الاستلام · 58 ولاية'}
+            </span>
+            <button onClick={() => navigate('admin')} title="Admin" style={{ color: 'rgba(255,255,255,.32)', fontSize: 12, transition: 'color .15s' }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'rgba(255,255,255,.7)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,.32)'}>Admin</button>
           </span>
         </div>
       </div>

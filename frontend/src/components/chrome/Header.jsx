@@ -79,9 +79,6 @@ export function Header() {
             )}
             {isMobile && <button onClick={() => navigate('catalog', {})} aria-label="search" style={{ color: 'var(--ink)' }}><Icon name="search" size={22} /></button>}
             {!isMobile && langToggle}
-            <button onClick={() => navigate('admin')} aria-label="admin" title="Admin" style={{
-              width: 38, height: 38, borderRadius: '50%', display: isMobile ? 'none' : 'grid', placeItems: 'center', color: 'var(--ink-2)',
-            }}><Icon name="user" size={20} /></button>
             <button onClick={() => navigate('wishlist')} aria-label="wishlist" style={{ position: 'relative', color: 'var(--ink)' }}>
               <Icon name="heart" size={22} />
               {wishlistCount > 0 && <span style={{
@@ -126,10 +123,6 @@ export function Header() {
               textAlign: lang === 'ar' ? 'right' : 'left', padding: '13px 4px', fontSize: 18, fontWeight: 700, color: 'var(--clay-deep)',
               display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid var(--line)',
             }}><Icon name="spark" size={18} /> {t.nav_custom}</button>
-            <button onClick={() => { navigate('admin'); setMenuOpen(false); }} style={{
-              textAlign: lang === 'ar' ? 'right' : 'left', padding: '13px 4px', fontSize: 16, fontWeight: 600, color: 'var(--ink-2)',
-              display: 'flex', alignItems: 'center', gap: 8,
-            }}><Icon name="user" size={18} /> {t.admin}</button>
             <div style={{ marginTop: 'auto' }}>{langToggle}</div>
           </div>
         </div>
