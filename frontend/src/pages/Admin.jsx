@@ -561,26 +561,50 @@ function AdminLogin({ onAuthed }) {
     } finally { setBusy(false); }
   };
   const clear = () => setError('');
+  const isMobile = useIsMobile();
   return (
-    <div dir={lang === 'ar' ? 'rtl' : 'ltr'} style={{ minHeight: '100vh', background: '#09090B', display: 'grid', placeItems: 'center', padding: 20, position: 'relative', overflow: 'hidden' }}>
-      {/* layered monochrome ambient */}
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(80% 55% at 50% -12%, rgba(255,255,255,.14), transparent 55%), radial-gradient(60% 45% at 50% 118%, rgba(255,255,255,.05), transparent 60%)' }} />
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,.045) 1px, transparent 1px)', backgroundSize: '26px 26px', WebkitMaskImage: 'radial-gradient(80% 62% at 50% 36%, #000, transparent)', maskImage: 'radial-gradient(80% 62% at 50% 36%, #000, transparent)' }} />
+    <div dir={lang === 'ar' ? 'rtl' : 'ltr'} style={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.05fr 1fr', background: 'var(--paper)' }}>
 
-      <div className="fade-up" style={{ position: 'relative', width: 'min(400px, calc(100vw - 16px))' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}><Logo size={24} light /></div>
+      {/* LEFT — brand panel (desktop) */}
+      {!isMobile && (
+        <div style={{ position: 'relative', background: '#0B0B0C', color: '#fff', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '48px 54px' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(75% 50% at 25% -5%, rgba(255,255,255,.12), transparent 55%)' }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px)', backgroundSize: '26px 26px', WebkitMaskImage: 'radial-gradient(90% 85% at 25% 40%, #000, transparent)', maskImage: 'radial-gradient(90% 85% at 25% 40%, #000, transparent)' }} />
 
-        <form onSubmit={submit} style={{ position: 'relative', background: 'var(--paper)', borderRadius: 26, padding: '46px clamp(22px,6vw,34px) 30px', boxShadow: '0 40px 90px -30px rgba(0,0,0,.85), 0 0 0 1px rgba(255,255,255,.06)' }}>
-          {/* floating lock badge */}
-          <div style={{ position: 'absolute', top: -27, insetInlineStart: '50%', transform: 'translateX(-50%)', width: 56, height: 56, borderRadius: 18, background: 'linear-gradient(145deg, #353535, #0d0d0d)', display: 'grid', placeItems: 'center', boxShadow: '0 12px 26px -8px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.14)' }}>
-            <Icon name="lock" size={23} style={{ color: '#fff' }} />
+          <div style={{ position: 'relative', zIndex: 2 }}><Logo size={26} light /></div>
+
+          <div style={{ position: 'relative', zIndex: 2 }}>
+            <h2 style={{ fontSize: 'clamp(30px,3.2vw,42px)', lineHeight: 1.08, fontWeight: 800, letterSpacing: '-.025em' }}>
+              {lang === 'ar' ? <>تحكّم في<br />متجرك.</> : <>Manage your<br />store.</>}
+            </h2>
+            <p style={{ color: 'rgba(255,255,255,.6)', fontSize: 15, marginTop: 16, maxWidth: 330, lineHeight: 1.6 }}>
+              {lang === 'ar' ? 'الطلبات، المنتجات، المخزون والكوبونات في مكان واحد.' : 'Orders, products, inventory and promo codes — all in one place.'}
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 13, marginTop: 28 }}>
+              {[
+                lang === 'ar' ? 'تتبّع الطلبات وتحديث الحالة' : 'Track & update orders',
+                lang === 'ar' ? 'المنتجات والمخزون' : 'Products & inventory',
+                lang === 'ar' ? 'الكوبونات والتخفيضات' : 'Promo codes & deals',
+              ].map((f) => (
+                <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 11, fontSize: 14, color: 'rgba(255,255,255,.85)' }}>
+                  <span style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(255,255,255,.12)', display: 'grid', placeItems: 'center', flexShrink: 0 }}><Icon name="check" size={13} style={{ color: '#fff' }} /></span>
+                  {f}
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: 26 }}>
-            <h1 style={{ fontSize: 22, letterSpacing: '-.02em' }}>{lang === 'ar' ? 'لوحة الإدارة' : 'Admin dashboard'}</h1>
-            <p className="muted" style={{ fontSize: 13.5, marginTop: 6 }}>{lang === 'ar' ? 'سجّل الدخول لإدارة متجرك' : 'Sign in to manage your store'}</p>
-          </div>
+          <div style={{ position: 'relative', zIndex: 2, color: 'rgba(255,255,255,.4)', fontSize: 12 }}>© 2026 AC Collection</div>
+        </div>
+      )}
+
+      {/* RIGHT — form */}
+      <div style={{ display: 'grid', placeItems: 'center', padding: isMobile ? '40px 22px' : 28 }}>
+        <form onSubmit={submit} className="fade-up" style={{ width: 'min(380px, 100%)' }}>
+          {isMobile && <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 30 }}><Logo size={24} /></div>}
+
+          <h1 style={{ fontSize: 24, letterSpacing: '-.02em' }}>{lang === 'ar' ? 'لوحة الإدارة' : 'Admin dashboard'}</h1>
+          <p className="muted" style={{ fontSize: 14, marginTop: 6, marginBottom: 26 }}>{lang === 'ar' ? 'سجّل الدخول لإدارة متجرك' : 'Sign in to manage your store'}</p>
 
           {error && (
             <div className="fade-in" style={{ display: 'flex', alignItems: 'center', gap: 9, background: '#F8E0DD', color: 'var(--danger)', borderRadius: 'var(--r-md)', padding: '11px 14px', fontSize: 13.5, fontWeight: 600, marginBottom: 16 }}>
@@ -609,15 +633,15 @@ function AdminLogin({ onAuthed }) {
             </button>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, marginTop: 22, paddingTop: 18, borderTop: '1px solid var(--line)', color: 'var(--ink-3)', fontSize: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, marginTop: 22, color: 'var(--ink-3)', fontSize: 12 }}>
             <Icon name="shield" size={14} /> {lang === 'ar' ? 'منطقة آمنة · دخول مصرّح به فقط' : 'Secure area · authorized access only'}
           </div>
-        </form>
 
-        <button type="button" onClick={() => navigate('home')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, margin: '20px auto 0', color: 'rgba(255,255,255,.55)', fontSize: 13, fontWeight: 600, transition: 'color .15s' }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')} onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,.55)')}>
-          <Icon name="arrowL" size={15} /> {t.adm_back_shop}
-        </button>
+          <button type="button" onClick={() => navigate('home')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, margin: '16px auto 0', color: 'var(--ink-3)', fontSize: 13, fontWeight: 600, transition: 'color .15s' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--ink)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--ink-3)')}>
+            <Icon name="arrowL" size={15} /> {t.adm_back_shop}
+          </button>
+        </form>
       </div>
     </div>
   );
