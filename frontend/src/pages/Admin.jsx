@@ -670,12 +670,15 @@ function AdminDashboard({ onLogout }) {
   }, [toast, lang]);
 
   const handleStatus = async (id, status) => {
+    // Optimistic: update the UI instantly, sync the server in the background.
+    setOrders((os) => os.map((o) => (o.id === id ? { ...o, status } : o)));
+    setDetail((d) => (d && d.id === id ? { ...d, status } : d));
     try {
-      const updated = await api.orders.setStatus(id, status);
-      setOrders((os) => os.map((o) => (o.id === id ? normOrder(updated) : o)));
-      setDetail((d) => (d && d.id === id ? { ...d, status } : d));
-      toast(t.adm_status + ' → ' + STATUS_META[status][lang]);
-    } catch (e) { toast(e.message, 'warn'); }
+      await api.orders.setStatus(id, status);
+    } catch (e) {
+      toast(e.message, 'warn');
+      loadOrders(); // revert to server truth on failure
+    }
   };
 
   const removeOrder = async (id) => {
