@@ -561,88 +561,38 @@ function AdminLogin({ onAuthed }) {
     } finally { setBusy(false); }
   };
   const clear = () => setError('');
-  const isMobile = useIsMobile();
   return (
-    <div dir={lang === 'ar' ? 'rtl' : 'ltr'} style={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.05fr 1fr', background: 'var(--paper)' }}>
+    <div dir={lang === 'ar' ? 'rtl' : 'ltr'} style={{ minHeight: '100vh', background: 'var(--paper)', display: 'grid', placeItems: 'center', padding: '32px 22px' }}>
+      <form onSubmit={submit} className="fade-up" style={{ width: 'min(360px, 100%)', textAlign: 'center' }}>
 
-      {/* LEFT — brand panel (desktop) */}
-      {!isMobile && (
-        <div style={{ position: 'relative', background: '#0B0B0C', color: '#fff', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '48px 54px' }}>
-          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(75% 50% at 25% -5%, rgba(255,255,255,.12), transparent 55%)' }} />
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px)', backgroundSize: '26px 26px', WebkitMaskImage: 'radial-gradient(90% 85% at 25% 40%, #000, transparent)', maskImage: 'radial-gradient(90% 85% at 25% 40%, #000, transparent)' }} />
+        {/* Logo */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 36 }}><Logo size={26} /></div>
 
-          <div style={{ position: 'relative', zIndex: 2 }}><Logo size={26} light /></div>
+        <h1 style={{ fontSize: 26, letterSpacing: '-.025em' }}>{lang === 'ar' ? 'لوحة الإدارة' : 'Admin dashboard'}</h1>
+        <p className="muted" style={{ fontSize: 14.5, marginTop: 8, marginBottom: 32 }}>{lang === 'ar' ? 'سجّل الدخول لإدارة متجرك' : 'Sign in to manage your store'}</p>
 
-          <div style={{ position: 'relative', zIndex: 2 }}>
-            <h2 style={{ fontSize: 'clamp(30px,3.2vw,42px)', lineHeight: 1.08, fontWeight: 800, letterSpacing: '-.025em' }}>
-              {lang === 'ar' ? <>تحكّم في<br />متجرك.</> : <>Manage your<br />store.</>}
-            </h2>
-            <p style={{ color: 'rgba(255,255,255,.6)', fontSize: 15, marginTop: 16, maxWidth: 330, lineHeight: 1.6 }}>
-              {lang === 'ar' ? 'الطلبات، المنتجات، المخزون والكوبونات في مكان واحد.' : 'Orders, products, inventory and promo codes — all in one place.'}
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 13, marginTop: 28 }}>
-              {[
-                lang === 'ar' ? 'تتبّع الطلبات وتحديث الحالة' : 'Track & update orders',
-                lang === 'ar' ? 'المنتجات والمخزون' : 'Products & inventory',
-                lang === 'ar' ? 'الكوبونات والتخفيضات' : 'Promo codes & deals',
-              ].map((f) => (
-                <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 11, fontSize: 14, color: 'rgba(255,255,255,.85)' }}>
-                  <span style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(255,255,255,.12)', display: 'grid', placeItems: 'center', flexShrink: 0 }}><Icon name="check" size={13} style={{ color: '#fff' }} /></span>
-                  {f}
-                </div>
-              ))}
-            </div>
+        {error && (
+          <div className="fade-in" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9, background: '#F8E0DD', color: 'var(--danger)', borderRadius: 'var(--r-md)', padding: '11px 14px', fontSize: 13.5, fontWeight: 600, marginBottom: 16, textAlign: 'start' }}>
+            <Icon name="close" size={16} style={{ flexShrink: 0 }} /> {error}
           </div>
+        )}
 
-          <div style={{ position: 'relative', zIndex: 2, color: 'rgba(255,255,255,.4)', fontSize: 12 }}>© 2026 AC Collection</div>
-        </div>
-      )}
-
-      {/* RIGHT — form */}
-      <div style={{ display: 'grid', placeItems: 'center', padding: isMobile ? '40px 22px' : 28 }}>
-        <form onSubmit={submit} className="fade-up" style={{ width: 'min(380px, 100%)' }}>
-          {isMobile && <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 30 }}><Logo size={24} /></div>}
-
-          <h1 style={{ fontSize: 24, letterSpacing: '-.02em' }}>{lang === 'ar' ? 'لوحة الإدارة' : 'Admin dashboard'}</h1>
-          <p className="muted" style={{ fontSize: 14, marginTop: 6, marginBottom: 26 }}>{lang === 'ar' ? 'سجّل الدخول لإدارة متجرك' : 'Sign in to manage your store'}</p>
-
-          {error && (
-            <div className="fade-in" style={{ display: 'flex', alignItems: 'center', gap: 9, background: '#F8E0DD', color: 'var(--danger)', borderRadius: 'var(--r-md)', padding: '11px 14px', fontSize: 13.5, fontWeight: 600, marginBottom: 16 }}>
-              <Icon name="close" size={16} style={{ flexShrink: 0 }} /> {error}
-            </div>
-          )}
-
-          <div style={{ display: 'grid', gap: 15 }}>
-            <div>
-              <div className="field-label">{t.adm_username}</div>
-              <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', insetInlineStart: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-3)' }}><Icon name="user" size={17} /></span>
-                <input className="field" style={{ height: 52, paddingInlineStart: 42 }} value={username} onChange={(e) => { setUsername(e.target.value); clear(); }} placeholder={t.adm_username} autoFocus autoComplete="username" />
-              </div>
-            </div>
-            <div>
-              <div className="field-label">{t.adm_password}</div>
-              <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', insetInlineStart: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-3)' }}><Icon name="lock" size={17} /></span>
-                <input className="field" type={showPw ? 'text' : 'password'} style={{ height: 52, paddingInlineStart: 42, paddingInlineEnd: 46 }} value={password} onChange={(e) => { setPassword(e.target.value); clear(); }} placeholder={t.adm_password} autoComplete="current-password" />
-                <button type="button" onClick={() => setShowPw((s) => !s)} aria-label="show/hide password" style={{ position: 'absolute', insetInlineEnd: 10, top: '50%', transform: 'translateY(-50%)', color: showPw ? 'var(--ink)' : 'var(--ink-3)', padding: 6 }}><Icon name="eye" size={18} /></button>
-              </div>
-            </div>
-            <button className="btn btn-clay btn-lg btn-block" type="submit" disabled={busy || !username || !password} style={{ marginTop: 6, height: 54 }}>
-              {busy ? <span className="spin" /> : <Icon name="logout" size={17} />} {t.adm_login}
-            </button>
+        <div style={{ display: 'grid', gap: 12, textAlign: 'start' }}>
+          <input className="field" style={{ height: 54 }} value={username} onChange={(e) => { setUsername(e.target.value); clear(); }} placeholder={t.adm_username} autoFocus autoComplete="username" />
+          <div style={{ position: 'relative' }}>
+            <input className="field" type={showPw ? 'text' : 'password'} style={{ height: 54, paddingInlineEnd: 46 }} value={password} onChange={(e) => { setPassword(e.target.value); clear(); }} placeholder={t.adm_password} autoComplete="current-password" />
+            <button type="button" onClick={() => setShowPw((s) => !s)} aria-label="show/hide password" style={{ position: 'absolute', insetInlineEnd: 12, top: '50%', transform: 'translateY(-50%)', color: showPw ? 'var(--ink)' : 'var(--ink-3)', padding: 6 }}><Icon name="eye" size={18} /></button>
           </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, marginTop: 22, color: 'var(--ink-3)', fontSize: 12 }}>
-            <Icon name="shield" size={14} /> {lang === 'ar' ? 'منطقة آمنة · دخول مصرّح به فقط' : 'Secure area · authorized access only'}
-          </div>
-
-          <button type="button" onClick={() => navigate('home')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, margin: '16px auto 0', color: 'var(--ink-3)', fontSize: 13, fontWeight: 600, transition: 'color .15s' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--ink)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--ink-3)')}>
-            <Icon name="arrowL" size={15} /> {t.adm_back_shop}
+          <button className="btn btn-clay btn-lg btn-block" type="submit" disabled={busy || !username || !password} style={{ marginTop: 6, height: 54 }}>
+            {busy ? <span className="spin" /> : t.adm_login}
           </button>
-        </form>
-      </div>
+        </div>
+
+        <button type="button" onClick={() => navigate('home')} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7, marginTop: 28, color: 'var(--ink-3)', fontSize: 13, fontWeight: 600, transition: 'color .15s' }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--ink)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--ink-3)')}>
+          <Icon name="arrowL" size={15} /> {t.adm_back_shop}
+        </button>
+      </form>
     </div>
   );
 }
