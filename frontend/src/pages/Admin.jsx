@@ -562,60 +562,60 @@ function AdminLogin({ onAuthed }) {
   };
   const clear = () => setError('');
   return (
-    <div dir={lang === 'ar' ? 'rtl' : 'ltr'} style={{ minHeight: '100vh', background: '#0B0B0C', display: 'grid', placeItems: 'center', padding: 24, position: 'relative', overflow: 'hidden' }}>
-      {/* ambient glows */}
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(65% 50% at 50% -8%, rgba(255,255,255,.10), transparent 60%), radial-gradient(55% 45% at 50% 112%, rgba(193,124,90,.16), transparent 60%)' }} />
-      {/* faint dot grid */}
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px)', backgroundSize: '22px 22px', WebkitMaskImage: 'radial-gradient(75% 65% at 50% 38%, #000, transparent)', maskImage: 'radial-gradient(75% 65% at 50% 38%, #000, transparent)' }} />
+    <div dir={lang === 'ar' ? 'rtl' : 'ltr'} style={{ minHeight: '100vh', background: '#09090B', display: 'grid', placeItems: 'center', padding: 20, position: 'relative', overflow: 'hidden' }}>
+      {/* layered monochrome ambient */}
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(80% 55% at 50% -12%, rgba(255,255,255,.14), transparent 55%), radial-gradient(60% 45% at 50% 118%, rgba(255,255,255,.05), transparent 60%)' }} />
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,.045) 1px, transparent 1px)', backgroundSize: '26px 26px', WebkitMaskImage: 'radial-gradient(80% 62% at 50% 36%, #000, transparent)', maskImage: 'radial-gradient(80% 62% at 50% 36%, #000, transparent)' }} />
 
-      <div className="fade-up" style={{ position: 'relative', width: 'min(410px, calc(100vw - 20px))' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 22 }}><Logo size={24} light /></div>
+      <div className="fade-up" style={{ position: 'relative', width: 'min(400px, calc(100vw - 16px))' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}><Logo size={24} light /></div>
 
-        <form onSubmit={submit} style={{ background: 'var(--paper)', borderRadius: 24, padding: 'clamp(24px, 6vw, 34px)', boxShadow: '0 30px 80px -24px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.05)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 13 }}>
-            <span style={{ width: 46, height: 46, borderRadius: 14, background: 'var(--ink)', color: '#fff', display: 'grid', placeItems: 'center', flexShrink: 0 }}><Icon name="lock" size={21} /></span>
-            <div>
-              <h1 style={{ fontSize: 19, lineHeight: 1.15 }}>{lang === 'ar' ? 'لوحة الإدارة' : 'Admin dashboard'}</h1>
-              <p className="muted" style={{ fontSize: 13 }}>{lang === 'ar' ? 'سجّل الدخول لإدارة متجرك' : 'Sign in to manage your store'}</p>
-            </div>
+        <form onSubmit={submit} style={{ position: 'relative', background: 'var(--paper)', borderRadius: 26, padding: '46px clamp(22px,6vw,34px) 30px', boxShadow: '0 40px 90px -30px rgba(0,0,0,.85), 0 0 0 1px rgba(255,255,255,.06)' }}>
+          {/* floating lock badge */}
+          <div style={{ position: 'absolute', top: -27, insetInlineStart: '50%', transform: 'translateX(-50%)', width: 56, height: 56, borderRadius: 18, background: 'linear-gradient(145deg, #353535, #0d0d0d)', display: 'grid', placeItems: 'center', boxShadow: '0 12px 26px -8px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.14)' }}>
+            <Icon name="lock" size={23} style={{ color: '#fff' }} />
           </div>
 
-          <div style={{ height: 1, background: 'var(--line)', margin: '20px 0' }} />
+          {/* Header */}
+          <div style={{ textAlign: 'center', marginBottom: 26 }}>
+            <h1 style={{ fontSize: 22, letterSpacing: '-.02em' }}>{lang === 'ar' ? 'لوحة الإدارة' : 'Admin dashboard'}</h1>
+            <p className="muted" style={{ fontSize: 13.5, marginTop: 6 }}>{lang === 'ar' ? 'سجّل الدخول لإدارة متجرك' : 'Sign in to manage your store'}</p>
+          </div>
 
           {error && (
-            <div className="fade-in" style={{ display: 'flex', alignItems: 'center', gap: 9, background: '#F8E0DD', color: 'var(--danger)', borderRadius: 'var(--r-md)', padding: '11px 14px', fontSize: 13.5, fontWeight: 600, marginBottom: 14 }}>
+            <div className="fade-in" style={{ display: 'flex', alignItems: 'center', gap: 9, background: '#F8E0DD', color: 'var(--danger)', borderRadius: 'var(--r-md)', padding: '11px 14px', fontSize: 13.5, fontWeight: 600, marginBottom: 16 }}>
               <Icon name="close" size={16} style={{ flexShrink: 0 }} /> {error}
             </div>
           )}
 
-          <div style={{ display: 'grid', gap: 13 }}>
+          <div style={{ display: 'grid', gap: 15 }}>
             <div>
               <div className="field-label">{t.adm_username}</div>
               <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', insetInlineStart: 13, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-3)' }}><Icon name="user" size={17} /></span>
-                <input className="field" style={{ paddingInlineStart: 40 }} value={username} onChange={(e) => { setUsername(e.target.value); clear(); }} placeholder={t.adm_username} autoFocus autoComplete="username" />
+                <span style={{ position: 'absolute', insetInlineStart: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-3)' }}><Icon name="user" size={17} /></span>
+                <input className="field" style={{ height: 52, paddingInlineStart: 42 }} value={username} onChange={(e) => { setUsername(e.target.value); clear(); }} placeholder={t.adm_username} autoFocus autoComplete="username" />
               </div>
             </div>
             <div>
               <div className="field-label">{t.adm_password}</div>
               <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', insetInlineStart: 13, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-3)' }}><Icon name="lock" size={17} /></span>
-                <input className="field" type={showPw ? 'text' : 'password'} style={{ paddingInlineStart: 40, paddingInlineEnd: 44 }} value={password} onChange={(e) => { setPassword(e.target.value); clear(); }} placeholder={t.adm_password} autoComplete="current-password" />
-                <button type="button" onClick={() => setShowPw((s) => !s)} aria-label="show/hide password" style={{ position: 'absolute', insetInlineEnd: 8, top: '50%', transform: 'translateY(-50%)', color: showPw ? 'var(--ink)' : 'var(--ink-3)', padding: 6 }}><Icon name="eye" size={18} /></button>
+                <span style={{ position: 'absolute', insetInlineStart: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-3)' }}><Icon name="lock" size={17} /></span>
+                <input className="field" type={showPw ? 'text' : 'password'} style={{ height: 52, paddingInlineStart: 42, paddingInlineEnd: 46 }} value={password} onChange={(e) => { setPassword(e.target.value); clear(); }} placeholder={t.adm_password} autoComplete="current-password" />
+                <button type="button" onClick={() => setShowPw((s) => !s)} aria-label="show/hide password" style={{ position: 'absolute', insetInlineEnd: 10, top: '50%', transform: 'translateY(-50%)', color: showPw ? 'var(--ink)' : 'var(--ink-3)', padding: 6 }}><Icon name="eye" size={18} /></button>
               </div>
             </div>
-            <button className="btn btn-clay btn-lg btn-block" type="submit" disabled={busy || !username || !password} style={{ marginTop: 4 }}>
+            <button className="btn btn-clay btn-lg btn-block" type="submit" disabled={busy || !username || !password} style={{ marginTop: 6, height: 54 }}>
               {busy ? <span className="spin" /> : <Icon name="logout" size={17} />} {t.adm_login}
             </button>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, marginTop: 18, color: 'var(--ink-3)', fontSize: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, marginTop: 22, paddingTop: 18, borderTop: '1px solid var(--line)', color: 'var(--ink-3)', fontSize: 12 }}>
             <Icon name="shield" size={14} /> {lang === 'ar' ? 'منطقة آمنة · دخول مصرّح به فقط' : 'Secure area · authorized access only'}
           </div>
         </form>
 
-        <button type="button" onClick={() => navigate('home')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, margin: '18px auto 0', color: 'rgba(255,255,255,.6)', fontSize: 13, fontWeight: 600, transition: 'color .15s' }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')} onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,.6)')}>
+        <button type="button" onClick={() => navigate('home')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, margin: '20px auto 0', color: 'rgba(255,255,255,.55)', fontSize: 13, fontWeight: 600, transition: 'color .15s' }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')} onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,.55)')}>
           <Icon name="arrowL" size={15} /> {t.adm_back_shop}
         </button>
       </div>
