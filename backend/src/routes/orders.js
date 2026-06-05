@@ -33,6 +33,10 @@ router.post('/', async (req, res, next) => {
     if (!b.name || !b.phone || !b.wilaya || !b.commune) {
       return res.status(400).json({ error: 'name, phone, wilaya and commune are required' });
     }
+    // Algerian mobile: exactly 10 digits, starts with 05 / 06 / 07
+    if (!/^0[567]\d{8}$/.test(String(b.phone).replace(/\D/g, ''))) {
+      return res.status(400).json({ error: 'Invalid phone number (must be 10 digits starting with 05, 06 or 07)' });
+    }
     if (!Array.isArray(b.items) || b.items.length === 0) {
       return res.status(400).json({ error: 'Cart is empty' });
     }

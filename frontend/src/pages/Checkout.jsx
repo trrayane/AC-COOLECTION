@@ -143,7 +143,8 @@ export function Checkout() {
   const validate = () => {
     const e = {};
     if (!form.name.trim()) e.name = 1;
-    if (!/^0[567]\d{2}[\s.]?\d{2}[\s.]?\d{2}[\s.]?\d{2}$/.test(form.phone.replace(/\s/g, '')) && form.phone.replace(/\D/g, '').length < 9) e.phone = 1;
+    // Algerian mobile: exactly 10 digits, starts with 05 / 06 / 07
+    if (!/^0[567]\d{8}$/.test(form.phone.replace(/\D/g, ''))) e.phone = 1;
     if (!form.wilaya) e.wilaya = 1;
     if (!form.commune) e.commune = 1;
     if (mode === 'home' && !form.address.trim()) e.address = 1;
@@ -187,8 +188,12 @@ export function Checkout() {
               <Field label={t.co_phone} req err={errors.phone}>
                 <div style={{ position: 'relative' }}>
                   <span style={{ position: 'absolute', insetInlineStart: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-3)' }}><Icon name="phone" size={17} /></span>
-                  <input className="field" dir="ltr" style={{ paddingInlineStart: 42, ...errStyle('phone') }} value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="0X XX XX XX XX" />
+                  <input className="field" dir="ltr" type="tel" inputMode="numeric" maxLength={10}
+                    style={{ paddingInlineStart: 42, ...errStyle('phone') }} value={form.phone}
+                    onChange={(e) => set('phone', e.target.value.replace(/\D/g, '').slice(0, 10))}
+                    placeholder="0X XX XX XX XX" />
                 </div>
+                {errors.phone && <p style={{ color: 'var(--danger)', fontSize: 12.5, marginTop: 6, fontWeight: 600 }}>{lang === 'ar' ? 'رقم غير صحيح: 10 أرقام تبدأ بـ 05 أو 06 أو 07' : 'Numéro invalide : 10 chiffres commençant par 05, 06 ou 07'}</p>}
               </Field>
             </div>
           </div>
