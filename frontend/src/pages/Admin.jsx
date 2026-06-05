@@ -649,28 +649,8 @@ function AdminDashboard({ onLogout }) {
   React.useEffect(() => { loadOrders(); }, [loadOrders]);
   React.useEffect(() => { if (tab === 'promos') api.promo.list().then(setPromos).catch(() => {}); }, [tab]);
 
-  // ── New-order sound notification (polls every 30s) ──────────
+  // ── New-order check (silent, polls every 30s) — auto-refresh + toast ──
   const knownIds = React.useRef(null);
-  const [soundOn, setSoundOn] = React.useState(true);
-
-  const ding = React.useCallback(() => {
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      // Two-note ding: E5 then G#5
-      [[659, 0, 0.18], [830, 0.2, 0.22]].forEach(([freq, start, dur]) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.type = 'sine'; osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0, ctx.currentTime + start);
-        gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + start + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
-        osc.start(ctx.currentTime + start);
-        osc.stop(ctx.currentTime + start + dur);
-      });
-    } catch (e) {}
-  }, []);
-
   React.useEffect(() => {
     const poll = async () => {
       try {
@@ -681,14 +661,13 @@ function AdminDashboard({ onLogout }) {
         if (newOnes.length > 0) {
           knownIds.current = ids;
           setOrders(fresh.map(normOrder));
-          if (soundOn) ding();
           toast((lang === 'ar' ? '🛒 طلب جديد!' : '🛒 New order!'), 'ok');
         }
       } catch (e) {}
     };
     const id = setInterval(poll, 30_000);
     return () => clearInterval(id);
-  }, [soundOn, ding, toast, lang]);
+  }, [toast, lang]);
 
   const handleStatus = async (id, status) => {
     try {
