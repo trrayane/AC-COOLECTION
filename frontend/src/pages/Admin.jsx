@@ -392,14 +392,41 @@ function OrderDetailModal({ order, onClose, onStatus, onDelete, lang, t }) {
             ) : (
               <div style={{ background: 'var(--sand)', borderRadius: 'var(--r-md)', padding: '30px 20px', textAlign: 'center', color: 'var(--ink-3)' }}><Icon name="image" size={32} /><p style={{ marginTop: 10, fontSize: 13.5, fontWeight: 600 }}>{t.cfg_clean}</p></div>
             )}
-            <div className="eyebrow" style={{ margin: '22px 0 12px' }}>{t.adm_status}</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
-              {STATUS_FLOW.map((s) => (
-                <button key={s} onClick={() => onStatus(order.id, s)} style={{ height: 32, padding: '0 12px', borderRadius: 99, fontSize: 12.5, fontWeight: 700, transition: 'all .15s',
-                  background: order.status === s ? STATUS_META[s].bg : 'var(--paper)', color: order.status === s ? STATUS_META[s].color : 'var(--ink-3)',
-                  boxShadow: order.status === s ? 'inset 0 0 0 1.5px ' + STATUS_META[s].color : 'inset 0 0 0 1.3px var(--line)' }}>{STATUS_META[s][lang]}</button>
-              ))}
-            </div>
+            <div className="eyebrow" style={{ margin: '22px 0 14px' }}>{t.adm_status}</div>
+            {order.status === 'cancelled' ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#F8E0DD', borderRadius: 'var(--r-md)', padding: '13px 15px' }}>
+                <span style={{ width: 34, height: 34, borderRadius: '50%', background: '#C75A50', color: '#fff', display: 'grid', placeItems: 'center', flexShrink: 0 }}><Icon name="close" size={18} /></span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--danger)' }}>{STATUS_META.cancelled[lang]}</div>
+                  <div style={{ fontSize: 12.5, color: 'var(--danger)', opacity: .75 }}>{lang === 'ar' ? 'تم إلغاء هذا الطلب' : 'This order was cancelled'}</div>
+                </div>
+                <button onClick={() => onStatus(order.id, 'pending')} className="btn btn-ghost btn-sm" style={{ flexShrink: 0 }}>{lang === 'ar' ? 'إعادة تفعيل' : 'Reactivate'}</button>
+              </div>
+            ) : (() => {
+              const flow = STATUS_FLOW.slice(0, 4);
+              const cur = flow.indexOf(order.status);
+              return (
+                <>
+                  <div style={{ display: 'flex' }}>
+                    {flow.map((s, i) => (
+                      <button key={s} onClick={() => onStatus(order.id, s)} style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                        {i > 0 && <span style={{ position: 'absolute', top: 16, insetInlineStart: '-50%', width: '100%', height: 3, background: cur >= i ? 'var(--ink)' : 'var(--line)', transition: 'background .3s', zIndex: 0 }} />}
+                        <span style={{ position: 'relative', zIndex: 1, width: 34, height: 34, borderRadius: '50%', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 13, transition: 'all .2s',
+                          background: i <= cur ? 'var(--ink)' : 'var(--paper-2)', color: i <= cur ? '#fff' : 'var(--ink-3)',
+                          boxShadow: i <= cur ? 'none' : 'inset 0 0 0 1.6px var(--line-2)' }}>
+                          {i < cur ? <Icon name="check" size={15} /> : i + 1}
+                        </span>
+                        <span style={{ fontSize: 11, fontWeight: i === cur ? 800 : 600, color: i === cur ? 'var(--ink)' : 'var(--ink-3)', textAlign: 'center', lineHeight: 1.2 }}>{STATUS_META[s][lang]}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <button onClick={() => onStatus(order.id, 'cancelled')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, width: '100%', marginTop: 18, height: 38, borderRadius: 10, color: 'var(--danger)', boxShadow: 'inset 0 0 0 1.3px #F0C9C4', fontSize: 13, fontWeight: 700, transition: 'background .15s' }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#FBEBE9'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                    <Icon name="close" size={15} /> {lang === 'ar' ? 'إلغاء الطلب' : 'Cancel order'}
+                  </button>
+                </>
+              );
+            })()}
           </div>
         </div>
       </div>
