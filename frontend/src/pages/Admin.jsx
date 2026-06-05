@@ -714,19 +714,6 @@ function AdminDashboard({ onLogout }) {
   const max7 = Math.max(1, ...days7.map((d) => d.rev));
   const rev7 = days7.reduce((s, d) => s + d.rev, 0);
 
-  // Top products (by units across all valid orders)
-  const prodCount = {};
-  valid.forEach((o) => (o.items || []).forEach((it) => {
-    const name = it.productName || it.pid; prodCount[name] = (prodCount[name] || 0) + (it.qty || 1);
-  }));
-  const topProducts = Object.entries(prodCount).sort((a, b) => b[1] - a[1]).slice(0, 5);
-  const maxProd = Math.max(1, ...topProducts.map(([, n]) => n));
-
-  // Top wilayas (by number of orders)
-  const wilCount = {};
-  orders.forEach((o) => { const w = (o.wilaya || '').replace(/^\d+\s/, ''); if (w) wilCount[w] = (wilCount[w] || 0) + 1; });
-  const topWilayas = Object.entries(wilCount).sort((a, b) => b[1] - a[1]).slice(0, 5);
-
   const lowStock = [];
   products.forEach((p) => p.colors.forEach((c) => { const st = stockForColor(p, c); if (st < 8) lowStock.push({ p, c, st }); }));
   let invUnits = 0, invLow = 0, invOut = 0;
@@ -821,55 +808,6 @@ function AdminDashboard({ onLogout }) {
                   ))}
                 </div>
               </div>
-
-              {/* Two columns: top products + top wilayas */}
-              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16, marginTop: 16 }}>
-                <div className="card adm-in" style={{ padding: 22, animationDelay: '.16s' }}>
-                  <h3 style={{ fontSize: 16, marginBottom: 16 }}>{lang === 'ar' ? 'أكثر المنتجات مبيعاً' : 'Top products'}</h3>
-                  {topProducts.length === 0 ? <p className="dim" style={{ fontSize: 13.5 }}>{lang === 'ar' ? 'لا توجد بيانات بعد' : 'No data yet'}</p>
-                    : topProducts.map(([name, n], i) => (
-                    <div key={name} style={{ marginBottom: i < topProducts.length - 1 ? 13 : 0 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 5 }}>
-                        <span style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '70%' }}>{name}</span>
-                        <span className="muted" style={{ fontWeight: 700 }}>{n} {lang === 'ar' ? 'قطعة' : 'sold'}</span>
-                      </div>
-                      <div style={{ height: 7, borderRadius: 99, background: 'var(--sand)', overflow: 'hidden' }}>
-                        <div style={{ width: (n / maxProd * 100) + '%', height: '100%', background: 'var(--ink)', borderRadius: 99, transition: 'width .6s cubic-bezier(.2,.8,.2,1)' }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="card adm-in" style={{ padding: 22, animationDelay: '.2s' }}>
-                  <h3 style={{ fontSize: 16, marginBottom: 16 }}>{lang === 'ar' ? 'أكثر الولايات طلباً' : 'Top wilayas'}</h3>
-                  {topWilayas.length === 0 ? <p className="dim" style={{ fontSize: 13.5 }}>{lang === 'ar' ? 'لا توجد بيانات بعد' : 'No data yet'}</p>
-                    : topWilayas.map(([w, n], i) => (
-                    <div key={w} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 0', borderTop: i ? '1px solid var(--line)' : 'none' }}>
-                      <span style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--sand)', display: 'grid', placeItems: 'center', fontSize: 11, fontWeight: 800, flexShrink: 0 }}>{i + 1}</span>
-                      <span style={{ flex: 1, fontWeight: 600, fontSize: 13.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{w}</span>
-                      <span className="muted" style={{ fontWeight: 700, fontSize: 13 }}>{n} {lang === 'ar' ? 'طلب' : 'orders'}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Low-stock alerts (only if any) */}
-              {lowStock.length > 0 && (
-                <div className="card adm-in" style={{ padding: 22, marginTop: 16, animationDelay: '.24s' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                    <h3 style={{ fontSize: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Icon name="box" size={17} style={{ color: 'var(--warn)' }} /> {lang === 'ar' ? 'مخزون منخفض' : 'Low stock'}</h3>
-                    <button onClick={() => setTab('stock')} style={{ fontSize: 13, fontWeight: 600, color: 'var(--clay-deep)' }}>{t.see_all}</button>
-                  </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                    {lowStock.slice(0, 8).map(({ p, c, st }, i) => (
-                      <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '6px 12px', borderRadius: 99, background: st === 0 ? '#F8E0DD' : '#FBF0D8', fontSize: 12.5, fontWeight: 600 }}>
-                        <span style={{ width: 9, height: 9, borderRadius: 9, background: colorHex(c), flexShrink: 0, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.12)' }} />
-                        {p['name_' + lang]} <b style={{ color: st === 0 ? 'var(--danger)' : '#B07A18' }}>{st}</b>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {/* Recent orders */}
               <div className="card adm-in" style={{ padding: 22, marginTop: 16, animationDelay: '.28s' }}>
