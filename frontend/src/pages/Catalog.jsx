@@ -71,7 +71,7 @@ export function Catalog({ params, gridVariant = 'standard' }) {
   const { t, lang, products } = useShop();
   const isMobile = useIsMobile();
   const [sheet, setSheet] = React.useState(false);
-  const [query, setQuery] = React.useState('');
+  const [query, setQuery] = React.useState(params.q || '');
   const [sort, setSort] = React.useState(params.sort || 'pop');
   const [f, setF] = React.useState({
     cat: params.cat || 'all', colors: [], sizes: [], maxPrice: 8000, onlyNew: params.filter === 'new',
@@ -79,7 +79,8 @@ export function Catalog({ params, gridVariant = 'standard' }) {
   React.useEffect(() => {
     setF((s) => ({ ...s, cat: params.cat || 'all', onlyNew: params.filter === 'new' }));
     if (params.sort) setSort(params.sort);
-  }, [params.cat, params.filter, params.sort]);
+    if (params.q !== undefined) setQuery(params.q);
+  }, [params.cat, params.filter, params.sort, params.q]);
 
   let list = products.filter((p) => {
     if (f.cat !== 'all' && p.cat !== f.cat) return false;
