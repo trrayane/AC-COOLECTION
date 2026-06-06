@@ -807,16 +807,9 @@ function AdminDashboard({ onLogout }) {
               )}
             </div>
           </div>
-          {isMobile && (
-            <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '0 16px 12px' }} className="no-bar">
-              {['overview', 'orders', 'products', 'stock', 'promos'].map((id) => (
-                <button key={id} onClick={() => setTab(id)} className={'chip' + (tab === id ? ' on' : '')} style={{ flexShrink: 0 }}>{titles[id]}</button>
-              ))}
-            </div>
-          )}
         </div>
 
-        <div style={{ padding: isMobile ? 16 : 28, maxWidth: 1240, width: '100%', margin: '0 auto' }} key={tab}>
+        <div style={{ padding: isMobile ? '16px 16px 90px' : 28, maxWidth: 1240, width: '100%', margin: '0 auto' }} key={tab}>
           {tab === 'overview' && (
             <div>
               {/* KPI cards */}
@@ -1078,6 +1071,30 @@ function AdminDashboard({ onLogout }) {
             </div>
           )}
         </div>
+
+        {isMobile && (
+          <nav style={{ position: 'fixed', insetInline: 0, bottom: 0, zIndex: 50, background: 'var(--paper-2)', borderTop: '1px solid var(--line)', display: 'flex', boxShadow: '0 -4px 16px rgba(0,0,0,.07)' }}>
+            {[
+              { id: 'overview', icon: 'chart', label: lang === 'ar' ? 'لوحة' : 'Home' },
+              { id: 'orders', icon: 'bag', label: lang === 'ar' ? 'طلبات' : 'Orders', badge: pending },
+              { id: 'products', icon: 'tag', label: lang === 'ar' ? 'منتجات' : 'Products' },
+              { id: 'stock', icon: 'layers', label: lang === 'ar' ? 'مخزون' : 'Stock' },
+              { id: 'promos', icon: 'spark', label: lang === 'ar' ? 'كوبونات' : 'Promos' },
+            ].map((it) => {
+              const on = tab === it.id;
+              return (
+                <button key={it.id} onClick={() => setTab(it.id)} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, padding: '9px 2px 9px', color: on ? 'var(--ink)' : 'var(--ink-3)', position: 'relative' }}>
+                  {on && <span style={{ position: 'absolute', top: 0, insetInline: '32%', height: 2.5, borderRadius: 9, background: 'var(--ink)' }} />}
+                  <span style={{ position: 'relative' }}>
+                    <Icon name={it.icon} size={21} />
+                    {it.badge > 0 && <span style={{ position: 'absolute', top: -5, insetInlineEnd: -7, minWidth: 15, height: 15, padding: '0 3px', borderRadius: 99, background: 'var(--clay)', color: '#fff', fontSize: 9, fontWeight: 800, display: 'grid', placeItems: 'center' }}>{it.badge}</span>}
+                  </span>
+                  <span style={{ fontSize: 10, fontWeight: on ? 800 : 600 }}>{it.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        )}
       </div>
 
       {detail && <OrderDetailModal order={detail} onClose={() => setDetail(null)} onStatus={handleStatus} onDelete={setDelOrder} lang={lang} t={t} />}
