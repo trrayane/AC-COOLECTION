@@ -10,8 +10,6 @@ export function Header() {
   const hasActivePromos = products.some((p) => p.oldPrice && p.oldPrice > p.price);
   const isMobile = useIsMobile();
   const [menuOpen, setMenuOpen] = React.useState(false);
-  const [search, setSearch] = React.useState('');
-  const submitSearch = (e) => { e.preventDefault(); navigate('catalog', { q: search.trim() }); };
   const [scrolled, setScrolled] = React.useState(false);
 
   React.useEffect(() => {
@@ -73,14 +71,7 @@ export function Header() {
           )}
 
           <div style={{ marginInlineStart: 'auto', display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 10 }}>
-            {!isMobile && (
-              <form onSubmit={submitSearch} style={{ position: 'relative', width: 220 }}>
-                <span style={{ position: 'absolute', insetInlineStart: 13, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-3)', pointerEvents: 'none' }}><Icon name="search" size={17} /></span>
-                <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t.search} aria-label={t.search}
-                  style={{ width: '100%', height: 38, paddingInlineStart: 40, paddingInlineEnd: 14, borderRadius: 999, background: 'var(--paper-2)', boxShadow: 'inset 0 0 0 1.4px var(--line)', fontSize: 13.5, color: 'var(--ink)' }} />
-              </form>
-            )}
-            {isMobile && <button onClick={() => navigate('catalog', {})} aria-label="search" style={{ color: 'var(--ink)' }}><Icon name="search" size={22} /></button>}
+            <button onClick={() => navigate('catalog', {})} aria-label="search" title={t.search} style={{ color: 'var(--ink)' }}><Icon name="search" size={22} /></button>
             {!isMobile && langToggle}
             <button onClick={() => navigate('wishlist')} aria-label="wishlist" style={{ position: 'relative', color: 'var(--ink)' }}>
               <Icon name="heart" size={22} />
