@@ -3,6 +3,8 @@
    Base URL comes from VITE_API_URL (see frontend/.env).
    =========================================================== */
 
+import { compressImage } from '../utils/compress.js';
+
 const API = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 const TOKEN_KEY = 'ac_token';
 
@@ -44,9 +46,9 @@ export const api = {
     create: (data) => req('/api/products', { method: 'POST', body: data, auth: true }),
     update: (id, data) => req('/api/products/' + id, { method: 'PUT', body: data, auth: true }),
     remove: (id) => req('/api/products/' + id, { method: 'DELETE', auth: true }),
-    addPhotos: (id, files) => {
+    addPhotos: async (id, files) => {
       const fd = new FormData();
-      Array.from(files).forEach((f) => fd.append('photos', f));
+      for (const f of Array.from(files)) fd.append('photos', await compressImage(f));
       return req(`/api/products/${id}/photos`, { method: 'POST', body: fd, auth: true, form: true });
     },
     removePhoto: (id, photoId) => req(`/api/products/${id}/photos/${photoId}`, { method: 'DELETE', auth: true }),
