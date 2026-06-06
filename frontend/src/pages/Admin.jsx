@@ -537,8 +537,8 @@ function OrderRow({ o, isMobile, lang, onOpen, onAdvance, onDelete, delay }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
           <span style={{ width: 38, height: 38, borderRadius: '50%', background: 'var(--sand)', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 13, flexShrink: 0 }}>{initials(o.name)}</span>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontWeight: 700, fontSize: 13.5, display: 'flex', alignItems: 'center', gap: 6 }}>{o.id} {o.custom && <Icon name="spark" size={12} style={{ color: 'var(--clay)' }} />}</div>
-            <div className="muted" style={{ fontSize: 12.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{o.name} · {o.wilaya.replace(/^\d+\s/, '')}</div>
+            <div style={{ fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{o.name} {o.custom && <Icon name="spark" size={12} style={{ color: 'var(--clay)', flexShrink: 0 }} />}</div>
+            <div className="muted" style={{ fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{o.id} · {o.wilaya.replace(/^\d+\s/, '')} · {(o.date || '').slice(5).split('-').reverse().join('/')}</div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5, flexShrink: 0 }}><div style={{ fontWeight: 700, fontSize: 13.5, whiteSpace: 'nowrap' }}>{fmtDA(o.total, lang)}</div><StatusBadge status={o.status} lang={lang} compact /></div>
         </div>
@@ -906,23 +906,49 @@ function AdminDashboard({ onLogout }) {
               {visProducts.length === 0 ? (
                 <div className="center" style={{ padding: '54px 0', color: 'var(--ink-3)' }}><Icon name="tag" size={32} /><p style={{ marginTop: 10, fontSize: 14 }}>{lang === 'ar' ? 'لا توجد منتجات' : 'No products found'}</p></div>
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill,minmax(${isMobile ? 150 : 216}px,1fr))`, gap: isMobile ? 10 : 16 }}>
+                <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: 10 } : { display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(216px,1fr))', gap: 16 }}>
                   {visProducts.map((p, idx) => {
                     const stock = totalStock(p);
                     const nPhotos = (p.photos || []).length;
                     const low = stock < 10;
+                    const photoBtn = (
+                      <label style={{ width: 34, height: 34, borderRadius: '50%', background: 'var(--paper-2)', display: 'grid', placeItems: 'center', boxShadow: 'var(--shadow-sm)', cursor: 'pointer' }} title={lang === 'en' ? 'Add photos' : 'إضافة صور'}>
+                        <Icon name="image" size={15} />
+                        <input type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={(e) => { if (e.target.files.length) addPhotos(p.id, e.target.files); e.target.value = ''; }} />
+                      </label>
+                    );
+                    const editBtn = <button onClick={() => setEditing(p)} style={{ width: 34, height: 34, borderRadius: '50%', background: 'var(--paper-2)', display: 'grid', placeItems: 'center', boxShadow: 'var(--shadow-sm)' }}><Icon name="edit" size={15} /></button>;
+                    const delBtn = <button onClick={() => setConfirmDel(p)} style={{ width: 34, height: 34, borderRadius: '50%', background: 'var(--paper-2)', display: 'grid', placeItems: 'center', boxShadow: 'var(--shadow-sm)', color: 'var(--danger)' }}><Icon name="trash" size={15} /></button>;
+
+                    // ── Mobile: horizontal row card ──
+                    if (isMobile) {
+                      return (
+                        <div key={p.id} className="card adm-in" style={{ display: 'flex', gap: 12, padding: 12, alignItems: 'center', animationDelay: Math.min(idx, 12) * 0.03 + 's' }}>
+                          <div style={{ width: 60, height: 74, borderRadius: 10, background: colorTint(p.colors[0]), overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
+                            <ProductImage p={p} color={p.colors[0]} />
+                            {p.new && <span className="pill pill-new" style={{ position: 'absolute', top: 4, insetInlineStart: 4, height: 17, fontSize: 9, padding: '0 6px' }}>{lang === 'en' ? 'New' : 'جديد'}</span>}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontWeight: 700, fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p['name_' + lang]}</div>
+                            <div className="muted" style={{ fontSize: 12, marginTop: 1 }}>{(CATEGORIES.find((c) => c.id === p.cat) || {})[lang]}</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 7, flexWrap: 'wrap' }}>
+                              <span style={{ fontWeight: 800, fontSize: 14.5 }}>{fmtDA(p.price, lang)}</span>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 99, background: low ? '#F8E0DD' : 'var(--sand)', color: low ? 'var(--danger)' : 'var(--ink-2)' }}><Icon name="layers" size={11} /> {stock}</span>
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 7, flexShrink: 0 }}>{editBtn}{delBtn}{photoBtn}</div>
+                        </div>
+                      );
+                    }
+
+                    // ── Desktop: vertical card ──
                     return (
                       <div key={p.id} className="card adm-prodcard adm-in" style={{ overflow: 'hidden', animationDelay: Math.min(idx, 12) * 0.03 + 's' }}>
                         <div style={{ aspectRatio: '1/1', background: colorTint(p.colors[0]), position: 'relative' }}>
                           <ProductImage p={p} color={p.colors[0]} />
                           {p.new && <span className="pill pill-new" style={{ position: 'absolute', top: 10, insetInlineStart: 10 }}>{lang === 'en' ? 'New' : 'جديد'}</span>}
                           <div className="prod-actions" style={{ position: 'absolute', top: 10, insetInlineEnd: 10, display: 'flex', gap: 6 }}>
-                            <label style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--paper-2)', display: 'grid', placeItems: 'center', boxShadow: 'var(--shadow-sm)', cursor: 'pointer' }} title={lang === 'en' ? 'Add photos' : 'إضافة صور'}>
-                              <Icon name="image" size={15} />
-                              <input type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={(e) => { if (e.target.files.length) addPhotos(p.id, e.target.files); e.target.value = ''; }} />
-                            </label>
-                            <button onClick={() => setEditing(p)} style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--paper-2)', display: 'grid', placeItems: 'center', boxShadow: 'var(--shadow-sm)' }}><Icon name="edit" size={15} /></button>
-                            <button onClick={() => setConfirmDel(p)} style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--paper-2)', display: 'grid', placeItems: 'center', boxShadow: 'var(--shadow-sm)', color: 'var(--danger)' }}><Icon name="trash" size={15} /></button>
+                            {photoBtn}{editBtn}{delBtn}
                           </div>
                           {nPhotos > 0 && <span className="pill" style={{ position: 'absolute', bottom: 10, insetInlineStart: 10, background: 'var(--ink)', color: 'var(--paper)' }}><Icon name="image" size={11} /> {nPhotos}</span>}
                           {nPhotos === 0 && <span className="pill" style={{ position: 'absolute', bottom: 10, insetInlineStart: 10, background: 'rgba(255,255,255,.85)', color: 'var(--ink-3)' }}><Icon name="image" size={11} /> {lang === 'ar' ? 'رسم' : 'Mockup'}</span>}
