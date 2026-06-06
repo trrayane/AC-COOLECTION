@@ -9,7 +9,7 @@ import { Icon } from '../components/ui/Icon.jsx';
 import { Select } from '../components/ui/Select.jsx';
 import { Garment, GarmentTile, shade } from '../components/garments/Garment.jsx';
 import { ProductImage } from '../components/product/ProductImage.jsx';
-import { colorHex, colorTint, fmtDA, PRINT_ZONES } from '../data/constants.js';
+import { colorHex, colorTint, fmtDA, cdn, PRINT_ZONES } from '../data/constants.js';
 import { api } from '../api/client.js';
 
 // Print-zone rectangles as % of the (4:5) garment stage
@@ -229,7 +229,7 @@ export function Configurator({ params }) {
         userSelect: 'none', touchAction: 'pan-y', /* let the page scroll when touching the photo; elements below capture their own drags */
       }}>
         {baseImg
-          ? <img src={baseImg} alt={p['name_' + lang]} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+          ? <img src={cdn(baseImg, 900)} alt={p['name_' + lang]} decoding="async" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
           : <Garment type={p.cat} color={colorHex(color)} view={view} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />}
 
         <div style={{
@@ -289,7 +289,7 @@ export function Configurator({ params }) {
     return (
       <div style={{ position: 'relative', width: '100%', aspectRatio: '4/5', borderRadius: 'var(--r-lg)', overflow: 'hidden', background: colorTint(color) }}>
         {img
-          ? <img src={img} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+          ? <img src={cdn(img, 700)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
           : <Garment type={p.cat} color={colorHex(color)} view={side} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />}
         {pls.map((pl) => (
           <div key={pl.id} style={{ position: 'absolute', left: pl.xPct + '%', top: pl.yPct + '%', width: pl.wPct + '%', transform: `translate(-50%,-50%) rotate(${pl.rot}deg)` }}>

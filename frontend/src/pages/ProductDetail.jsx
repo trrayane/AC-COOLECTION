@@ -9,7 +9,7 @@ import { Stars } from '../components/ui/Stars.jsx';
 import { SectionHead } from '../components/ui/SectionHead.jsx';
 import { ProductCard } from '../components/product/ProductCard.jsx';
 import { Garment, shade } from '../components/garments/Garment.jsx';
-import { colorHex, colorTint, colorLabel, fmtDA } from '../data/constants.js';
+import { colorHex, colorTint, colorLabel, fmtDA, cdn } from '../data/constants.js';
 
 export function ProductDetail({ params }) {
   const { t, lang, navigate, addToCart, openCart, products, getProduct } = useShop();
@@ -67,7 +67,7 @@ export function ProductDetail({ params }) {
             onTouchEnd={hasPhotos ? (e) => onTouchEnd(e, photoArr.length) : undefined}>
             {p.new && <span className="pill pill-new" style={{ position: 'absolute', top: 18, insetInlineStart: 18, zIndex: 2 }}>{lang === 'en' ? 'New' : 'جديد'}</span>}
             {hasPhotos
-              ? <img key={gi} src={photoArr[gi]} alt={p['name_' + lang]} className="fade-in" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              ? <img key={gi} src={cdn(photoArr[gi], 1000)} alt={p['name_' + lang]} decoding="async" className="fade-in" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
               : <Garment type={p.cat} color={colorHex(color)} view={view} style={{ width: '100%', height: '100%', padding: 40 }} />}
             {/* Swipe dots indicator (mobile, multiple photos) */}
             {hasPhotos && photoArr.length > 1 && (
@@ -84,7 +84,7 @@ export function ProductDetail({ params }) {
                 <button key={i} onClick={() => setGi(i)} style={{
                   width: 76, height: 76, borderRadius: 'var(--r-md)', overflow: 'hidden', background: colorTint(color),
                   boxShadow: gi === i ? '0 0 0 2px var(--ink)' : 'inset 0 0 0 1px var(--line)', transition: 'box-shadow .15s',
-                }}><img src={src} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /></button>
+                }}><img src={cdn(src, 160)} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /></button>
               ))}
             </div>
           ) : (

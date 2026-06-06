@@ -84,6 +84,14 @@ export const STATUS_META = {
 };
 export const STATUS_FLOW = ['pending', 'prep', 'shipped', 'delivered'];
 
+// Optimize a Cloudinary image URL: auto format (webp/avif) + auto quality + width cap.
+// Keeps the stored original untouched — only the delivered version is lighter & faster.
+export function cdn(url, w = 800) {
+  if (typeof url !== 'string' || !url.includes('/image/upload/')) return url;
+  if (/\/image\/upload\/[^/]*(f_auto|q_auto|w_\d)/.test(url)) return url; // already transformed
+  return url.replace('/image/upload/', `/image/upload/f_auto,q_auto,w_${w},c_limit/`);
+}
+
 // Per-wilaya delivery fees in DZD as [home, desk]. Default 700/400; only the
 // exceptions are listed. Mirrors the backend (which stays authoritative).
 const WILAYA_FEES = {

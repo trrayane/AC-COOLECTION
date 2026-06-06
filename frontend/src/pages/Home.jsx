@@ -7,7 +7,7 @@ import { Icon } from '../components/ui/Icon.jsx';
 import { SectionHead } from '../components/ui/SectionHead.jsx';
 import { ProductCard } from '../components/product/ProductCard.jsx';
 import { Garment, GarmentTile, shade } from '../components/garments/Garment.jsx';
-import { colorHex, colorTint } from '../data/constants.js';
+import { colorHex, colorTint, cdn } from '../data/constants.js';
 import heroImg from '../assets/hero.jpg';
 
 function HeroSplit() {
@@ -84,7 +84,7 @@ function CategoryStrip() {
               background: `radial-gradient(120% 110% at 70% 15%, ${colorTint(c.color)}, ${shade(colorTint(c.color), -10)})`,
             }}>
               {img
-                ? <img src={img} alt={c.label} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                ? <img src={cdn(img, 700)} alt={c.label} loading="lazy" decoding="async" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                 : <div style={{ position: 'absolute', inset: 0, transform: 'translateX(14%)' }}><GarmentTile type={c.id} color={colorHex(c.color)} /></div>}
               <div style={{ position: 'absolute', insetInline: 0, bottom: 0, height: '52%', background: 'linear-gradient(transparent, rgba(0,0,0,.6))', pointerEvents: 'none' }} />
               <div style={{ position: 'absolute', insetInlineStart: 22, bottom: 20, zIndex: 2 }}>
