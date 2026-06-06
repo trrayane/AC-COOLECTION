@@ -793,8 +793,8 @@ function AdminDashboard({ onLogout }) {
             <div style={{ marginInlineStart: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
               {!isMobile && <span className="chip" style={{ cursor: 'default', gap: 8 }}><Icon name="calendar" size={15} /> {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>}
               <button onClick={() => setLang(lang === 'en' ? 'ar' : 'en')} title={lang === 'en' ? 'العربية' : 'English'}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, height: 40, padding: '0 14px', borderRadius: 999, boxShadow: 'inset 0 0 0 1.3px var(--line)', color: 'var(--ink)', fontSize: 13, fontWeight: 700, letterSpacing: '.03em' }}>
-                <Icon name="globe" size={16} /> {lang === 'en' ? 'عربية' : 'EN'}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, height: 40, width: isMobile ? 40 : 'auto', padding: isMobile ? 0 : '0 14px', borderRadius: isMobile ? '50%' : 999, boxShadow: 'inset 0 0 0 1.3px var(--line)', color: 'var(--ink)', fontSize: 13, fontWeight: 700, letterSpacing: '.03em', flexShrink: 0 }}>
+                <Icon name="globe" size={16} /> {!isMobile && (lang === 'en' ? 'عربية' : 'EN')}
               </button>
               <button onClick={() => setTab('orders')} title={t.adm_pending} style={{ position: 'relative', width: 40, height: 40, borderRadius: '50%', display: 'grid', placeItems: 'center', boxShadow: 'inset 0 0 0 1.3px var(--line)', color: 'var(--ink-2)' }}>
                 <Icon name="bell" size={19} />
@@ -960,19 +960,43 @@ function AdminDashboard({ onLogout }) {
                     {!isMobile && <div style={{ display: 'grid', gridTemplateColumns: '1.2fr .6fr .8fr .6fr .7fr 80px', gap: 12, padding: '11px 20px', background: 'var(--sand)', borderBottom: '1px solid var(--line)', fontSize: 11.5, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.05em' }}>
                       <span>{lang === 'ar' ? 'الكود' : 'Code'}</span><span>{lang === 'ar' ? 'النوع' : 'Type'}</span><span>{lang === 'ar' ? 'القيمة' : 'Value'}</span><span>{lang === 'ar' ? 'الاستخدام' : 'Uses'}</span><span>{lang === 'ar' ? 'الحالة' : 'Status'}</span><span />
                     </div>}
-                    {promos.map((p, i) => (
-                      <div key={p.id} className="adm-row adm-in" style={{ display: isMobile ? 'flex' : 'grid', gridTemplateColumns: '1.2fr .6fr .8fr .6fr .7fr 80px', gap: 12, alignItems: 'center', padding: isMobile ? '14px 16px' : '13px 20px', borderTop: i ? '1px solid var(--line)' : 'none', flexWrap: 'wrap' }}>
-                        <span style={{ fontWeight: 800, fontSize: 15, letterSpacing: '.04em', fontFamily: 'monospace' }}>{p.code}</span>
-                        <span className="muted" style={{ fontSize: 13 }}>{p.type === 'percent' ? '%' : 'DA'}</span>
-                        <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--clay-deep)' }}>{p.type === 'percent' ? `-${p.value}%` : `-${p.value} DA`}</span>
-                        <span className="muted" style={{ fontSize: 13 }}>{p.usedCount}{p.usageLimit ? `/${p.usageLimit}` : ''}</span>
-                        <span><button onClick={async () => { await api.promo.update(p.id, { active: !p.active }); setPromos((ps) => ps.map((x) => x.id === p.id ? { ...x, active: !p.active } : x)); }} style={{ height: 26, padding: '0 11px', borderRadius: 99, fontSize: 12, fontWeight: 700, background: p.active ? '#E0F0E2' : '#f4f4f3', color: p.active ? '#2a6a2a' : 'var(--ink-3)' }}>{p.active ? (lang === 'ar' ? 'فعّال' : 'Active') : (lang === 'ar' ? 'موقوف' : 'Off')}</button></span>
-                        <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                          <button onClick={() => setPromoForm({ ...p, usageLimit: p.usageLimit || '', expiresAt: p.expiresAt || '' })} style={{ width: 30, height: 30, borderRadius: 9, boxShadow: 'inset 0 0 0 1.3px var(--line)', display: 'grid', placeItems: 'center' }}><Icon name="edit" size={14} /></button>
-                          <button onClick={async () => { await api.promo.remove(p.id); setPromos((ps) => ps.filter((x) => x.id !== p.id)); toast(lang === 'ar' ? 'تم الحذف' : 'Deleted'); }} style={{ width: 30, height: 30, borderRadius: 9, boxShadow: 'inset 0 0 0 1.3px var(--line)', display: 'grid', placeItems: 'center', color: 'var(--danger)' }}><Icon name="trash" size={14} /></button>
+                    {promos.map((p, i) => {
+                      const toggle = async () => { await api.promo.update(p.id, { active: !p.active }); setPromos((ps) => ps.map((x) => x.id === p.id ? { ...x, active: !p.active } : x)); };
+                      const statusBtn = (
+                        <button onClick={toggle} style={{ height: 26, padding: '0 11px', borderRadius: 99, fontSize: 12, fontWeight: 700, flexShrink: 0, background: p.active ? '#E0F0E2' : '#f4f4f3', color: p.active ? '#2a6a2a' : 'var(--ink-3)' }}>{p.active ? (lang === 'ar' ? 'فعّال' : 'Active') : (lang === 'ar' ? 'موقوف' : 'Off')}</button>
+                      );
+                      const editBtn = <button onClick={() => setPromoForm({ ...p, usageLimit: p.usageLimit || '', expiresAt: p.expiresAt || '' })} style={{ width: 30, height: 30, borderRadius: 9, boxShadow: 'inset 0 0 0 1.3px var(--line)', display: 'grid', placeItems: 'center' }}><Icon name="edit" size={14} /></button>;
+                      const delBtn = <button onClick={async () => { await api.promo.remove(p.id); setPromos((ps) => ps.filter((x) => x.id !== p.id)); toast(lang === 'ar' ? 'تم الحذف' : 'Deleted'); }} style={{ width: 30, height: 30, borderRadius: 9, boxShadow: 'inset 0 0 0 1.3px var(--line)', display: 'grid', placeItems: 'center', color: 'var(--danger)' }}><Icon name="trash" size={14} /></button>;
+
+                      if (isMobile) {
+                        return (
+                          <div key={p.id} className="adm-in" style={{ padding: '14px 16px', borderTop: i ? '1px solid var(--line)' : 'none', display: 'flex', flexDirection: 'column', gap: 9 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                              <span style={{ fontWeight: 800, fontSize: 16, letterSpacing: '.04em', fontFamily: 'monospace' }}>{p.code}</span>
+                              {statusBtn}
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: 13 }}>
+                              <span style={{ fontWeight: 800, fontSize: 16, color: 'var(--clay-deep)' }}>{p.type === 'percent' ? `-${p.value}%` : `-${p.value} DA`}</span>
+                              <span className="muted">{lang === 'ar' ? 'استُخدم' : 'Used'}: {p.usedCount}{p.usageLimit ? `/${p.usageLimit}` : ''}</span>
+                            </div>
+                            <div style={{ display: 'flex', gap: 8 }}>
+                              <button onClick={() => setPromoForm({ ...p, usageLimit: p.usageLimit || '', expiresAt: p.expiresAt || '' })} className="btn btn-ghost btn-sm btn-block"><Icon name="edit" size={14} /> {lang === 'ar' ? 'تعديل' : 'Edit'}</button>
+                              <button onClick={async () => { await api.promo.remove(p.id); setPromos((ps) => ps.filter((x) => x.id !== p.id)); toast(lang === 'ar' ? 'تم الحذف' : 'Deleted'); }} className="btn btn-ghost btn-sm btn-block" style={{ color: 'var(--danger)' }}><Icon name="trash" size={14} /> {t.adm_delete}</button>
+                            </div>
+                          </div>
+                        );
+                      }
+                      return (
+                        <div key={p.id} className="adm-row adm-in" style={{ display: 'grid', gridTemplateColumns: '1.2fr .6fr .8fr .6fr .7fr 80px', gap: 12, alignItems: 'center', padding: '13px 20px', borderTop: i ? '1px solid var(--line)' : 'none' }}>
+                          <span style={{ fontWeight: 800, fontSize: 15, letterSpacing: '.04em', fontFamily: 'monospace' }}>{p.code}</span>
+                          <span className="muted" style={{ fontSize: 13 }}>{p.type === 'percent' ? '%' : 'DA'}</span>
+                          <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--clay-deep)' }}>{p.type === 'percent' ? `-${p.value}%` : `-${p.value} DA`}</span>
+                          <span className="muted" style={{ fontSize: 13 }}>{p.usedCount}{p.usageLimit ? `/${p.usageLimit}` : ''}</span>
+                          <span>{statusBtn}</span>
+                          <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>{editBtn}{delBtn}</div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>}
               {promoForm !== null && (
                 <div className="fade-in" onClick={() => setPromoForm(null)} style={{ position: 'fixed', inset: 0, zIndex: 96, background: 'rgba(10,10,10,.55)', display: 'grid', placeItems: 'center', padding: 24 }}>
