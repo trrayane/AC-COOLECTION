@@ -45,11 +45,11 @@ function CountUp({ value, fmt }) {
   return <>{fmt ? fmt(v) : Math.round(v).toLocaleString('en-US')}</>;
 }
 
-function StatusBadge({ status, lang, onClick, title }) {
+function StatusBadge({ status, lang, onClick, title, compact }) {
   const m = STATUS_META[status] || STATUS_META.pending;
   const Tag = onClick ? 'button' : 'span';
-  return <Tag onClick={onClick} title={title} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, height: 26, minWidth: 122, padding: '0 12px', borderRadius: 99, fontSize: 12, fontWeight: 700, color: m.color, background: m.bg, whiteSpace: 'nowrap', cursor: onClick ? 'pointer' : 'default' }}>
-    <span style={{ width: 6, height: 6, borderRadius: 9, background: m.dot }} /> {m[lang]}
+  return <Tag onClick={onClick} title={title} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, height: compact ? 24 : 26, minWidth: compact ? 0 : 122, padding: compact ? '0 10px' : '0 12px', borderRadius: 99, fontSize: compact ? 11.5 : 12, fontWeight: 700, color: m.color, background: m.bg, whiteSpace: 'nowrap', cursor: onClick ? 'pointer' : 'default' }}>
+    <span style={{ width: 6, height: 6, borderRadius: 9, background: m.dot, flexShrink: 0 }} /> {m[lang]}
   </Tag>;
 }
 
@@ -540,7 +540,7 @@ function OrderRow({ o, isMobile, lang, onOpen, onAdvance, onDelete, delay }) {
             <div style={{ fontWeight: 700, fontSize: 13.5, display: 'flex', alignItems: 'center', gap: 6 }}>{o.id} {o.custom && <Icon name="spark" size={12} style={{ color: 'var(--clay)' }} />}</div>
             <div className="muted" style={{ fontSize: 12.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{o.name} · {o.wilaya.replace(/^\d+\s/, '')}</div>
           </div>
-          <div style={{ textAlign: 'end' }}><div style={{ fontWeight: 700, fontSize: 13.5 }}>{fmtDA(o.total, lang)}</div><StatusBadge status={o.status} lang={lang} /></div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5, flexShrink: 0 }}><div style={{ fontWeight: 700, fontSize: 13.5, whiteSpace: 'nowrap' }}>{fmtDA(o.total, lang)}</div><StatusBadge status={o.status} lang={lang} compact /></div>
         </div>
       </div>
     );
@@ -809,7 +809,7 @@ function AdminDashboard({ onLogout }) {
           </div>
         </div>
 
-        <div style={{ padding: isMobile ? '16px 16px 90px' : 28, maxWidth: 1240, width: '100%', margin: '0 auto' }} key={tab}>
+        <div style={{ padding: isMobile ? '16px 16px 104px' : 28, maxWidth: 1240, width: '100%', margin: '0 auto' }} key={tab}>
           {tab === 'overview' && (
             <div>
               {/* KPI cards */}
@@ -846,14 +846,16 @@ function AdminDashboard({ onLogout }) {
                 {loading ? <div className="center" style={{ padding: '24px 0' }}><div className="dots" style={{ display: 'inline-flex' }}><span /><span /><span /></div></div>
                   : orders.length === 0 ? <p className="dim" style={{ padding: '20px 0', fontSize: 14 }}>{t.adm_no_orders}</p>
                   : orders.slice(0, 6).map((o) => (
-                  <div key={o.id} className="adm-row" onClick={() => setDetail(o)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 8px', margin: '0 -8px', borderTop: '1px solid var(--line)' }}>
+                  <div key={o.id} className="adm-row" onClick={() => setDetail(o)} style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '11px 8px', margin: '0 -8px', borderTop: '1px solid var(--line)' }}>
                     <span style={{ width: 34, height: 34, borderRadius: '50%', background: 'var(--sand)', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 12, flexShrink: 0 }}>{initials(o.name)}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 700, fontSize: 13.5, display: 'flex', alignItems: 'center', gap: 6 }}>{o.name} {o.custom && <Icon name="spark" size={12} style={{ color: 'var(--clay)' }} />}</div>
+                      <div style={{ fontWeight: 700, fontSize: 13.5, display: 'flex', alignItems: 'center', gap: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{o.name} {o.custom && <Icon name="spark" size={12} style={{ color: 'var(--clay)', flexShrink: 0 }} />}</div>
                       <div className="muted" style={{ fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{o.id} · {o.wilaya.replace(/^\d+\s/, '')}</div>
                     </div>
-                    <span style={{ fontWeight: 700, fontSize: 13.5 }}>{fmtDA(o.total, lang)}</span>
-                    <StatusBadge status={o.status} lang={lang} />
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5, flexShrink: 0 }}>
+                      <span style={{ fontWeight: 700, fontSize: 13.5, whiteSpace: 'nowrap' }}>{fmtDA(o.total, lang)}</span>
+                      <StatusBadge status={o.status} lang={lang} compact={isMobile} />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1073,7 +1075,7 @@ function AdminDashboard({ onLogout }) {
         </div>
 
         {isMobile && (
-          <nav style={{ position: 'fixed', insetInline: 0, bottom: 0, zIndex: 50, background: 'var(--paper-2)', borderTop: '1px solid var(--line)', display: 'flex', boxShadow: '0 -4px 16px rgba(0,0,0,.07)' }}>
+          <nav style={{ position: 'fixed', insetInline: 14, bottom: 14, zIndex: 50, background: 'var(--paper-2)', borderRadius: 26, display: 'flex', padding: '8px 6px', boxShadow: '0 12px 34px -8px rgba(0,0,0,.28), 0 0 0 1px rgba(0,0,0,.04)' }}>
             {[
               { id: 'overview', icon: 'chart', label: lang === 'ar' ? 'لوحة' : 'Home' },
               { id: 'orders', icon: 'bag', label: lang === 'ar' ? 'طلبات' : 'Orders', badge: pending },
@@ -1083,13 +1085,12 @@ function AdminDashboard({ onLogout }) {
             ].map((it) => {
               const on = tab === it.id;
               return (
-                <button key={it.id} onClick={() => setTab(it.id)} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, padding: '9px 2px 9px', color: on ? 'var(--ink)' : 'var(--ink-3)', position: 'relative' }}>
-                  {on && <span style={{ position: 'absolute', top: 0, insetInline: '32%', height: 2.5, borderRadius: 9, background: 'var(--ink)' }} />}
+                <button key={it.id} onClick={() => setTab(it.id)} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 2px', borderRadius: 18, background: on ? 'var(--ink)' : 'transparent', color: on ? '#fff' : 'var(--ink-3)', transition: 'background .2s, color .2s' }}>
                   <span style={{ position: 'relative' }}>
-                    <Icon name={it.icon} size={21} />
-                    {it.badge > 0 && <span style={{ position: 'absolute', top: -5, insetInlineEnd: -7, minWidth: 15, height: 15, padding: '0 3px', borderRadius: 99, background: 'var(--clay)', color: '#fff', fontSize: 9, fontWeight: 800, display: 'grid', placeItems: 'center' }}>{it.badge}</span>}
+                    <Icon name={it.icon} size={20} />
+                    {it.badge > 0 && <span style={{ position: 'absolute', top: -5, insetInlineEnd: -7, minWidth: 15, height: 15, padding: '0 3px', borderRadius: 99, background: 'var(--clay)', color: '#fff', fontSize: 9, fontWeight: 800, display: 'grid', placeItems: 'center', boxShadow: on ? '0 0 0 2px var(--ink)' : 'none' }}>{it.badge}</span>}
                   </span>
-                  <span style={{ fontSize: 10, fontWeight: on ? 800 : 600 }}>{it.label}</span>
+                  <span style={{ fontSize: 9.5, fontWeight: on ? 800 : 600 }}>{it.label}</span>
                 </button>
               );
             })}
