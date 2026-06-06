@@ -800,6 +800,11 @@ function AdminDashboard({ onLogout }) {
                 <Icon name="bell" size={19} />
                 {pending > 0 && <span style={{ position: 'absolute', top: 6, insetInlineEnd: 6, width: 8, height: 8, borderRadius: 9, background: 'var(--clay)', boxShadow: '0 0 0 2px var(--paper-2)' }} />}
               </button>
+              {isMobile && (
+                <button onClick={onLogout} title={lang === 'ar' ? 'خروج' : 'Logout'} style={{ width: 40, height: 40, borderRadius: '50%', display: 'grid', placeItems: 'center', boxShadow: 'inset 0 0 0 1.3px var(--line)', color: 'var(--danger)' }}>
+                  <Icon name="logout" size={18} />
+                </button>
+              )}
             </div>
           </div>
           {isMobile && (
@@ -815,7 +820,7 @@ function AdminDashboard({ onLogout }) {
           {tab === 'overview' && (
             <div>
               {/* KPI cards */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 14 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fit,minmax(${isMobile ? 142 : 180}px,1fr))`, gap: isMobile ? 10 : 14 }}>
                 <StatCard label={t.adm_rev_day} value={revDay} fmt={(v) => fmtDA(v, lang)} sub={lang === 'ar' ? 'اليوم' : 'today'} delay={0} />
                 <StatCard label={lang === 'ar' ? 'مداخيل 7 أيام' : 'Revenue · 7 days'} value={rev7} fmt={(v) => fmtDA(v, lang)} sub={lang === 'ar' ? 'آخر أسبوع' : 'last week'} delay={0.05} />
                 <StatCard label={lang === 'ar' ? 'متوسط الطلب' : 'Avg. order'} value={avgOrder} fmt={(v) => fmtDA(v, lang)} sub={lang === 'ar' ? 'لكل طلب' : 'per order'} delay={0.1} />
@@ -906,7 +911,7 @@ function AdminDashboard({ onLogout }) {
               {visProducts.length === 0 ? (
                 <div className="center" style={{ padding: '54px 0', color: 'var(--ink-3)' }}><Icon name="tag" size={32} /><p style={{ marginTop: 10, fontSize: 14 }}>{lang === 'ar' ? 'لا توجد منتجات' : 'No products found'}</p></div>
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(216px,1fr))', gap: 16 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill,minmax(${isMobile ? 150 : 216}px,1fr))`, gap: isMobile ? 10 : 16 }}>
                   {visProducts.map((p, idx) => {
                     const stock = totalStock(p);
                     const nPhotos = (p.photos || []).length;
@@ -1004,7 +1009,7 @@ function AdminDashboard({ onLogout }) {
 
           {tab === 'stock' && (
             <div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 14, marginBottom: 18 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fit,minmax(${isMobile ? 142 : 180}px,1fr))`, gap: isMobile ? 10 : 14, marginBottom: 18 }}>
                 {[
                   { icon: 'layers', label: lang === 'ar' ? 'إجمالي الوحدات' : 'Total units', value: invUnits, tone: 'ink' },
                   { icon: 'box', label: lang === 'ar' ? 'مخزون منخفض' : 'Low stock', value: invLow, tone: 'warn' },

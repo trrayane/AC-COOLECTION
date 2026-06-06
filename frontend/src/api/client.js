@@ -14,6 +14,19 @@ export const setToken = (t) => {
   else localStorage.removeItem(TOKEN_KEY);
 };
 
+// Friendly, localized messages (lang read from storage; app uses en/ar).
+function msg(en, ar) {
+  let lang = 'en';
+  try { lang = localStorage.getItem('cshop_lang') || 'en'; } catch (e) {}
+  return lang === 'ar' ? ar : en;
+}
+function httpMessage(status) {
+  if (status === 429 || status === 403) return msg('Too many requests — please wait a moment and try again.', 'طلبات كثيرة — انتظر لحظة وحاول مجدداً.');
+  if (status === 401) return msg('Session expired — please sign in again.', 'انتهت الجلسة — سجّل الدخول من جديد.');
+  if (status >= 500) return msg('The server had a problem. Please try again.', 'حدث خطأ في الخادم. حاول مرة أخرى.');
+  return msg('Something went wrong. Please try again.', 'حدث خطأ ما. حاول مرة أخرى.');
+}
+
 async function req(path, { method = 'GET', body, auth = false, form = false } = {}) {
   const headers = {};
   if (!form) headers['Content-Type'] = 'application/json';
@@ -21,13 +34,19 @@ async function req(path, { method = 'GET', body, auth = false, form = false } = 
     const t = getToken();
     if (t) headers['Authorization'] = 'Bearer ' + t;
   }
-  const res = await fetch(API + path, {
-    method,
-    headers,
-    body: form ? body : (body ? JSON.stringify(body) : undefined),
-  });
+  let res;
+  try {
+    res = await fetch(API + path, {
+      method,
+      headers,
+      body: form ? body : (body ? JSON.stringify(body) : undefined),
+    });
+  } catch (e) {
+    // Network down / offline / IP blocked / CORS → never show raw "Failed to fetch"
+    throw new Error(msg('Connection problem. Check your internet and try again.', 'مشكلة في الاتصال. تحقق من الإنترنت وحاول مجدداً.'));
+  }
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+  if (!res.ok) throw new Error(data.error || httpMessage(res.status));
   return data;
 }
 
