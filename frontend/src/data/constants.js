@@ -84,12 +84,11 @@ export const STATUS_META = {
 };
 export const STATUS_FLOW = ['pending', 'prep', 'shipped', 'delivered'];
 
-// Optimize a Cloudinary image URL: auto format (webp/avif) + auto quality + width cap.
-// Keeps the stored original untouched — only the delivered version is lighter & faster.
-export function cdn(url, w = 800) {
-  if (typeof url !== 'string' || !url.includes('/image/upload/')) return url;
-  if (/\/image\/upload\/[^/]*(f_auto|q_auto|w_\d)/.test(url)) return url; // already transformed
-  return url.replace('/image/upload/', `/image/upload/f_auto,q_auto,w_${w},c_limit/`);
+// Serve the original Cloudinary image as-is (already small & CDN-cached = fast).
+// On-the-fly transforms were removed: they added first-load latency with no gain
+// on already-light photos. Kept as a pass-through so call sites don't change.
+export function cdn(url) {
+  return url;
 }
 
 // Per-wilaya delivery fees in DZD as [home, desk]. Default 700/400; only the
