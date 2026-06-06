@@ -8,6 +8,7 @@ import { api } from './api/client.js';
 
 import { Header } from './components/chrome/Header.jsx';
 import { Footer } from './components/chrome/Footer.jsx';
+import { WhatsAppButton } from './components/chrome/WhatsAppButton.jsx';
 import { Toasts } from './components/ui/Toasts.jsx';
 import { Logo } from './components/ui/Logo.jsx';
 
@@ -205,6 +206,7 @@ export default function App() {
           {p === 'admin' && <Admin />}
         </main>
         {!isAdmin && <Footer />}
+        {!isAdmin && <WhatsAppButton />}
         <CartDrawer />
         <Toasts items={toasts} />
       </div>
