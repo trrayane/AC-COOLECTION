@@ -1046,26 +1046,32 @@ function AdminDashboard({ onLogout }) {
                   const total = variants.reduce((s, v) => s + v.st, 0);
                   const out = variants.some((v) => v.st === 0), low = variants.some((v) => v.st > 0 && v.st < 8);
                   const alert = out ? { l: lang === 'ar' ? 'نفد' : 'Out', c: 'var(--danger)', bg: '#F8E0DD' } : low ? { l: lang === 'ar' ? 'منخفض' : 'Low', c: '#B07A18', bg: '#FBF0D8' } : { l: lang === 'ar' ? 'متوفر' : 'In stock', c: 'var(--good)', bg: '#E0F0E2' };
+                  const variantPills = (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, flex: isMobile ? 'none' : 1, minWidth: 0, width: isMobile ? '100%' : undefined, marginTop: isMobile ? 11 : 0 }}>
+                      {variants.map((v) => {
+                        const lowv = v.st < 8;
+                        return (
+                          <span key={v.c} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 99, background: lowv ? '#F8E0DD' : 'var(--sand)' }}>
+                            <span style={{ width: 10, height: 10, borderRadius: 9, background: colorHex(v.c), flexShrink: 0, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.12)' }} />
+                            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink-2)' }}>{colorLabel(v.c, lang)}</span>
+                            <span style={{ fontSize: 12, fontWeight: 800, color: lowv ? 'var(--danger)' : 'var(--ink)' }}>{v.st}</span>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  );
                   return (
-                    <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: isMobile ? '14px 16px' : '14px 20px', borderTop: idx ? '1px solid var(--line)' : 'none', flexWrap: 'wrap' }}>
-                      <div style={{ width: 34, height: 42, borderRadius: 7, background: colorTint(p.colors[0]), overflow: 'hidden', flexShrink: 0 }}><ProductImage p={p} color={p.colors[0]} /></div>
-                      <div style={{ width: 190, minWidth: 150, flexShrink: 0 }}>
-                        <div style={{ fontWeight: 700, fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p['name_' + lang]}</div>
-                        <div className="muted" style={{ fontSize: 12 }}>{total} {t.adm_units}</div>
+                    <div key={p.id} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: isMobile ? 0 : 14, rowGap: 0, padding: isMobile ? '14px 16px' : '14px 20px', borderTop: idx ? '1px solid var(--line)' : 'none' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: isMobile ? '100%' : 'auto', flex: isMobile ? 'none' : '0 0 auto' }}>
+                        <div style={{ width: 34, height: 42, borderRadius: 7, background: colorTint(p.colors[0]), overflow: 'hidden', flexShrink: 0 }}><ProductImage p={p} color={p.colors[0]} /></div>
+                        <div style={{ flex: 1, minWidth: 0, width: isMobile ? 'auto' : 190 }}>
+                          <div style={{ fontWeight: 700, fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p['name_' + lang]}</div>
+                          <div className="muted" style={{ fontSize: 12 }}>{total} {t.adm_units}</div>
+                        </div>
+                        {isMobile && <span style={{ fontSize: 11, fontWeight: 800, color: alert.c, background: alert.bg, padding: '4px 10px', borderRadius: 99, flexShrink: 0 }}>{alert.l}</span>}
                       </div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, flex: 1, minWidth: 0 }}>
-                        {variants.map((v) => {
-                          const lowv = v.st < 8;
-                          return (
-                            <span key={v.c} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 99, background: lowv ? '#F8E0DD' : 'var(--sand)' }}>
-                              <span style={{ width: 10, height: 10, borderRadius: 9, background: colorHex(v.c), flexShrink: 0, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.12)' }} />
-                              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink-2)' }}>{colorLabel(v.c, lang)}</span>
-                              <span style={{ fontSize: 12, fontWeight: 800, color: lowv ? 'var(--danger)' : 'var(--ink)' }}>{v.st}</span>
-                            </span>
-                          );
-                        })}
-                      </div>
-                      <span style={{ fontSize: 11, fontWeight: 800, color: alert.c, background: alert.bg, padding: '4px 10px', borderRadius: 99, flexShrink: 0 }}>{alert.l}</span>
+                      {variantPills}
+                      {!isMobile && <span style={{ fontSize: 11, fontWeight: 800, color: alert.c, background: alert.bg, padding: '4px 10px', borderRadius: 99, flexShrink: 0 }}>{alert.l}</span>}
                     </div>
                   );
                 })}
