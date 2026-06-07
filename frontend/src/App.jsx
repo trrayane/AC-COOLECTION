@@ -153,6 +153,7 @@ export default function App() {
         name_en: f.name_en, name_ar: f.name_ar, cat: f.cat, price: f.price,
         colors: f.colors, sizes: f.sizes || undefined, new: !!f.new,
         oldPrice: f.oldPrice ?? null, stock: f.stock,
+        customizable: f.customizable !== false,
       };
       const saved = f.id ? await api.products.update(f.id, payload) : await api.products.create(payload);
       if (f._photos && f._photos.length) await api.products.addPhotos(saved.id, f._photos);
