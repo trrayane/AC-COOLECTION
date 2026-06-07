@@ -14,6 +14,7 @@ function serialize(p) {
     price: o.price, oldPrice: o.oldPrice, new: o.isNew, rating: o.rating,
     sold: o.sold, colors: o.colors || [], sizes: o.sizes || [],
     desc_en: o.desc_en, desc_ar: o.desc_ar, stock: o.stock || {},
+    customizable: o.customizable !== false,
     photos: photos.map((ph) => ({ id: ph.id, url: ph.url })),
   };
 }
@@ -26,6 +27,7 @@ function normalizeBody(b = {}) {
     price: b.price != null ? parseInt(b.price, 10) : undefined,
     oldPrice: b.oldPrice ? parseInt(b.oldPrice, 10) : null,
     isNew: b.isNew != null ? !!b.isNew : (b.new != null ? !!b.new : undefined),
+    customizable: b.customizable != null ? !!b.customizable : undefined,
     colors: b.colors, sizes: b.sizes,
     desc_en: b.desc_en, desc_ar: b.desc_ar, stock: b.stock,
   };

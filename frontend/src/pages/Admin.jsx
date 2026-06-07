@@ -438,7 +438,7 @@ function ProductModal({ product, onClose, onSave, lang, t }) {
   const isNew = !product;
   const isMobile = useIsMobile();
   const { removePhotoAt } = useShop();
-  const [f, setF] = React.useState(product || { name_en: '', name_ar: '', cat: 'tshirt', price: 3000, colors: ['ink'], sizes: SIZES, new: true, _photos: [] });
+  const [f, setF] = React.useState(product || { name_en: '', name_ar: '', cat: 'tshirt', price: 3000, colors: ['ink'], sizes: SIZES, new: true, customizable: true, _photos: [] });
   const [saving, setSaving] = React.useState(false);
   const addPending = (file) => setF((s) => ({ ...s, _photos: [...(s._photos || []), file] }));
   const removePending = (i) => setF((s) => ({ ...s, _photos: (s._photos || []).filter((_, idx) => idx !== i) }));
@@ -476,6 +476,11 @@ function ProductModal({ product, onClose, onSave, lang, t }) {
               </button>
             </Field>
           </div>
+          <Field label={lang === 'ar' ? 'قابل للتخصيص' : 'Customizable'}>
+            <button type="button" onClick={() => setF({ ...f, customizable: !(f.customizable !== false) })} style={{ width: '100%', height: 46, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontWeight: 700, fontSize: 14, background: f.customizable !== false ? 'var(--clay)' : 'var(--paper-2)', color: f.customizable !== false ? '#fff' : 'var(--ink-2)', boxShadow: f.customizable !== false ? 'none' : 'inset 0 0 0 1.4px var(--line)' }}>
+              <Icon name="spark" size={16} /> {f.customizable !== false ? (lang === 'ar' ? 'قابل للتخصيص ✓' : 'Customizable ✓') : (lang === 'ar' ? 'غير قابل للتخصيص' : 'Not customizable')}
+            </button>
+          </Field>
           {f.oldPrice > 0 && f.oldPrice <= f.price && <p style={{ color: 'var(--danger)', fontSize: 12, marginTop: -8, fontWeight: 600 }}>{lang === 'ar' ? 'السعر القديم يجب أن يكون أكبر من السعر الحالي' : 'Old price should be higher than the price to show a discount.'}</p>}
           <Field label={t.color}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>

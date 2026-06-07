@@ -183,13 +183,15 @@ export function ProductDetail({ params }) {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 11, marginTop: 18 }}>
             <button className="btn btn-primary btn-lg btn-block" onClick={add}><Icon name="bag" size={18} /> {t.add_cart}</button>
-            <button className="btn btn-clay btn-lg btn-block" onClick={() => navigate('configurator', { id: p.id, color })}>
-              <Icon name="spark" size={18} /> {t.customize}
-            </button>
+            {p.customizable !== false && (
+              <button className="btn btn-clay btn-lg btn-block" onClick={() => navigate('configurator', { id: p.id, color })}>
+                <Icon name="spark" size={18} /> {t.customize}
+              </button>
+            )}
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, marginTop: 26, paddingTop: 22, borderTop: '1px solid var(--line)' }}>
-            {[['truck', t.feat_ship_t], ['shield', t.co_cod], ['spark', lang === 'en' ? 'Customizable' : 'قابل للتخصيص']].map(([ic, lb]) => (
+            {[['truck', t.feat_ship_t], ['shield', t.co_cod], ...(p.customizable !== false ? [['spark', lang === 'en' ? 'Customizable' : 'قابل للتخصيص']] : [])].map(([ic, lb]) => (
               <span key={lb} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, fontWeight: 600, color: 'var(--ink-2)' }}><Icon name={ic} size={18} style={{ color: 'var(--clay-deep)' }} /> {lb}</span>
             ))}
           </div>

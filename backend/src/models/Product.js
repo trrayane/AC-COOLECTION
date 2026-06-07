@@ -11,6 +11,7 @@ const Product = sequelize.define('Product', {
   price:     { type: DataTypes.INTEGER, allowNull: false }, // DZD
   oldPrice:  { type: DataTypes.INTEGER, allowNull: true },
   isNew:     { type: DataTypes.BOOLEAN, defaultValue: false },
+  customizable: { type: DataTypes.BOOLEAN, defaultValue: true }, // shows in the customizer + "Customize" button
   rating:    { type: DataTypes.FLOAT, defaultValue: 4.7 },
   sold:      { type: DataTypes.INTEGER, defaultValue: 0 },
   colors:    { type: DataTypes.JSONB, defaultValue: [] }, // ['ink','clay',...]

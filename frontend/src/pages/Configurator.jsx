@@ -86,7 +86,9 @@ export function Configurator({ params }) {
   const { t, lang, navigate, addToCart, products, getProduct, toast } = useShop();
   const isMobile = useIsMobile();
   const [pid, setPid] = React.useState(params.id || '');
-  const p = getProduct(pid) || products[0];
+  const customizableProducts = products.filter((pr) => pr.customizable !== false);
+  const found = getProduct(pid);
+  const p = (found && found.customizable !== false ? found : null) || customizableProducts[0];
   const [color, setColor] = React.useState(params.color || '');
   const [size, setSize] = React.useState(null);
   const [zone, setZone] = React.useState('front');
@@ -310,7 +312,7 @@ export function Configurator({ params }) {
             <div style={{ fontWeight: 700, fontSize: 15 }}>{p['name_' + lang]}</div>
             <div className="muted" style={{ fontSize: 13, marginTop: 2 }}>{fmtDA(p.price, lang)}</div>
             <Select value={p.id} onChange={(v) => { setPid(v); setPlacements([]); setSel(null); }} style={{ marginTop: 8 }} triggerStyle={{ height: 38, fontSize: 13 }}
-              options={products.map((pp) => ({ value: pp.id, label: pp['name_' + lang] }))} />
+              options={customizableProducts.map((pp) => ({ value: pp.id, label: pp['name_' + lang] }))} />
           </div>
         </div>
         <div style={{ display: 'flex', gap: 18, marginTop: 16, flexWrap: 'wrap' }}>
