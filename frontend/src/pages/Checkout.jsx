@@ -129,6 +129,7 @@ export function Checkout() {
   const set = (k, v) => setForm((s) => ({ ...s, [k]: v, ...(k === 'wilaya' ? { commune: '' } : {}) }));
 
   const delivery = form.wilaya ? deliveryFee(form.wilaya, mode === 'desk' ? 'desk' : 'home') : 0;
+  const formReady = !!(form.name.trim() && /^0[567]\d{8}$/.test(form.phone.replace(/\D/g, '')) && form.wilaya && form.commune && (mode !== 'home' || form.address.trim()));
   const discount = promo ? (promo.type === 'percent' ? Math.round(cartSubtotal * promo.value / 100) : Math.min(promo.value, cartSubtotal)) : 0;
   const total = cartSubtotal - discount + delivery;
 
@@ -291,7 +292,7 @@ export function Checkout() {
               <Icon name="shield" size={20} style={{ color: 'var(--clay-deep)', flexShrink: 0 }} />
               <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--clay-deep)' }}>{t.co_cod}</div>
             </div>
-            <button className="btn btn-clay btn-lg btn-block" style={{ marginTop: 16 }} disabled={placing} onClick={submit}>
+            <button className="btn btn-clay btn-lg btn-block" style={{ marginTop: 16, opacity: formReady ? 1 : 0.5, cursor: formReady ? 'pointer' : 'not-allowed' }} disabled={placing || !formReady} onClick={submit}>
               {placing ? <><span className="spin" /> {t.co_placing}</> : <><Icon name="check" size={18} /> {t.co_place}</>}
             </button>
           </div>

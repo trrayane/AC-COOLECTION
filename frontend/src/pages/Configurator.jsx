@@ -196,6 +196,7 @@ export function Configurator({ params }) {
         .catch((err) => { toast(err.message || 'Upload failed', 'warn'); setPlacements((s) => s.filter((pl) => pl.id !== id)); })
         .finally(() => setUploading((u) => Math.max(0, u - 1)));
     };
+    reader.onerror = () => toast(lang === 'ar' ? 'فشل قراءة الملف' : 'Failed to read file', 'warn');
     reader.readAsDataURL(file);
   };
   const FONTS = [

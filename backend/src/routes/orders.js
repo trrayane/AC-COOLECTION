@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { Op } = require('sequelize');
-const { Order, OrderItem, Product, ProductPhoto } = require('../models');
+const { Order, OrderItem, Product, ProductPhoto, PromoCode } = require('../models');
 const { requireAdmin } = require('../middleware/auth');
 const { deliveryFee, ORDER_STATUSES } = require('../constants');
 const { notifyNewOrder } = require('../services/notify');
@@ -75,9 +75,23 @@ router.post('/', async (req, res, next) => {
       });
     }
 
+    // Apply promo code server-side (re-validate + calculate discount)
+    let discount = 0;
+    let promoRecord = null;
+    if (b.promoCode) {
+      promoRecord = await PromoCode.findOne({ where: { code: String(b.promoCode).toUpperCase() } });
+      if (promoRecord && promoRecord.active &&
+          (!promoRecord.expiresAt || new Date(promoRecord.expiresAt) >= new Date()) &&
+          (promoRecord.usageLimit == null || promoRecord.usedCount < promoRecord.usageLimit)) {
+        discount = promoRecord.type === 'percent'
+          ? Math.round(subtotal * promoRecord.value / 100)
+          : Math.min(promoRecord.value, subtotal);
+      }
+    }
+
     const mode = b.deliveryMode === 'desk' ? 'desk' : 'home';
     const fee = deliveryFee(b.wilaya, mode);
-    const total = subtotal + fee;
+    const total = subtotal - discount + fee;
 
     // Next id = highest existing number + 1 (robust to deleted orders, unlike a count).
     const all = await Order.findAll({ attributes: ['id'] });
@@ -105,6 +119,11 @@ router.post('/', async (req, res, next) => {
         stock[key] = Math.max(0, stock[key] - line.qty);
         await p.update({ stock });
       }
+    }
+
+    // Increment promo usedCount now that the order is confirmed
+    if (promoRecord) {
+      await promoRecord.update({ usedCount: (promoRecord.usedCount || 0) + 1 });
     }
 
     const full = await Order.findByPk(order.id, { include: [itemInclude] });
