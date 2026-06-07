@@ -6,7 +6,6 @@ import React from 'react';
 import { useShop } from '../store/ShopContext.js';
 import { useIsMobile } from '../components/chrome/useIsMobile.js';
 import { Icon } from '../components/ui/Icon.jsx';
-import { Select } from '../components/ui/Select.jsx';
 import { Garment, GarmentTile, shade } from '../components/garments/Garment.jsx';
 import { ProductImage } from '../components/product/ProductImage.jsx';
 import { colorHex, colorTint, fmtDA, cdn, PRINT_ZONES } from '../data/constants.js';
@@ -306,13 +305,34 @@ export function Configurator({ params }) {
   const Controls = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
       <div className="card" style={{ padding: 18 }}>
-        <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-          <div style={{ width: 64, height: 78, borderRadius: 12, background: colorTint(color), flexShrink: 0, overflow: 'hidden' }}><ProductImage p={p} color={color} /></div>
-          <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--ink-2)', marginBottom: 10, letterSpacing: '.04em', textTransform: 'uppercase' }}>
+          {lang === 'ar' ? 'اختر المنتج' : 'Choose a product'}
+        </div>
+        <div className="no-bar" style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
+          {customizableProducts.map((pp) => {
+            const isSelected = pp.id === p.id;
+            return (
+              <button key={pp.id} type="button" onClick={() => { setPid(pp.id); setPlacements([]); setSel(null); }}
+                style={{ flexShrink: 0, width: 80, display: 'flex', flexDirection: 'column', borderRadius: 12, overflow: 'hidden', padding: 0,
+                  boxShadow: isSelected ? '0 0 0 2.5px var(--ink)' : '0 0 0 1.5px var(--line)',
+                  background: 'var(--paper-2)', transition: 'box-shadow .15s' }}>
+                <div style={{ width: '100%', aspectRatio: '1/1', background: colorTint(pp.colors[0]), overflow: 'hidden' }}>
+                  <ProductImage p={pp} color={pp.colors[0]} />
+                </div>
+                <div style={{ padding: '5px 6px 6px', fontSize: 11, fontWeight: isSelected ? 700 : 500,
+                  textAlign: 'center', lineHeight: 1.25, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  color: isSelected ? 'var(--ink)' : 'var(--ink-2)' }}>
+                  {pp['name_' + lang]}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--line)' }}>
+          <div style={{ width: 48, height: 56, borderRadius: 10, background: colorTint(color), flexShrink: 0, overflow: 'hidden' }}><ProductImage p={p} color={color} /></div>
+          <div>
             <div style={{ fontWeight: 700, fontSize: 15 }}>{p['name_' + lang]}</div>
-            <div className="muted" style={{ fontSize: 13, marginTop: 2 }}>{fmtDA(p.price, lang)}</div>
-            <Select value={p.id} onChange={(v) => { setPid(v); setPlacements([]); setSel(null); }} style={{ marginTop: 8 }} triggerStyle={{ height: 38, fontSize: 13 }}
-              options={customizableProducts.map((pp) => ({ value: pp.id, label: pp['name_' + lang] }))} />
+            <div className="muted" style={{ fontSize: 13 }}>{fmtDA(p.price, lang)}</div>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 18, marginTop: 16, flexWrap: 'wrap' }}>
