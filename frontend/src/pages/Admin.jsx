@@ -477,29 +477,29 @@ function ProductModal({ product, onClose, onSave, lang, t }) {
             </Field>
           </div>
           <button type="button" onClick={() => setF({ ...f, customizable: !(f.customizable !== false) })}
-            style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 14,
-              background: f.customizable !== false ? 'linear-gradient(135deg,#BE5E37 0%,#d4724a 100%)' : 'var(--paper-2)',
-              boxShadow: f.customizable !== false ? '0 2px 12px rgba(190,94,55,.35)' : 'inset 0 0 0 1.4px var(--line)',
+            style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14,
+              background: f.customizable !== false ? 'var(--ink)' : 'var(--paper-2)',
+              boxShadow: f.customizable !== false ? 'none' : 'inset 0 0 0 1.4px var(--line)',
               transition: 'all .2s', textAlign: 'start' }}>
-            <div style={{ width: 40, height: 40, borderRadius: 10, background: f.customizable !== false ? 'rgba(255,255,255,.18)' : 'var(--sand)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
-              <Icon name="spark" size={20} style={{ color: f.customizable !== false ? '#fff' : 'var(--clay)' }} />
+            <div style={{ width: 36, height: 36, borderRadius: 10, flexShrink: 0, display: 'grid', placeItems: 'center',
+              background: f.customizable !== false ? 'rgba(255,255,255,.12)' : 'var(--sand)' }}>
+              <Icon name="spark" size={18} style={{ color: f.customizable !== false ? '#fff' : 'var(--ink-2)' }} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 700, fontSize: 14, color: f.customizable !== false ? '#fff' : 'var(--ink)' }}>
+              <div style={{ fontWeight: 700, fontSize: 13, color: f.customizable !== false ? '#fff' : 'var(--ink)', lineHeight: 1.2 }}>
                 {lang === 'ar' ? 'قابل للتخصيص' : 'Customizable'}
               </div>
-              <div style={{ fontSize: 12, marginTop: 2, color: f.customizable !== false ? 'rgba(255,255,255,.75)' : 'var(--ink-3)' }}>
+              <div style={{ fontSize: 11, marginTop: 2, color: f.customizable !== false ? 'rgba(255,255,255,.6)' : 'var(--ink-3)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {f.customizable !== false
-                  ? (lang === 'ar' ? 'يظهر في صفحة التخصيص' : 'Appears in Customize page')
-                  : (lang === 'ar' ? 'لا يظهر في صفحة التخصيص' : 'Hidden from Customize page')}
+                  ? (lang === 'ar' ? 'يظهر في صفحة التخصيص' : 'Shown in Customize page')
+                  : (lang === 'ar' ? 'مخفي من صفحة التخصيص' : 'Hidden from Customize page')}
               </div>
             </div>
-            {/* Toggle switch */}
-            <div style={{ width: 44, height: 26, borderRadius: 99, flexShrink: 0, padding: 3, transition: 'background .2s',
-              background: f.customizable !== false ? 'rgba(255,255,255,.35)' : 'var(--line)' }}>
-              <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'transform .2s',
-                transform: f.customizable !== false ? 'translateX(18px)' : 'translateX(0)',
-                boxShadow: '0 1px 4px rgba(0,0,0,.2)' }} />
+            <div style={{ width: 40, height: 24, borderRadius: 99, flexShrink: 0, padding: 2, transition: 'background .2s',
+              background: f.customizable !== false ? 'rgba(255,255,255,.25)' : 'var(--line)' }}>
+              <div style={{ width: 20, height: 20, borderRadius: '50%', background: f.customizable !== false ? '#fff' : 'var(--paper-2)', transition: 'transform .2s',
+                transform: f.customizable !== false ? 'translateX(16px)' : 'translateX(0)',
+                boxShadow: '0 1px 3px rgba(0,0,0,.25)' }} />
             </div>
           </button>
           {f.oldPrice > 0 && f.oldPrice <= f.price && <p style={{ color: 'var(--danger)', fontSize: 12, marginTop: -8, fontWeight: 600 }}>{lang === 'ar' ? 'السعر القديم يجب أن يكون أكبر من السعر الحالي' : 'Old price should be higher than the price to show a discount.'}</p>}
