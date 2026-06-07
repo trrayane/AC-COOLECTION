@@ -38,12 +38,7 @@ function ProductSelect({ value, products, lang, onChange }) {
     <div ref={ref} style={{ position: 'relative', marginTop: 8 }}>
       <button type="button" onClick={() => setOpen((o) => !o)} className="field"
         style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', textAlign: 'start',
-          boxShadow: open ? 'inset 0 0 0 1.8px var(--ink)' : 'inset 0 0 0 1.4px var(--line)', padding: '0 10px' }}>
-        {selected && (
-          <div style={{ width: 32, height: 38, borderRadius: 7, background: colorTint(selected.colors[0]), flexShrink: 0, overflow: 'hidden' }}>
-            <ProductImage p={selected} color={selected.colors[0]} />
-          </div>
-        )}
+          boxShadow: open ? 'inset 0 0 0 1.8px var(--ink)' : 'inset 0 0 0 1.4px var(--line)', padding: '0 12px' }}>
         <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 600, fontSize: 13 }}>
           {selected ? selected['name_' + lang] : '—'}
         </span>
