@@ -697,7 +697,10 @@ function AdminDashboard({ onLogout }) {
 
   const loadOrders = React.useCallback(() => {
     setLoading(true);
-    api.orders.list().then((data) => setOrders(data.map(normOrder))).catch((e) => toast(e.message, 'warn')).finally(() => setLoading(false));
+    api.orders.list().then((data) => {
+      setOrders(data.map(normOrder));
+      knownIds.current = new Set(data.map((o) => o.id));
+    }).catch((e) => toast(e.message, 'warn')).finally(() => setLoading(false));
   }, [toast]);
   React.useEffect(() => { loadOrders(); }, [loadOrders]);
   React.useEffect(() => { if (tab === 'promos') api.promo.list().then(setPromos).catch(() => {}); }, [tab]);
@@ -718,7 +721,7 @@ function AdminDashboard({ onLogout }) {
         }
       } catch (e) {}
     };
-    const id = setInterval(poll, 30_000);
+    const id = setInterval(poll, 15_000);
     return () => clearInterval(id);
   }, [toast, lang]);
 
