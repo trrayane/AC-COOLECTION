@@ -19,6 +19,68 @@ const ZONE_RECTS = {
 };
 export const zoneView = (zone) => (zone === 'back' ? 'back' : 'front');
 
+// Dropdown product selector with photo + name + price per row
+function ProductSelect({ value, products, lang, onChange }) {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef(null);
+  const selected = products.find((pp) => pp.id === value);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const close = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const esc = (e) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', close);
+    document.addEventListener('keydown', esc);
+    return () => { document.removeEventListener('mousedown', close); document.removeEventListener('keydown', esc); };
+  }, [open]);
+
+  return (
+    <div ref={ref} style={{ position: 'relative', marginTop: 8 }}>
+      <button type="button" onClick={() => setOpen((o) => !o)} className="field"
+        style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', textAlign: 'start',
+          boxShadow: open ? 'inset 0 0 0 1.8px var(--ink)' : 'inset 0 0 0 1.4px var(--line)', padding: '0 10px' }}>
+        {selected && (
+          <div style={{ width: 32, height: 38, borderRadius: 7, background: colorTint(selected.colors[0]), flexShrink: 0, overflow: 'hidden' }}>
+            <ProductImage p={selected} color={selected.colors[0]} />
+          </div>
+        )}
+        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 600, fontSize: 13 }}>
+          {selected ? selected['name_' + lang] : '—'}
+        </span>
+        <Icon name="chevD" size={16} style={{ color: 'var(--ink-3)', flexShrink: 0, transition: 'transform .2s', transform: open ? 'rotate(180deg)' : 'none' }} />
+      </button>
+      {open && (
+        <div style={{ position: 'absolute', insetInlineStart: 0, insetInlineEnd: 0, top: 'calc(100% + 6px)', zIndex: 70,
+          background: 'var(--paper-2)', borderRadius: 'var(--r-md)', boxShadow: 'var(--shadow-lg)',
+          border: '1px solid var(--line)', padding: 6, animation: 'selIn .16s cubic-bezier(.2,.8,.2,1) both' }}>
+          <div className="no-bar" style={{ maxHeight: 280, overflowY: 'auto' }}>
+            {products.map((pp) => {
+              const isSelected = pp.id === value;
+              return (
+                <button key={pp.id} type="button" onClick={() => { onChange(pp.id); setOpen(false); }}
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px',
+                    borderRadius: 9, background: isSelected ? 'var(--ink)' : 'transparent',
+                    color: isSelected ? 'var(--paper)' : 'var(--ink)', transition: 'background .12s' }}
+                  onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.background = 'var(--sand)'; }}
+                  onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}>
+                  <div style={{ width: 36, height: 42, borderRadius: 8, background: colorTint(pp.colors[0]), flexShrink: 0, overflow: 'hidden' }}>
+                    <ProductImage p={pp} color={pp.colors[0]} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0, textAlign: 'start' }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pp['name_' + lang]}</div>
+                    <div style={{ fontSize: 12, opacity: 0.7, marginTop: 1 }}>{fmtDA(pp.price, lang)}</div>
+                  </div>
+                  {isSelected && <Icon name="check" size={15} style={{ flexShrink: 0 }} />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Colour helpers + in-page picker (no native popup → scrollable on mobile) ──
 function hexToHsl(hex) {
   const r = parseInt(hex.slice(1, 3), 16) / 255, g = parseInt(hex.slice(3, 5), 16) / 255, b = parseInt(hex.slice(5, 7), 16) / 255;
@@ -305,34 +367,12 @@ export function Configurator({ params }) {
   const Controls = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
       <div className="card" style={{ padding: 18 }}>
-        <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--ink-2)', marginBottom: 10, letterSpacing: '.04em', textTransform: 'uppercase' }}>
-          {lang === 'ar' ? 'اختر المنتج' : 'Choose a product'}
-        </div>
-        <div className="no-bar" style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
-          {customizableProducts.map((pp) => {
-            const isSelected = pp.id === p.id;
-            return (
-              <button key={pp.id} type="button" onClick={() => { setPid(pp.id); setPlacements([]); setSel(null); }}
-                style={{ flexShrink: 0, width: 80, display: 'flex', flexDirection: 'column', borderRadius: 12, overflow: 'hidden', padding: 0,
-                  boxShadow: isSelected ? '0 0 0 2.5px var(--ink)' : '0 0 0 1.5px var(--line)',
-                  background: 'var(--paper-2)', transition: 'box-shadow .15s' }}>
-                <div style={{ width: '100%', aspectRatio: '1/1', background: colorTint(pp.colors[0]), overflow: 'hidden' }}>
-                  <ProductImage p={pp} color={pp.colors[0]} />
-                </div>
-                <div style={{ padding: '5px 6px 6px', fontSize: 11, fontWeight: isSelected ? 700 : 500,
-                  textAlign: 'center', lineHeight: 1.25, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                  color: isSelected ? 'var(--ink)' : 'var(--ink-2)' }}>
-                  {pp['name_' + lang]}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--line)' }}>
-          <div style={{ width: 48, height: 56, borderRadius: 10, background: colorTint(color), flexShrink: 0, overflow: 'hidden' }}><ProductImage p={p} color={color} /></div>
-          <div>
+        <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+          <div style={{ width: 64, height: 78, borderRadius: 12, background: colorTint(color), flexShrink: 0, overflow: 'hidden' }}><ProductImage p={p} color={color} /></div>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontWeight: 700, fontSize: 15 }}>{p['name_' + lang]}</div>
-            <div className="muted" style={{ fontSize: 13 }}>{fmtDA(p.price, lang)}</div>
+            <div className="muted" style={{ fontSize: 13, marginTop: 2 }}>{fmtDA(p.price, lang)}</div>
+            <ProductSelect value={p.id} products={customizableProducts} lang={lang} onChange={(v) => { setPid(v); setPlacements([]); setSel(null); }} />
           </div>
         </div>
         <div style={{ display: 'flex', gap: 18, marginTop: 16, flexWrap: 'wrap' }}>
